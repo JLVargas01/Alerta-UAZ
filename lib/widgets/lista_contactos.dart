@@ -1,3 +1,5 @@
+import 'package:alerta_uaz/conexion_conts.dart';
+import 'package:alerta_uaz/models/receptor.dart';
 import 'package:flutter/material.dart';
 
 class ListTileExample extends StatelessWidget {
@@ -5,24 +7,26 @@ class ListTileExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    List<String> listaDeContactos = ['Contacto 1', 'Contacto 2', 'Contacto 3'];
     return Scaffold(
       appBar: AppBar(title: const Text('Lista de contactos')),
 
       //Lista de contactos
-      body: ListView(
-        children: const <Widget>[
+        body: ListView.builder(
+        itemCount: listaDeContactos.length,
+        itemBuilder: (context, index) {
 
-          // Cartas de contactos
-          Card(
-            elevation: 3, 
-            margin: EdgeInsets.all(10),
+          // Construir cada elemento de la lista dinámicamente
+          return Card(
+            elevation: 3,
+            margin: const EdgeInsets.all(10),
             child: ListTile(
-              leading: FlutterLogo(size: 50.0,),
-              title: Text('Nombre contacto'),
-              trailing: Icon(Icons.more_vert),
+              leading: const FlutterLogo(size: 50.0),
+              title: Text(listaDeContactos[index]),
+              trailing: const Icon(Icons.more_vert),
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
