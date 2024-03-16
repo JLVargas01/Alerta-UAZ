@@ -3,7 +3,7 @@ import 'package:alerta_uaz/models/cont_confianza.dart';
 import 'package:flutter/material.dart';
 
 class ContactosPage extends StatefulWidget {
-  const ContactosPage({Key? key}) : super(key: key);
+  const ContactosPage({super.key});
 
   @override
   State<ContactosPage> createState() => _ContactosPageState();
@@ -69,5 +69,12 @@ class _ContactosPageState extends State<ContactosPage> {
               },
             );
         }
+      },
+    ),
+    floatingActionButton: FloatingActionButton(
+        onPressed: () => setState(() => print('Boton')),
+        tooltip: 'Increment Counter',
+        child: const Icon(Icons.add),
+    ),
   );
 }
