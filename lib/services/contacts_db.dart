@@ -47,8 +47,8 @@ class ContactosConfianza {
     return [
       for (final {
             'id': id as int,
-            'name': telephone as String,
-            'age': name as String,
+            'telephone': telephone as String,
+            'name': name as String,
           } in contactoMaps)
         ContactoConfianza(id: id, name: name, telephone: telephone),
     ];
