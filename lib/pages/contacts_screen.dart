@@ -72,7 +72,16 @@ class _ContactosPageState extends State<ContactosPage> {
                     title: Text(
                       contacto.name,
                       style: const TextStyle(fontSize: 16),
-                    )
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.remove_circle_outline_outlined),
+                      onPressed: () async {
+                        await contcsDB.eliminarContacto(contacto.id!);
+                        setState(() {
+                          futureContcs = contcsDB.contactos();
+                        });
+                       },
+                     ),
                   ),
                 );
               },
