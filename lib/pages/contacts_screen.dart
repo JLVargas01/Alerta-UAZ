@@ -85,7 +85,7 @@ class _ContactosPageState extends State<ContactosPage> {
         final PhoneContact contactPicker = await FlutterContactPicker.pickPhoneContact();
         String numeroTelefonico = contactPicker.phoneNumber.toString();
         String nombreCompleto = contactPicker.fullName.toString();
-        ContactoConfianza nuevoContacto = ContactoConfianza(id: 1, telephone: numeroTelefonico, name: nombreCompleto);
+        ContactoConfianza nuevoContacto = ContactoConfianza(telephone: numeroTelefonico, name: nombreCompleto);
         contcsDB.insertContacto(nuevoContacto);
         setState(() {
           futureContcs = contcsDB.contactos();
