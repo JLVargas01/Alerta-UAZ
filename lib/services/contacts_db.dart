@@ -56,4 +56,20 @@ class ContactosConfianza {
     ];
   }
 
+  Future<void> eliminarContacto(int id) async {
+
+    // Obtener referencia a la base de datos
+    final db = await DatabaseService().getDatabase();
+
+    // Eliminar el contacto
+    await db.delete(
+      tableName,
+      // Use a `where` clause to delete a specific dog.
+      where: 'id = ?',
+      // Pass the Dog's id as a whereArg to prevent SQL injection.
+      whereArgs: [id],
+    );
+    db.close();
+  }
+
 }
