@@ -32,6 +32,7 @@ class ContactosConfianza {
       // Remplazar registro si se repite
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+    db.close();
   }
 
   // Obtener todos los contactos en la base de datos
@@ -44,6 +45,7 @@ class ContactosConfianza {
     final List<Map<String, Object?>> contactoMaps = await db.query(tableName);
 
     // Convertir la lista a objetos ContactoConfianza
+    db.close();
     return [
       for (final {
             'id': id as int,
