@@ -56,15 +56,23 @@ class _ContactosPageState extends State<ContactosPage> {
                 ),
               ),
             ):
-            ListView.separated(
-              separatorBuilder:(context, index) => const SizedBox(height: 15),
+
+            // Lista de contactos
+            ListView.builder(
               itemCount: contactos.length,
-              itemBuilder:(context, index) {
+              itemBuilder: (context, index) {
                 final contacto = contactos[index];
-                return ListTile(
-                  title: Text(
-                    contacto.name,
-                    style: const TextStyle(fontSize: 16),
+
+                // Construir cada elemento de la lista dinámicamente
+                return Card(
+                  elevation: 3,
+                  margin: const EdgeInsets.all(10),
+                  child: ListTile(
+                    leading: const FlutterLogo(size: 50.0),
+                    title: Text(
+                      contacto.name,
+                      style: const TextStyle(fontSize: 16),
+                    )
                   ),
                 );
               },
