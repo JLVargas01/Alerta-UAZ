@@ -1,13 +1,13 @@
 
 class ContactoConfianza {
-  final int id;
+  final int? id;
   final String telephone;
   final String name;
 
   const ContactoConfianza({
-    required this.id,
+    this.id,
     required this.telephone,
-    required this.name,
+    required this.name
   });
 
   Map<String, Object?> toMap() {
