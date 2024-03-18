@@ -68,7 +68,7 @@ class _ContactosPageState extends State<ContactosPage> {
                   elevation: 3,
                   margin: const EdgeInsets.all(10),
                   child: ListTile(
-                    leading: const FlutterLogo(size: 50.0),
+                    leading: const Icon(Icons.person, size: 50.0, color: Colors.blue),
                     title: Text(
                       contacto.name,
                       style: const TextStyle(fontSize: 16),
