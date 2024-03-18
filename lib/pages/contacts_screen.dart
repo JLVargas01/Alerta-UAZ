@@ -1,6 +1,7 @@
 import 'package:alerta_uaz/services/contacts_db.dart';
 import 'package:alerta_uaz/models/cont_confianza.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttercontactpicker/fluttercontactpicker.dart';
 
 class ContactosPage extends StatefulWidget {
   const ContactosPage({super.key});
@@ -72,9 +73,18 @@ class _ContactosPageState extends State<ContactosPage> {
       },
     ),
     floatingActionButton: FloatingActionButton(
-        onPressed: () => setState(() => print('Boton')),
-        tooltip: 'Increment Counter',
-        child: const Icon(Icons.add),
+      onPressed: () async {
+        final PhoneContact contactPicker = await FlutterContactPicker.pickPhoneContact();
+        String numeroTelefonico = contactPicker.phoneNumber.toString();
+        String nombreCompleto = contactPicker.fullName.toString();
+        ContactoConfianza nuevoContacto = ContactoConfianza(id: 1, telephone: numeroTelefonico, name: nombreCompleto);
+        contcsDB.insertContacto(nuevoContacto);
+        setState(() {
+          futureContcs = contcsDB.contactos();
+        });
+      },
+      tooltip: 'Agregar nuevo contacto',
+      child: const Icon(Icons.add),
     ),
   );
 }
