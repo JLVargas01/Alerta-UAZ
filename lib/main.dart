@@ -1,5 +1,7 @@
-import 'package:alerta_uaz/pages/contacts_screen.dart';
 import 'package:flutter/material.dart';
+
+import 'pages/contacts_screen.dart';
+import 'pages/pref_alerta_screen.dart';
 
 void main() {
   runApp(const AppAlerta());
@@ -12,7 +14,7 @@ class AppAlerta extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(useMaterial3: true),
-      home: const ContactosPage(),
+      home: const AlertPreferrence(),
     );
   }
 }
