@@ -9,7 +9,7 @@ class AlertPreferrence extends StatelessWidget {
       home: Scaffold(
         appBar: AppBar(title: const Text('Opciones de alerta')),
         body: const  Column(
-            crossAxisAlignment: CrossAxisAlignment.start, // Alineación del texto a la izquierda
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'Tienes la opción de enviar más información en caso de una alerta con las siguientes opciones',
@@ -33,53 +33,36 @@ class AlertPreferencePage extends StatefulWidget {
 class _AlertPreferencePageState extends State<AlertPreferencePage> {
   bool light = true;
 
+  final MaterialStateProperty<Icon?> thumbIcon =
+      MaterialStateProperty.resolveWith<Icon?>(
+    (Set<MaterialState> states) {
+      if (states.contains(MaterialState.selected)) {
+        return const Icon(Icons.check);
+      }
+      return const Icon(Icons.close);
+    },
+  );
+
   @override
   Widget build(BuildContext context) {
-    final MaterialStateProperty<Color?> trackColor =
-        MaterialStateProperty.resolveWith<Color?>(
-      (Set<MaterialState> states) {
-        if (states.contains(MaterialState.selected)) {
-          return Colors.amber;
-        }
-        return null;
-      },
-    );
-
-    final MaterialStateProperty<Color?> overlayColor =
-        MaterialStateProperty.resolveWith<Color?>(
-      (Set<MaterialState> states) {
-        if (states.contains(MaterialState.selected)) {
-          return Colors.amber.withOpacity(0.54);
-        }
-        if (states.contains(MaterialState.disabled)) {
-          return Colors.grey.shade400;
-        }
-        return const Color.fromARGB(100, 0, 0, 0);
-      },
-    );
-
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Card(
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(8.0)),
-              side: BorderSide(width: 1, color: Color.fromARGB(255, 0, 0, 0)),
-            ),
-            child: Switch(
-              value: light,
-              overlayColor: overlayColor,
-              trackColor: trackColor,
-              onChanged: (bool value) {
-                setState(() {
-                  light = value;
-                });
-              },
-            ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        const Text(
+          'Enviar audios grabados durante una situación de peligro',
+          style: TextStyle(fontSize: 18),
           ),
-        ],
-      ),
+        Switch(
+          thumbIcon: thumbIcon,
+          value: light,
+          onChanged: (bool value) {
+            setState(() {
+              light = value;
+            });
+          },
+        ),
+      ],
     );
   }
+
 }
