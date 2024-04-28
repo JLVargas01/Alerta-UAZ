@@ -8,9 +8,7 @@ class MainActivity: FlutterActivity(){
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Inicia el ShakeDetectorService
-        Intent(this, ShakeDetectorService::class.java).also { intent ->
-            startService(intent)
-        }
+        val intent = Intent(this, ShakeDetectorService::class.java)
+        startService(intent)
     }
 }
