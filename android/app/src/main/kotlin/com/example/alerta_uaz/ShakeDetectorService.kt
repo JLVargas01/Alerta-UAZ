@@ -8,8 +8,9 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.embedding.engine.dart.DartExecutor
 import io.flutter.plugin.common.MethodChannel
-import io.flutter.plugin.common.BinaryMessenger
 
 class ShakeDetectorService : Service(), SensorEventListener {
 
@@ -18,8 +19,9 @@ class ShakeDetectorService : Service(), SensorEventListener {
     // Sensor de acelerómetro.
     private var accelerometer: Sensor? = null
     private lateinit var channel: MethodChannel
+    private lateinit var flutterEngine: FlutterEngine
     // Umbral de fuerza G para considerar que ha ocurrido una agitación.
-    private val shakeThreshold = 45.0
+    private var shakeThreshold = 45.0
 
     // Bandera para detectar si una agitación ha sido ya detectada.
     private var shakeDetected = false
@@ -28,16 +30,7 @@ class ShakeDetectorService : Service(), SensorEventListener {
     private val handler = Handler()
 
     // Temporizador para evaluar agitación continua.
-   private val continuousShakeTimeout = 5000L
-
-   override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        val messenger = intent.getParcelableExtra<BinaryMessenger>("messenger")
-        if (messenger != null) {
-            channel = MethodChannel(messenger, "com.example.alerta_uaz/shake")
-            setupMethodChannel()
-        }
-        return START_STICKY
-    }
+   private var continuousShakeTimeout = 5000L
 
 
     private fun setupMethodChannel() {
@@ -65,6 +58,16 @@ class ShakeDetectorService : Service(), SensorEventListener {
     sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
     accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
     sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL)
+
+    // Configura FlutterEngine
+    flutterEngine = FlutterEngine(this)
+    flutterEngine.dartExecutor.executeDartEntrypoint(
+        DartExecutor.DartEntrypoint.createDefault()
+    )
+
+    // Configura MethodChannel
+    channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.example.alerta_uaz/shake")
+    setupMethodChannel()
    }
 
    override fun onBind(intent: Intent?): IBinder? = null
@@ -100,7 +103,7 @@ class ShakeDetectorService : Service(), SensorEventListener {
 
     // Método que permite cambiar la duración de la agitación continua.
     fun updateContinuousShakeTime(newTime: Long) {
-        continuousShakeTime = newTime
+        continuousShakeTimeout = newTime
     }
 
     // Limpieza cuando el servicio es destruido.
