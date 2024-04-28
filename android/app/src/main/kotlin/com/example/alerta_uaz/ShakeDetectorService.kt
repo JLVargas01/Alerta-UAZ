@@ -1,5 +1,16 @@
 package com.example.alerta_uaz
 
+import android.app.Service
+import android.content.Intent
+import android.os.IBinder
+import android.os.Handler
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
+import io.flutter.plugin.common.MethodChannel
+import io.flutter.plugin.common.BinaryMessenger
+import io.flutter.embedding.engine.FlutterEngine
 
 class ShakeDetectorService : Service(), SensorEventListener {
 
@@ -8,8 +19,6 @@ class ShakeDetectorService : Service(), SensorEventListener {
     // Sensor de acelerómetro.
     private var accelerometer: Sensor? = null
     private lateinit var channer: MethodChannel
-    private lateinit var flutterEngine FlutterEngine
-
     // Umbral de fuerza G para considerar que ha ocurrido una agitación.
     private val shakeThreshold = 45.0
 
@@ -24,19 +33,30 @@ class ShakeDetectorService : Service(), SensorEventListener {
 
    override fun onCreate(){
     super.onCreate()
-    // Inicializa el motor Flutter para comunicación con la app Flutter.
-    flutterEngine = FlutterEngine(this)
-        flutterEngine.dartExecutor.executeDartEntrypoint(
-            DartExecutor.DartEntrypoint.createDefault()
-        )
-    
-    // Establece un canal de comunicación con Flutter.
-    channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.example.alerta_uaz/shake")
+
+    val messenger: BinaryMessenger = LocalBinaryMessenger
+        channel = MethodChannel(messenger, "com.example.alerta_uaz/shake")
 
     // Configura el sensor de acelerómetro.
     sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
     accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
     sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL)
+
+    channel.setMethodCallHandler { call, result ->
+        when (call.method) {
+            "updateShakeSensitivity" -> {
+                val sensitivity = call.argument<Double>("sensitivity") ?: 0.0
+                updateShakeSensitivity(sensitivity)
+                result.success(null)
+            }
+            "updateContinuousShakeTime" -> {
+                val time = call.argument<Long>("duration") ?: 0L
+                updateContinuousShakeTime(time)
+                result.success(null)
+            }
+            else -> result.notImplemented()
+        }
+    }
    }
 
    override fun onBind(intent: Intent?): IBinder? = null
