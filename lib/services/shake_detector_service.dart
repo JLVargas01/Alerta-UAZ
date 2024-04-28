@@ -1,3 +1,25 @@
+// MIT License
+
+// Copyright (c) 2024 Folksable
+
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 import 'dart:async';
 import 'dart:math';
 
@@ -6,51 +28,26 @@ import 'package:sensors_plus/sensors_plus.dart';
 /// Callback for phone shakes
 typedef PhoneShakeCallback = void Function();
 
-/// ShakeDetector class for phone shake functionality
 class ShakeDetectorService {
-  bool _isPaused = false;
-  int lastResumedTimeStamp = 0;
+  static bool _isPaused = false;
+  static int _lastResumedTimeStamp = 0;
+  static PhoneShakeCallback? _onShake;
+  static const double _shakeThresholdGravity = 10.0;
+  static const int _shakeSlopTimeMS = 8000;
+  static const int _shakeCountResetTime = 1000;
+  static const int _minimumShakeCount = 1;
+  static int _mShakeTimestamp = DateTime.now().millisecondsSinceEpoch;
+  static int _mShakeCount = 0;
+  static StreamSubscription? _streamSubscription;
 
-  /// User callback for phone shake
-  final PhoneShakeCallback onShake;
-
-  /// Shake detection threshold
-  final double shakeThresholdGravity = 10.0;
-
-  /// Minimum time between shake
-  final int shakeSlopTimeMS = 5000;
-
-  /// Time before shake count resets in milliseconds
-  final int shakeCountResetTime = 3000;
-
-  /// Number of shakes required before shake is triggered
-  final int minimumShakeCount = 1;
-
-  int mShakeTimestamp = DateTime.now().millisecondsSinceEpoch;
-  int mShakeCount = 0;
-
-  /// StreamSubscription for Accelerometer events
-  StreamSubscription? streamSubscription;
-
-  /// This constructor waits until [startListening] is called
-  ShakeDetectorService.waitForStart({
-    required this.onShake,
-  });
-
-  /// This constructor automatically calls [startListening] and starts detection and callbacks.
-  ShakeDetectorService.autoStart({
-    required this.onShake,
-  }) {
-    startListening();
-  }
-
-  /// Starts listening to accelerometer events
-  void startListening() {
-    streamSubscription = accelerometerEventStream().listen(
+  /// Starts listening to accelerometer events with the given shake callback
+  static void startListening(PhoneShakeCallback shakeCallback) {
+    _onShake = shakeCallback;
+    _streamSubscription = accelerometerEventStream().listen(
       (AccelerometerEvent event) {
         if (_isPaused) return;
 
-        if (lastResumedTimeStamp + 500 >
+        if (_lastResumedTimeStamp + 500 >
             DateTime.now().millisecondsSinceEpoch) {
           return;
         }
@@ -66,51 +63,48 @@ class ShakeDetectorService {
         // gForce will be close to 1 when there is no movement.
         double gForce = sqrt(gX * gX + gY * gY + gZ * gZ);
 
-        if (gForce > shakeThresholdGravity) {
+        if (gForce > _shakeThresholdGravity) {
           var now = DateTime.now().millisecondsSinceEpoch;
           // ignore shake events too close to each other (500ms)
-          if (mShakeTimestamp + shakeSlopTimeMS > now) {
+          if (_mShakeTimestamp + _shakeSlopTimeMS > now) {
             return;
           }
 
           // reset the shake count after 3 seconds of no shakes
-          if (mShakeTimestamp + shakeCountResetTime < now) {
-            mShakeCount = 0;
+          if (_mShakeTimestamp + _shakeCountResetTime < now) {
+            _mShakeCount = 0;
           }
 
-          mShakeTimestamp = now;
-          mShakeCount++;
+          _mShakeTimestamp = now;
+          _mShakeCount++;
 
-          if (mShakeCount >= minimumShakeCount) {
-            onShake();
+          if (_mShakeCount >= _minimumShakeCount) {
+            _onShake?.call();
           }
         }
       },
     );
   }
 
-  void pauseListening() {
+  static void pauseListening() {
     _isPaused = true;
-    mShakeCount = 0;
-    streamSubscription?.pause();
+    _mShakeCount = 0;
+    _streamSubscription?.pause();
   }
 
-  bool get isPaused {
-    return _isPaused;
-  }
+  static bool get isPaused => _isPaused;
+  static bool get isListening => !_isPaused;
 
-  bool get isListening => !_isPaused;
-
-  void resumeListening() {
+  static void resumeListening() {
     _isPaused = false;
-    mShakeCount = 0;
-    lastResumedTimeStamp = DateTime.now().millisecondsSinceEpoch;
-    streamSubscription?.resume();
+    _mShakeCount = 0;
+    _lastResumedTimeStamp = DateTime.now().millisecondsSinceEpoch;
+    _streamSubscription?.resume();
   }
 
   /// Stops listening to accelerometer events
-  void stopListening() {
+  static void stopListening() {
     _isPaused = true;
-    streamSubscription?.cancel();
+    _streamSubscription?.cancel();
   }
 }
