@@ -10,15 +10,14 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.BinaryMessenger
-import io.flutter.embedding.engine.FlutterEngine
 
 class ShakeDetectorService : Service(), SensorEventListener {
 
     // Gestiona los sensores del dispositivo.
-    private lateinit var sensorManager:sensorManager
+    private lateinit var sensorManager: SensorManager
     // Sensor de acelerómetro.
     private var accelerometer: Sensor? = null
-    private lateinit var channer: MethodChannel
+    private lateinit var channel: MethodChannel
     // Umbral de fuerza G para considerar que ha ocurrido una agitación.
     private val shakeThreshold = 45.0
 
@@ -31,32 +30,41 @@ class ShakeDetectorService : Service(), SensorEventListener {
     // Temporizador para evaluar agitación continua.
    private val continuousShakeTimeout = 5000L
 
+   override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+        val messenger = intent.getParcelableExtra<BinaryMessenger>("messenger")
+        if (messenger != null) {
+            channel = MethodChannel(messenger, "com.example.alerta_uaz/shake")
+            setupMethodChannel()
+        }
+        return START_STICKY
+    }
+
+
+    private fun setupMethodChannel() {
+        channel.setMethodCallHandler { call, result ->
+            when (call.method) {
+                "updateShakeSensitivity" -> {
+                    val sensitivity = call.argument<Double>("sensitivity") ?: 0.0
+                    updateShakeSensitivity(sensitivity)
+                    result.success(null)
+                }
+                "updateContinuousShakeTime" -> {
+                    val time = call.argument<Long>("duration") ?: 0L
+                    updateContinuousShakeTime(time)
+                    result.success(null)
+                }
+                else -> result.notImplemented()
+            }
+        }
+    }
+
    override fun onCreate(){
     super.onCreate()
-
-    val messenger: BinaryMessenger = LocalBinaryMessenger
-        channel = MethodChannel(messenger, "com.example.alerta_uaz/shake")
 
     // Configura el sensor de acelerómetro.
     sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
     accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
     sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL)
-
-    channel.setMethodCallHandler { call, result ->
-        when (call.method) {
-            "updateShakeSensitivity" -> {
-                val sensitivity = call.argument<Double>("sensitivity") ?: 0.0
-                updateShakeSensitivity(sensitivity)
-                result.success(null)
-            }
-            "updateContinuousShakeTime" -> {
-                val time = call.argument<Long>("duration") ?: 0L
-                updateContinuousShakeTime(time)
-                result.success(null)
-            }
-            else -> result.notImplemented()
-        }
-    }
    }
 
    override fun onBind(intent: Intent?): IBinder? = null
