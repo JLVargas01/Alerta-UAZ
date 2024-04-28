@@ -1,45 +1,116 @@
-import 'package:flutter/services.dart';
+import 'dart:async';
+import 'dart:math';
 
+import 'package:sensors_plus/sensors_plus.dart';
+
+/// Callback for phone shakes
+typedef PhoneShakeCallback = void Function();
+
+/// ShakeDetector class for phone shake functionality
 class ShakeDetectorService {
-  static late final MethodChannel _channel;
-  static void Function()? _onShakeCallback;
+  bool _isPaused = false;
+  int lastResumedTimeStamp = 0;
 
-  static void initialize() {
-    _channel = const MethodChannel('com.example.alerta_uaz/shake');
-    _channel.setMethodCallHandler(_handleMethod);
+  /// User callback for phone shake
+  final PhoneShakeCallback onShake;
+
+  /// Shake detection threshold
+  final double shakeThresholdGravity = 10.0;
+
+  /// Minimum time between shake
+  final int shakeSlopTimeMS = 5000;
+
+  /// Time before shake count resets in milliseconds
+  final int shakeCountResetTime = 3000;
+
+  /// Number of shakes required before shake is triggered
+  final int minimumShakeCount = 1;
+
+  int mShakeTimestamp = DateTime.now().millisecondsSinceEpoch;
+  int mShakeCount = 0;
+
+  /// StreamSubscription for Accelerometer events
+  StreamSubscription? streamSubscription;
+
+  /// This constructor waits until [startListening] is called
+  ShakeDetectorService.waitForStart({
+    required this.onShake,
+  });
+
+  /// This constructor automatically calls [startListening] and starts detection and callbacks.
+  ShakeDetectorService.autoStart({
+    required this.onShake,
+  }) {
+    startListening();
   }
 
-  // Método para establecer el listener que se activará cuando se detecte una agitación.
-  static void setOnShakeListener(void Function() callback) {
-    _onShakeCallback = callback;
-  }
+  /// Starts listening to accelerometer events
+  void startListening() {
+    streamSubscription = accelerometerEventStream().listen(
+      (AccelerometerEvent event) {
+        if (_isPaused) return;
 
-  // Método para eliminar el listener
-  static void removeOnShakeListener() {
-    _onShakeCallback = null;
-  }
-
-  // Método para manejar las llamadas que llegan del código nativo.
-  static Future<void> _handleMethod(MethodCall call) async {
-    switch (call.method) {
-      case "onShake":
-        // Haz algo cuando se detecta una agitación, como llamar a un callback.
-        if (_onShakeCallback != null) {
-          _onShakeCallback!();
+        if (lastResumedTimeStamp + 500 >
+            DateTime.now().millisecondsSinceEpoch) {
+          return;
         }
-        break;
-      default:
-        throw UnsupportedError("Unrecognized JSON message");
-    }
+
+        double x = event.x;
+        double y = event.y;
+        double z = event.z;
+
+        double gX = x / 9.80665;
+        double gY = y / 9.80665;
+        double gZ = z / 9.80665;
+
+        // gForce will be close to 1 when there is no movement.
+        double gForce = sqrt(gX * gX + gY * gY + gZ * gZ);
+
+        if (gForce > shakeThresholdGravity) {
+          var now = DateTime.now().millisecondsSinceEpoch;
+          // ignore shake events too close to each other (500ms)
+          if (mShakeTimestamp + shakeSlopTimeMS > now) {
+            return;
+          }
+
+          // reset the shake count after 3 seconds of no shakes
+          if (mShakeTimestamp + shakeCountResetTime < now) {
+            mShakeCount = 0;
+          }
+
+          mShakeTimestamp = now;
+          mShakeCount++;
+
+          if (mShakeCount >= minimumShakeCount) {
+            onShake();
+          }
+        }
+      },
+    );
   }
 
-  static Future<void> updateShakeSensitivity(double sensitivity) async {
-    await _channel
-        .invokeMethod('updateShakeSensitivity', {'sensitivity': sensitivity});
+  void pauseListening() {
+    _isPaused = true;
+    mShakeCount = 0;
+    streamSubscription?.pause();
   }
 
-  static Future<void> updateContinuousShakeTime(int duration) async {
-    await _channel
-        .invokeMethod('updateContinuousShakeTime', {'duration': duration});
+  bool get isPaused {
+    return _isPaused;
+  }
+
+  bool get isListening => !_isPaused;
+
+  void resumeListening() {
+    _isPaused = false;
+    mShakeCount = 0;
+    lastResumedTimeStamp = DateTime.now().millisecondsSinceEpoch;
+    streamSubscription?.resume();
+  }
+
+  /// Stops listening to accelerometer events
+  void stopListening() {
+    _isPaused = true;
+    streamSubscription?.cancel();
   }
 }
