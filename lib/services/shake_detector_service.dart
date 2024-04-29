@@ -24,6 +24,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:sensors_plus/sensors_plus.dart';
+import 'package:vibration/vibration.dart';
 
 /// Callback for phone shakes
 typedef PhoneShakeCallback = void Function();
@@ -32,13 +33,19 @@ class ShakeDetectorService {
   static bool _isPaused = false;
   static int _lastResumedTimeStamp = 0;
   static PhoneShakeCallback? _onShake;
-  static const double _shakeThresholdGravity = 10.0;
-  static const int _shakeSlopTimeMS = 8000;
-  static const int _shakeCountResetTime = 1000;
-  static const int _minimumShakeCount = 1;
+  // Umbral de fuerza G para detectar una sacudida
+  static const double _shakeThresholdGravity = 2.7;
+  // Tiempo mínimo entre sacudidas
+  static const int _shakeSlopTimeMS = 1000;
+  // Mínimo de sacudidas necesarias dentro del tiempo permitido
+  static const int _minimumShakeCount = 2;
   static int _mShakeTimestamp = DateTime.now().millisecondsSinceEpoch;
   static int _mShakeCount = 0;
   static StreamSubscription? _streamSubscription;
+
+  // Tiempo total permitido para detectar las sacudidas
+  static const int _totalTimeForShakes = 5000;
+  static int _startTime = 0;
 
   /// Starts listening to accelerometer events with the given shake callback
   static void startListening(PhoneShakeCallback shakeCallback) {
@@ -50,6 +57,13 @@ class ShakeDetectorService {
         if (_lastResumedTimeStamp + 500 >
             DateTime.now().millisecondsSinceEpoch) {
           return;
+        }
+
+        var now = DateTime.now().millisecondsSinceEpoch;
+
+        if (_startTime != 0 && (now - _startTime > _totalTimeForShakes)) {
+          _mShakeCount = 0;
+          _startTime = 0;
         }
 
         double x = event.x;
@@ -64,22 +78,25 @@ class ShakeDetectorService {
         double gForce = sqrt(gX * gX + gY * gY + gZ * gZ);
 
         if (gForce > _shakeThresholdGravity) {
-          var now = DateTime.now().millisecondsSinceEpoch;
           // ignore shake events too close to each other (500ms)
           if (_mShakeTimestamp + _shakeSlopTimeMS > now) {
             return;
           }
 
-          // reset the shake count after 3 seconds of no shakes
-          if (_mShakeTimestamp + _shakeCountResetTime < now) {
-            _mShakeCount = 0;
+          _mShakeTimestamp = now;
+          if (_mShakeCount == 0) {
+            _startTime = now;
           }
 
-          _mShakeTimestamp = now;
           _mShakeCount++;
 
           if (_mShakeCount >= _minimumShakeCount) {
+            Vibration.vibrate(duration: 500);
             _onShake?.call();
+            _mShakeCount = 0;
+            _startTime = 0;
+          } else {
+            Vibration.vibrate(duration: 100);
           }
         }
       },
