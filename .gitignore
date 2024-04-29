@@ -30,3 +30,9 @@ doc/api/
 
 # Visual Studio Code
 .vscode
+
+# Firebase files
+**/google-services.json
+**/GoogleService-Info.plist
+lib/firebase_options.dart
+firebase.json
