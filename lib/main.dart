@@ -5,6 +5,8 @@ void main() {
   runApp(const AppAlerta());
 }
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 class AppAlerta extends StatelessWidget {
   const AppAlerta({super.key});
 
