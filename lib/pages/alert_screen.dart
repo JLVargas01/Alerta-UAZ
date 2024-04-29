@@ -14,7 +14,6 @@ class _AlertPageState extends State<AlertPage> {
   @override
   void initState() {
     super.initState();
-    ShakeDetectorService.pauseListening();
   }
 
   @override
