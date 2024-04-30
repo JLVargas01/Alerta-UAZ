@@ -1,5 +1,9 @@
 import 'dart:async';
 
+import 'package:alerta_uaz/main.dart';
+import 'package:alerta_uaz/pages/location_screen.dart';
+import 'package:flutter/material.dart';
+
 import '../firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -16,6 +20,11 @@ class PushNotificationService {
 
   PushNotificationService._internal();
 
+  // Manejador de notificaciones en segundo plano
+  static Future _backgroundMessageHandler(RemoteMessage message) async {
+    _messageHandle(message);
+  }
+
   // Manejador de notificaciones en primer plano
   static Future _onMessageHandler(RemoteMessage message) async {
     _messageHandle(message);
@@ -27,7 +36,8 @@ class PushNotificationService {
   }
 
   static void _messageHandle(RemoteMessage message) {
-    print('Se obtuvo notificación');
+    navigatorKey.currentState
+        ?.push(MaterialPageRoute(builder: (_) => const LocationPage()));
   }
 
   // Inicialización de notificaciones
@@ -41,6 +51,7 @@ class PushNotificationService {
       getToken();
 
       // Handlers
+      FirebaseMessaging.onBackgroundMessage(_backgroundMessageHandler);
       FirebaseMessaging.onMessage.listen(_onMessageHandler);
       FirebaseMessaging.onMessageOpenedApp.listen(_onMessageOpenedAppHandler);
     } catch (e) {
