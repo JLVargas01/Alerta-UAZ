@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:alerta_uaz/main.dart';
 import 'package:alerta_uaz/pages/contacts_screen.dart';
 import 'package:alerta_uaz/services/shake_detector_service.dart';
@@ -11,9 +13,18 @@ class AlertPage extends StatefulWidget {
 }
 
 class _AlertPageState extends State<AlertPage> {
+  Timer? _timer;
+  void sendLocation() {
+    socket.emit('location', 'Se mandó una localización');
+    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      socket.emit('location', 'Se mandó una localización');
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    sendLocation();
   }
 
   @override
@@ -46,5 +57,11 @@ class _AlertPageState extends State<AlertPage> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 }
