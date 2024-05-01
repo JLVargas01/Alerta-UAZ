@@ -14,6 +14,9 @@ class SocketService {
       'transports': ['websocket'],
       'autoConnect': false,
     });
+  }
+
+  void initialize() {
     _socket.connect();
   }
 
