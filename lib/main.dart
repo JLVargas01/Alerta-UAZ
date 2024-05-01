@@ -1,4 +1,4 @@
-import 'package:alerta_uaz/pages/contacts_screen.dart';
+import 'package:alerta_uaz/pages/login_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -14,7 +14,7 @@ class AppAlerta extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(useMaterial3: true),
-      home: const ContactosPage(),
+      home: const SignInUsuario(),
     );
   }
 }
