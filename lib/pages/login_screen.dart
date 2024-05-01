@@ -1,12 +1,9 @@
 import 'dart:async';
 
 import 'package:alerta_uaz/api/google_sign_in_service.dart';
-import 'package:alerta_uaz/api/user_http_service.dart';
 import 'package:alerta_uaz/pages/logged_in_screen.dart';
 import 'package:alerta_uaz/services/usuario_service.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 class SignInUsuario extends StatefulWidget {
   ///
@@ -17,16 +14,26 @@ class SignInUsuario extends StatefulWidget {
 }
 
 class _SignInUsuarioState extends State<SignInUsuario> {
+  late UsuarioServices serviciosUsuario;
 
   Future<void> _handleSignIn() async {
     final user = await GoogleSignInService.logIn();
     if(user == null){
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error en autenticacion'),));
     } else {
+      String elEmail = user.email;
+      String elNombre = user.displayName ?? '';
+      serviciosUsuario.enviarInicioSesionApi(elEmail, elNombre);
       Navigator.of(context).pushReplacement(MaterialPageRoute(
         builder: (context) => LoggedInPage(user: user),
       ));
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    serviciosUsuario = UsuarioServices();
   }
 
   Widget _buildBody() {
