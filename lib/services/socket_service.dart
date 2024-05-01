@@ -28,6 +28,14 @@ class SocketService {
     }
   }
 
+  void startListening(event) {
+    if (_socket.connected) {
+      _socket.on(event, (data) => print(data));
+    } else {
+      print('Socket is not connected');
+    }
+  }
+
   void dispose() {
     _socket.disconnect();
   }
