@@ -3,11 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
-const double latitude = 40.416775;
-const double longitude = -3.703790;
-
-const LatLng location = LatLng(latitude, longitude);
-
 class LocationPage extends StatefulWidget {
   const LocationPage({super.key});
 
@@ -16,12 +11,24 @@ class LocationPage extends StatefulWidget {
 }
 
 class _LocationPageState extends State<LocationPage> {
+  // valor iniciar entre Guadalupe y Zacatecas
+  LatLng location = const LatLng(22.7658, -102.54555);
+  final MapController _mapController = MapController();
+
+  void _updateLocation(LatLng position) {
+    setState(() {
+      location = position;
+    });
+    _mapController.move(position, 16.5);
+  }
+
   @override
   void initState() {
     super.initState();
     socket.startListening('userLocation');
-    socket.stream.listen((event) {
-      print(event);
+    socket.stream.listen((data) {
+      final position = LatLng(data['latitude'], data['longitude']);
+      _updateLocation(position);
     });
   }
 
@@ -32,19 +39,20 @@ class _LocationPageState extends State<LocationPage> {
         title: const Text('Localización'),
       ),
       body: FlutterMap(
-          options: const MapOptions(initialCenter: location, initialZoom: 14.0),
+          mapController: _mapController,
+          options: MapOptions(initialCenter: location, initialZoom: 10.0),
           children: <Widget>[
             TileLayer(
               urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
               //subdomains: const ['a', 'b', 'c'],
             ),
-            const MarkerLayer(
+            MarkerLayer(
               markers: [
                 Marker(
                     width: 40,
                     height: 40,
                     point: location,
-                    child: Icon(Icons.location_pin, color: Colors.red))
+                    child: const Icon(Icons.location_pin, color: Colors.red))
               ],
             ),
           ]),
