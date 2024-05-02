@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:alerta_uaz/main.dart';
 import 'package:alerta_uaz/pages/contacts_screen.dart';
+import 'package:alerta_uaz/services/location_service.dart';
 import 'package:alerta_uaz/services/shake_detector_service.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 
 class AlertPage extends StatefulWidget {
   const AlertPage({super.key});
@@ -11,9 +15,28 @@ class AlertPage extends StatefulWidget {
 }
 
 class _AlertPageState extends State<AlertPage> {
+  Timer? _timer;
+  LocationService locationService = LocationService();
+
+  Map<String, dynamic> positionToJson(Position position) {
+    return {'latitude': position.latitude, 'longitude': position.longitude};
+  }
+
+  void sendLocation() {
+    _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
+      try {
+        Position position = await locationService.getCurrentLocation();
+        socket.emit('location', positionToJson(position));
+      } catch (e) {
+        print('Error: $e');
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    sendLocation();
   }
 
   @override
@@ -46,5 +69,11 @@ class _AlertPageState extends State<AlertPage> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 }

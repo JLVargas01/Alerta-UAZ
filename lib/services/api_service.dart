@@ -3,7 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:convert';
 
 class ApiService {
-  final String? _baseUrl = dotenv.env['API_URL'];
+  final String _baseUrl = 'http://${dotenv.env['API_URL']}';
 
   Future<void> sendNotification(String telephone) async {
     const endpoint = "/api/notification/alert";
@@ -14,7 +14,7 @@ class ApiService {
   }
 
   Future<void> postRequest(String endpoint, Map<String, Object> data) async {
-    final url = Uri.parse(_baseUrl! + endpoint);
+    final url = Uri.parse(_baseUrl + endpoint);
 
     final response = await http.post(url,
         headers: <String, String>{'Content-Type': 'application/json'},
