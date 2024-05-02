@@ -1,9 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
 class SocketService {
   static final SocketService _instance = SocketService._internal();
   late io.Socket _socket;
+
+  StreamController<String> _streamController =
+      StreamController<String>.broadcast();
+
+  Stream<String> get stream => _streamController.stream;
 
   factory SocketService() {
     return _instance;
@@ -30,7 +37,7 @@ class SocketService {
 
   void startListening(event) {
     if (_socket.connected) {
-      _socket.on(event, (data) => print(data));
+      _socket.on(event, (data) => _streamController.add(data));
     } else {
       print('Socket is not connected');
     }
