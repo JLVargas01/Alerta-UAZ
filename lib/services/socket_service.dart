@@ -7,10 +7,10 @@ class SocketService {
   static final SocketService _instance = SocketService._internal();
   late io.Socket _socket;
 
-  StreamController<String> _streamController =
-      StreamController<String>.broadcast();
+  final StreamController<Map<String, dynamic>> _streamController =
+      StreamController<Map<String, dynamic>>.broadcast();
 
-  Stream<String> get stream => _streamController.stream;
+  Stream<Map<String, dynamic>> get stream => _streamController.stream;
 
   factory SocketService() {
     return _instance;
@@ -27,7 +27,8 @@ class SocketService {
     _socket.connect();
   }
 
-  void emit(String event, String data) {
+  // Envia datos a un canal en especifico
+  void emit(String event, Map<String, dynamic> data) {
     if (_socket.connected) {
       _socket.emit(event, data);
     } else {
@@ -35,6 +36,7 @@ class SocketService {
     }
   }
 
+  // Empieza a recibir datos del canal especificado
   void startListening(event) {
     if (_socket.connected) {
       _socket.on(event, (data) => _streamController.add(data));
