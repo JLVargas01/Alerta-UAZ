@@ -1,3 +1,4 @@
+import 'package:alerta_uaz/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -7,8 +8,22 @@ const double longitude = -3.703790;
 
 const LatLng location = LatLng(latitude, longitude);
 
-class LocationPage extends StatelessWidget {
+class LocationPage extends StatefulWidget {
   const LocationPage({super.key});
+
+  @override
+  State<LocationPage> createState() => _LocationPageState();
+}
+
+class _LocationPageState extends State<LocationPage> {
+  @override
+  void initState() {
+    super.initState();
+    socket.startListening('userLocation');
+    socket.stream.listen((event) {
+      print(event);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
