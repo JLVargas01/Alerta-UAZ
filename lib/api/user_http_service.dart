@@ -7,6 +7,34 @@ class UsuarioHttpService {
   final String _headerKey = "********************************************";
   final String _endPointUsers = "usuario/";
 
+  Future<bool> enviarInicioSesionApi(Map<String, dynamic> userData) async {
+    
+    String bySinginUser  = 'loguear';
+    Uri uri = Uri.parse(_url + _endPointUsers + bySinginUser);
+    
+    Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'Authorization': _headerKey,
+    };
+    
+    // Convierte los datos del usuario a JSON
+    String jsonBody = jsonEncode(userData);
+    var response = await http.post(
+      uri,
+      headers: headers,
+      body: jsonBody,
+    );
+
+    if (response.statusCode == 201) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  // 
+  //Este metodo no se utiliza, se espera que se use en un futuro
+  //
   Future<bool> findUserByEmail(String emailUser) async {
     String byUserRoute = 'ByEmail/';
     Uri uri = Uri.parse(_url + _endPointUsers+ byUserRoute);
@@ -21,6 +49,9 @@ class UsuarioHttpService {
 
   }
 
+  // 
+  //*** Este metodo no se utiliza por la nueva manera de crear usuarios
+  //
   Future<bool> createUserPost(Map<String, dynamic> userData) async {
     Uri uri = Uri.parse(_url + _endPointUsers);
     

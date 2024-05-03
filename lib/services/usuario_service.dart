@@ -8,16 +8,18 @@ class UsuarioServices {
     usuarioServApi = UsuarioHttpService();
   }
 
-  Future<void> enviarInicioSesionApi(String emailUser, String nameUser) async {
-    bool encontrado = await usuarioServApi.findUserByEmail(emailUser);
-    if(!encontrado){
-      bool resultadoCreacion = await crearUsuario(emailUser, nameUser);
-      if(!resultadoCreacion) {
-        // Tomar accion si no se pudo crear el suario
-      }
-    }
+  Future<bool> inicioSesionApi(String emailUser, String nameUser) async {
+    Map<String, dynamic> parametersSend = {
+      'Nombre': nameUser,
+      'Correo_Electronico': emailUser
+    };
+    bool encontrado = await usuarioServApi.enviarInicioSesionApi(parametersSend);
+    return encontrado;
   }
-  
+
+  // 
+  //  *** Este metodo no se utiliza por la nueva manera de crear usuarios
+  //
   Future<bool> crearUsuario(String emailUser, String nameUser) async {
     Map<String, dynamic> parametersSend = {
       'Nombre': nameUser,
