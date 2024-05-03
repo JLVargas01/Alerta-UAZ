@@ -1,11 +1,10 @@
 import 'package:alerta_uaz/pages/alert_screen.dart';
 import 'package:alerta_uaz/pages/contacts_screen.dart';
-import 'package:alerta_uaz/pages/login_screen.dart';
 
 import 'package:alerta_uaz/services/api_service.dart';
 import 'package:alerta_uaz/services/push_notification_service.dart';
 import 'package:alerta_uaz/services/shake_detector_service.dart';
-import 'et_spackage:alerta_uaz/services/sockervice.dart';
+import 'package:alerta_uaz/services/socket_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
