@@ -12,7 +12,7 @@ class UsuarioServices {
     bool encontrado = await usuarioServApi.findUserByEmail(emailUser);
     if(!encontrado){
       bool resultadoCreacion = await crearUsuario(emailUser, nameUser);
-      if(resultadoCreacion) {
+      if(!resultadoCreacion) {
         // Tomar accion si no se pudo crear el suario
       }
     }
