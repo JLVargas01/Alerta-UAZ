@@ -1,56 +1,81 @@
-
 import 'package:alerta_uaz/api/google_sign_in_service.dart';
-import 'package:alerta_uaz/pages/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-class LoggedInPage extends StatelessWidget{
-  final GoogleSignInAccount user;
+class LoggedInPage extends StatefulWidget {
+  const LoggedInPage({super.key});
 
-  const LoggedInPage({
-    super.key,
-    required this.user,
-  });
+  @override
+  State<LoggedInPage> createState() => _LoggedInPageState();
+}
 
-  Future<void> _handleSignOut(BuildContext context) async {
+class _LoggedInPageState extends State<LoggedInPage> {
+  late GoogleSignInAccount? user;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUser();
+  }
+
+  Future<void> _loadUser() async {
+    final currentUser = GoogleSignInService.getUser();
+    setState(() {
+      user = currentUser;
+    });
+  }
+
+  void _handleSignOut(BuildContext context) {
     GoogleSignInService.logOut();
-    Navigator.of(context).pushReplacement(MaterialPageRoute(
-      builder: (context) => const SignInUsuario(),
-    ));
+    Navigator.of(context).pushNamed('/singIn');
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-   appBar: AppBar(
-    title: const Text('Sesion iniciada'),
-    centerTitle: true,
-    actions: [
-      TextButton(
-        onPressed: ()=> _handleSignOut(context), 
-        child: const Text('Cerrar sesion')
-        )
-    ]
-   ),
-   body: Container(
-    alignment: Alignment.center,
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text('Perfil',
-        style: TextStyle(fontSize: 24),
+  Widget build(BuildContext context) {
+    const textStyle = TextStyle(color: Colors.blue, fontSize: 20);
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Sesión iniciada', 
+          style: TextStyle(color: Colors.white),
         ),
-        const SizedBox(height:24),
-        Text(
-          'Usuario: ${user.displayName}',
-          style: const TextStyle(color: Colors.blue, fontSize: 20),
+        centerTitle: true,
+        backgroundColor: Colors.black,
+        actions: [
+          TextButton(
+            onPressed: () => _handleSignOut(context),
+            child: const Text('Cerrar sesión'),
+          )
+        ],
+      ),
+      body: Container(
+        alignment: Alignment.center,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Perfil',
+              style: TextStyle(fontSize: 24),
+            ),
+            const SizedBox(height: 24),
+            if (user != null) ...[
+              Text(
+                'Usuario: ${user!.displayName}',
+                style: textStyle,
+              ),
+              const SizedBox(height: 5),
+              Text(
+                'Email: ${user!.email}',
+                style: textStyle,
+              ),
+            ] else
+              const Text(
+                'Usuario no encontrado',
+                style: textStyle,
+              ),
+          ],
         ),
-        const SizedBox(height:5),
-        Text(
-          'Email: ${user.email}',
-          style: const TextStyle(color: Colors.blue, fontSize: 20),
-        ),
-      ],
-    )
-   ) 
-  );
+      ),
+    );
+  }
 }
