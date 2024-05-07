@@ -30,6 +30,10 @@ class _LoggedInPageState extends State<LoggedInPage> {
     Navigator.of(context).pushNamed('/singIn');
   }
 
+  void _handleContactList() {
+    Navigator.of(context).pushNamed('/contacts');
+  }
+
   @override
   Widget build(BuildContext context) {
     const textStyle = TextStyle(color: Colors.blue, fontSize: 20);
@@ -67,6 +71,13 @@ class _LoggedInPageState extends State<LoggedInPage> {
               Text(
                 'Email: ${user!.email}',
                 style: textStyle,
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                minimumSize: Size(MediaQuery.of(context).size.width / 2, 50),
+                ),
+                onPressed: _handleContactList,
+                child: const Text('Contactos de confianza'),
               ),
             ] else
               const Text(
