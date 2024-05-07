@@ -8,4 +8,6 @@ class GoogleSignInService {
 
   static Future<void> logOut() => _googleSignIn.disconnect();
 
+  static GoogleSignInAccount? getUser() => _googleSignIn.currentUser;
+
 }
