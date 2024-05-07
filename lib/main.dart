@@ -1,5 +1,8 @@
 import 'package:alerta_uaz/pages/alert_screen.dart';
 import 'package:alerta_uaz/pages/contacts_screen.dart';
+import 'package:alerta_uaz/pages/location_screen.dart';
+import 'package:alerta_uaz/pages/logged_in_screen.dart';
+import 'package:alerta_uaz/pages/login_screen.dart';
 
 import 'package:alerta_uaz/services/api_service.dart';
 import 'package:alerta_uaz/services/push_notification_service.dart';
@@ -7,6 +10,14 @@ import 'package:alerta_uaz/services/shake_detector_service.dart';
 import 'package:alerta_uaz/services/socket_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+final Map<String, WidgetBuilder> routes = {
+  "/singIn": (_) => const SignInUsuario(),
+  "/location": (_) => const LocationPage(),
+  "/alert": (_) => const AlertPage(),
+  "/contacts": (_) => const ContactosPage(),
+  "/main": (_) => const LoggedInPage(),
+};
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,8 +49,8 @@ class AppAlerta extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(useMaterial3: true),
-      navigatorKey: navigatorKey,
-      home: const ContactosPage(),
+      initialRoute: "/singIn",
+      routes: routes,
     );
   }
 }
