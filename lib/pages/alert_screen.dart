@@ -95,8 +95,7 @@ class _AlertPageState extends State<AlertPage> {
         child: GestureDetector(
           onTap: () {
             ShakeDetectorService.resumeListening();
-            navigatorKey.currentState?.pushReplacement(
-                MaterialPageRoute(builder: (_) => const ContactosPage()));
+            Navigator.pushNamed(context, '/contactos'); // Aquí cambiamos a Navigator.pushNamed
           },
           child: Container(
             width: 200,
