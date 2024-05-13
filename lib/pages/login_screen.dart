@@ -29,7 +29,6 @@ Future<void> _handleSignIn() async {
     final elEmail = user.email;
     final elNombre = user.displayName ?? '';
     bool respuesta = await serviciosUsuario.inicioSesionApi(elEmail, elNombre);
-    print(respuesta);
     if (mounted) { // Verifica si el widget está montado antes de realizar la navegación
       /* Hacer algo si no se pudo conectar al servidor
       if(!respuesta) { //Hay un error
@@ -40,7 +39,7 @@ Future<void> _handleSignIn() async {
         Navigator.of(context).pushNamed('/main', arguments: user);
       }
       */
-      Navigator.of(context).pushNamed('/main', arguments: user);
+      Navigator.of(context).pushReplacementNamed('/main');
     }
   }
 }
