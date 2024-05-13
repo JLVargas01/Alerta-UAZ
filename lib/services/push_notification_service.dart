@@ -42,44 +42,36 @@ class PushNotificationService {
 
   // Inicialización de notificaciones
   static Future<void> initialize() async {
-    try {
-      await Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform);
+    await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform);
 
-      await _permissionFCM();
+    // await _permissionFCM();
+    // getToken();
 
-      getToken();
-
-      // Handlers
-      FirebaseMessaging.onBackgroundMessage(_backgroundMessageHandler);
-      FirebaseMessaging.onMessage.listen(_onMessageHandler);
-      FirebaseMessaging.onMessageOpenedApp.listen(_onMessageOpenedAppHandler);
-    } catch (e) {
-      print('Failed to initialize Firebase: $e');
-    }
+    // Handlers
+    FirebaseMessaging.onBackgroundMessage(_backgroundMessageHandler);
+    FirebaseMessaging.onMessage.listen(_onMessageHandler);
+    FirebaseMessaging.onMessageOpenedApp.listen(_onMessageOpenedAppHandler);
   }
 
-  static Future<void> _permissionFCM() async {
+  static Future<bool> permissionFCM() async {
     NotificationSettings settings = await _firebaseMessaging.requestPermission(
-        alert: true, badge: true, sound: true, provisional: false);
+        alert: true, badge: true, sound: true);
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      print('User granted permission');
-    } else if (settings.authorizationStatus ==
-        AuthorizationStatus.provisional) {
-      print('User granted provisional permission');
+      return true;
     } else {
-      print('User declined or has not accepted permission');
+      //  El usuario no ha aceptado los persmisos
+      return false;
     }
   }
 
   static Future<String?> getToken() async {
     try {
       final String? token = await _firebaseMessaging.getToken();
-      print('Firebase Messaging Token: $token');
+      // print('Firebase Messaging Token: $token');
       return token;
     } catch (e) {
-      print('Error fetching FCM token: $e');
       return null;
     }
   }
