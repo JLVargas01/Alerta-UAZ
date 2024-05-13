@@ -1,9 +1,9 @@
 import 'dart:convert';
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 class UsuarioHttpService {
-  final String _url = "http://192.168.1.2:4000/api/"; //IP  
+  final String _url = "http://${dotenv.env['API_URL']}/api/"; //IP  
   final String _headerKey = "********************************************";
   final String _endPointUsers = "usuario/";
 
@@ -24,7 +24,6 @@ class UsuarioHttpService {
       headers: headers,
       body: jsonBody,
     );
-
     if (response.statusCode == 201 || response.statusCode == 200) {
       return true;
     } else {
