@@ -13,8 +13,6 @@ void main() async {
 
   await dotenv.load(fileName: '.env');
 
-  socket.initialize();
-
   PushNotificationService.initialize();
 
   ShakeDetectorService.startListening(() async {
@@ -28,9 +26,10 @@ void main() async {
   runApp(const AppAlerta());
 }
 
+SocketService socketService = SocketService();
+
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 ApiService apiService = ApiService();
-final socket = SocketService();
 
 class AppAlerta extends StatelessWidget {
   const AppAlerta({super.key});
