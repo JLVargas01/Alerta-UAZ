@@ -27,7 +27,7 @@ class _LoggedInPageState extends State<LoggedInPage> {
 
   void _handleSignOut(BuildContext context) {
     GoogleSignInService.logOut();
-    Navigator.of(context).pushNamed('/singIn');
+    Navigator.of(context).pushReplacementNamed('/singIn');
   }
 
   void _handleContactList() {
