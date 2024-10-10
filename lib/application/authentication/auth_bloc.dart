@@ -13,8 +13,6 @@ class SignOut extends AuthEvent {}
 
 abstract class AuthState {}
 
-class AuthInitial extends AuthState {}
-
 class Authenticated extends AuthState {}
 
 class Unauthenticated extends AuthState {}
@@ -31,13 +29,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepositoryImpl _authRepositoryImpl =
       AuthRepositoryImpl(GoogleSignInService());
 
-  AuthBloc() : super(AuthInitial()) {
+  AuthBloc() : super(Unauthenticated()) {
     on<CheckUserAuthentication>((event, emit) async {
+      emit(AuthLoading());
+
       GoogleSignInAccount? user = _authRepositoryImpl.getUserGoogle();
       if (user == null) {
         emit(Unauthenticated());
+      } else {
+        emit(Authenticated());
       }
-      emit(Authenticated());
     });
 
     on<SignIn>((event, emit) async {
