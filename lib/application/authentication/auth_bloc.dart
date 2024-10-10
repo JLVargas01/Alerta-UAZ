@@ -54,7 +54,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
         emit(Authenticated());
       } catch (e) {
-        emit(AuthError('Error al iniciar sesión: $e'));
+        emit(AuthError('Error al iniciar sesión: ${e.toString()}'));
       }
     });
 
