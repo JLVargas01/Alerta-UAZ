@@ -6,4 +6,5 @@ abstract class NotificationRepository {
   Future<bool> requestPermission();
   Future<String?> getDeviceToken();
   Future<void> deleteDeviceToken();
+  Future<void> notificationAlert();
 }
