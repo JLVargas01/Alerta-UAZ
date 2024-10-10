@@ -14,7 +14,9 @@ class LoginPage extends StatelessWidget {
         body: BlocListener<AuthBloc, AuthState>(
           listener: (context, state) {
             if (state is Authenticated) {
-              Navigator.of(context).pushReplacementNamed('/main');
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                Navigator.of(context).pushReplacementNamed('/main');
+              });
             } else if (state is AuthError) {
               ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Error: ${state.message}')));
@@ -30,7 +32,7 @@ class LoginPage extends StatelessWidget {
                 return Center(
                   child: ElevatedButton(
                     onPressed: () {
-                      BlocProvider.of<AuthBloc>(context).add(SignIn());
+                      context.read<AuthBloc>().add(SignIn());
                     },
                     child: const Text('Iniciar sesión con Google'),
                   ),

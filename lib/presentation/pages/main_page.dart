@@ -12,14 +12,16 @@ class MainPage extends StatelessWidget {
         title: const Text('Inicio'),
         actions: [
           TextButton(
-            onPressed: () => BlocProvider.of<AuthBloc>(context).add(SignOut()),
+            onPressed: () => context.read<AuthBloc>().add(SignOut()),
             child: const Text('Cerrar sesión'),
           )
         ],
       ),
       body: BlocListener<AuthBloc, AuthState>(listener: (context, state) {
         if (state is Unauthenticated) {
-          Navigator.of(context).pushReplacementNamed('/login');
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Navigator.of(context).pushReplacementNamed('/login');
+          });
         } else if (state is AuthError) {
           ScaffoldMessenger.of(context)
               .showSnackBar(SnackBar(content: Text('Error: ${state.message}')));

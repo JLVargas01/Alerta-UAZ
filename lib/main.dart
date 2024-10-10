@@ -25,9 +25,13 @@ class AppAlert extends StatelessWidget {
         body: BlocListener<AuthBloc, AuthState>(
           listener: (context, state) {
             if (state is Authenticated) {
-              Navigator.pushReplacementNamed(context, '/main');
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                Navigator.pushReplacementNamed(context, '/main');
+              });
             } else if (state is Unauthenticated) {
-              Navigator.pushReplacementNamed(context, '/login');
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                Navigator.pushReplacementNamed(context, '/login');
+              });
             }
           },
           child: const Center(
