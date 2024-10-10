@@ -3,6 +3,6 @@ import 'package:alerta_uaz/presentation/pages/main_page.dart';
 import 'package:flutter/widgets.dart';
 
 Map<String, WidgetBuilder> routes = {
-  "/": (_) => const LoginPage(),
+  "/login": (_) => const LoginPage(),
   "/main": (_) => const MainPage(),
 };
