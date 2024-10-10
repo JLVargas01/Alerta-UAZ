@@ -1,4 +1,4 @@
-import 'package:alerta_uaz/application/authentication/auth_cubic.dart';
+import 'package:alerta_uaz/application/authentication/auth_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -14,7 +14,7 @@ class LoginPage extends StatelessWidget {
       body: Center(
         child: ElevatedButton(
           onPressed: () {
-            BlocProvider.of<UserBloc>(context).add(SignIn());
+            BlocProvider.of<AuthBloc>(context).add(SignIn());
           },
           child: const Text('Iniciar sesión con Google'),
         ),
