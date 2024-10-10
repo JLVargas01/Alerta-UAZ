@@ -6,7 +6,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 void main() {
   runApp(
     BlocProvider(
-      create: (context) => AuthBloc()..add(CheckUserAuthentication()),
+      create: (context) => AuthBloc()
+        ..add(CheckUserAuthentication()), // Verifica si ya está autenticado
       child: const AppAlert(),
     ),
   );
@@ -26,12 +27,11 @@ class AppAlert extends StatelessWidget {
             if (state is Authenticated) {
               Navigator.pushReplacementNamed(context, '/main');
             } else if (state is Unauthenticated) {
-              Navigator.pushReplacementNamed(context, '/');
+              Navigator.pushReplacementNamed(context, '/login');
             }
           },
           child: const Center(
-            child:
-                CircularProgressIndicator(), // Mostramos un indicador de carga
+            child: CircularProgressIndicator(),
           ),
         ),
       ),
