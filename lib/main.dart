@@ -56,7 +56,6 @@ class AppAlert extends StatelessWidget {
 
 
 // import 'package:alerta_uaz/pages/alert_screen.dart';
-// import 'package:alerta_uaz/pages/contacts_screen.dart';
 // import 'package:alerta_uaz/pages/location_screen.dart';
 // import 'package:alerta_uaz/pages/logged_in_screen.dart';
 // import 'package:alerta_uaz/pages/login_screen.dart';
