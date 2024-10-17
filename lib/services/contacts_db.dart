@@ -1,4 +1,3 @@
-
 import 'package:alerta_uaz/services/database_service.dart';
 import 'package:alerta_uaz/models/cont_confianza.dart';
 import 'package:sqflite/sqflite.dart';
@@ -21,55 +20,58 @@ class ContactosConfianza {
 
   //Insertar nuevo contacto
   Future<void> insertContacto(ContactoConfianza contacto) async {
-    
+    try {
     // Obtener referencia a la base de datos
-    final db = await DatabaseService().getDatabase();
+      final db = await DatabaseService().getDatabase();
 
-    await db.insert(
-      tableName,
-      contacto.toMap(),
-
-      // Remplazar registro si se repite
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-    db.close();
+      await db.insert(
+        tableName,
+        contacto.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    } catch (e) {
+      print('Error al insertar contacto: $e');
+      rethrow;
+    }
   }
 
   // Obtener todos los contactos en la base de datos
   Future<List<ContactoConfianza>> contactos() async {
-
+    try {
     // Obtener referencia a la base de datos
-    final db = await DatabaseService().getDatabase();
+      final db = await DatabaseService().getDatabase();
 
     // Query a todos los contactos de confianza.
-    final List<Map<String, Object?>> contactoMaps = await db.query(tableName);
+      final List<Map<String, Object?>> contactoMaps = await db.query(tableName);
 
     // Convertir la lista a objetos ContactoConfianza
-    db.close();
-    return [
-      for (final {
-            'id': id as int,
-            'telephone': telephone as String,
-            'name': name as String,
-          } in contactoMaps)
-        ContactoConfianza(id: id, name: name, telephone: telephone),
-    ];
+      return [
+        for (final {
+        'id': id as int,
+        'telephone': telephone as String,
+        'name': name as String,
+        } in contactoMaps)
+          ContactoConfianza(id: id, name: name, telephone: telephone),
+      ];
+    } catch (e) {
+      print('Error al obtener contactos: $e');
+      return [];
+    }
   }
 
   Future<void> eliminarContacto(int id) async {
-
-    // Obtener referencia a la base de datos
-    final db = await DatabaseService().getDatabase();
+    try {
+      final db = await DatabaseService().getDatabase();
 
     // Eliminar el contacto
-    await db.delete(
-      tableName,
-      // Use a `where` clause to delete a specific dog.
-      where: 'id = ?',
-      // Pass the Dog's id as a whereArg to prevent SQL injection.
-      whereArgs: [id],
-    );
-    db.close();
+      await db.delete(
+        tableName,
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    } catch (e) {
+      print('Error al eliminar contacto: $e');
+      rethrow;
+    }
   }
-
 }
