@@ -13,7 +13,7 @@ import 'package:alerta_uaz/main.dart';
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const AppAlerta());
+    await tester.pumpWidget(const AppAlert());
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);
