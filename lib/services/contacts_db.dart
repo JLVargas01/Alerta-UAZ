@@ -1,19 +1,20 @@
 import 'package:alerta_uaz/services/database_service.dart';
-import 'package:alerta_uaz/models/cont_confianza.dart';
+import 'package:alerta_uaz/models/cont-confianza_model.dart';
 import 'package:sqflite/sqflite.dart';
 
 class ContactosConfianza {
 
-  final tableName = 'contactos';
+  final tableName = 'contactos_confianza';
 
   //Crear la tabla para los contactos de confianza
   Future<void> createTable(Database database) async {
     await database.execute(
       """CREATE TABLE IF NOT EXISTS $tableName (
-        "id"  INTEGER NOT NULL,
+        "id_confianza"  INTEGER NOT NULL,
+        "alias" TEXT NOT NULL,
         "telephone" TEXT NOT NULL,
-        "name" TEXT NOT NULL,
-        PRIMARY KEY("id" AUTOINCREMENT)
+        "relacion" TEXT NOT NULL,
+        PRIMARY KEY("id_confianza")
       );"""
     );
   }
@@ -47,11 +48,12 @@ class ContactosConfianza {
     // Convertir la lista a objetos ContactoConfianza
       return [
         for (final {
-        'id': id as int,
+        'id_confianza': id_confianza as int,
         'telephone': telephone as String,
-        'name': name as String,
+        'alias': alias as String,
+        'relacion': relacion as String,
         } in contactoMaps)
-          ContactoConfianza(id: id, name: name, telephone: telephone),
+          ContactoConfianza(id_confianza: id_confianza, alias: alias, telephone: telephone, relacion: relacion),
       ];
     } catch (e) {
       print('Error al obtener contactos: $e');
@@ -66,7 +68,7 @@ class ContactosConfianza {
     // Eliminar el contacto
       await db.delete(
         tableName,
-        where: 'id = ?',
+        where: 'id_confianza = ?',
         whereArgs: [id],
       );
     } catch (e) {
