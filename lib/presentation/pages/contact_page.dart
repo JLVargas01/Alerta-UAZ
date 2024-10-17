@@ -22,7 +22,7 @@ class ContactPage extends StatelessWidget {
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
               ),
             );
-          } else if (state is ContactosLoaded) {
+          } else if (state is ContactsLoaded) {
             final contactos = state.contactos;
             return contactos.isEmpty
                 ? const Center(
@@ -42,13 +42,13 @@ class ContactPage extends StatelessWidget {
                   child: ListTile(
                     leading: const Icon(Icons.person, size: 50.0, color: Colors.blue),
                     title: Text(
-                      contacto.name,
+                      contacto.alias,
                       style: const TextStyle(fontSize: 16),
                     ),
                     trailing: IconButton(
                       icon: const Icon(Icons.remove_circle_outline_outlined),
                       onPressed: () {
-                        context.read<ContactsBloc>().add(RemoveContact(contacto.id!));
+                        context.read<ContactsBloc>().add(RemoveContact(contacto.id_confianza));
                       },
                     ),
                   ),
