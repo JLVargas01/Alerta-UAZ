@@ -1,4 +1,4 @@
-import 'package:alerta_uaz/models/cont-confianza_model.dart';
+import 'package:alerta_uaz/domain/model/cont-confianza_model.dart';
 import 'package:alerta_uaz/services/contacts_db.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttercontactpicker/fluttercontactpicker.dart';
@@ -81,7 +81,7 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
     on<RemoveContact>((event, emit) async {
       emit(ContactsLoading());
       try {
-        await contacsDB.eliminarContacto(event.id);
+        await contacsDB.eliminarContacto(event.id_confianza);
         final contactos = await contacsDB.contactos();
         emit(ContactsLoaded(contactos));
       } catch (e) {
