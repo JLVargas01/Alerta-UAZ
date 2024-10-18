@@ -2,8 +2,13 @@ import 'package:alerta_uaz/application/authentication/auth_bloc.dart';
 import 'package:alerta_uaz/presentation/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await dotenv.load();
+
   runApp(
     BlocProvider(
       create: (context) => AuthBloc()
