@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:alerta_uaz/domain/model/user_model.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
@@ -35,6 +34,25 @@ class UserService {
       return null;
     }
   }
+
+  Future<String?> sendDataNewContact(String nombre, String telefono, String idLista) async {
+    String? endpoint = dotenv.env['USER_CREATE_CONTACT'];
+
+    Uri uri = Uri.parse('$_baseURL$endpoint');
+
+    Map<String, dynamic> parametersSend = {
+      'id_listConta': idLista,
+      'alias': nombre,
+      'telephone': telefono
+    };
+    final response = await _sendData(parametersSend, uri);
+    if (response.statusCode == 201) {
+      return response.body;
+    } else {
+      return null;
+    }
+  }
+
 
   Future<http.Response> _sendData(Map<String, dynamic> data, Uri uri) async {
     const headerKey = "********************************************";
