@@ -55,7 +55,8 @@ class ContactPage extends StatelessWidget {
                 },
               );
             } else {
-              return const Center(child: Text('Error desconocido'));
+              context.read<ContactsBloc>().add(LoadContacts());
+              return const Center(child: CircularProgressIndicator());
             }
           },
         ),
