@@ -14,8 +14,8 @@ class LoadContacts extends ContactsEvent {}
 class AddContact extends ContactsEvent {}
 
 class RemoveContact extends ContactsEvent {
-  final String id_confianza;
-  RemoveContact(this.id_confianza);
+  final String idConfianza;
+  RemoveContact(this.idConfianza);
 }
 
 abstract class ContactsState {}
@@ -53,17 +53,39 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
     on<AddContact>((event, emit) async {
       emit(ContactsLoading());
       try {
-        //Tomar los datos del contacto seleccionado
-        final PhoneContact contactPicker = await FlutterContactPicker.pickPhoneContact();
-        String numeroTelefonico = contactPicker.phoneNumber?.number ?? '';
-        String nombre = contactPicker.fullName ?? '';
+        /*
+        //  Tomar los datos del contacto seleccionado
+        //  nota: aparentemente 'PhoneContact' esta deprecado, pero
+        //  aun funciona, es posible que sea necesario cambiar
+        //  la libreria a otra
+        */
+        final PhoneContact? contactPicker = await FlutterContactPicker.pickPhoneContact();
+
+        // Asegúrate de que contactPicker no sea nulo
+        if (contactPicker == null) {
+          emit(ContactsError('No se seleccionó ningún contacto.'));
+          return;
+        }
+
+        String? numeroTelefonico = contactPicker.phoneNumber?.number;
+        String? nombre = contactPicker.fullName;
+
+        // Verificar si el número telefónico y el nombre son válidos
+        if (numeroTelefonico == null || nombre == null) {
+          emit(ContactsError('Número telefónico o nombre no válidos.'));
+          return;
+        }
 
         User? user = await _userStorange.getUser();
         String? idLista = user?.idContacts;
+        if (idLista == null) {
+          emit(ContactsError('Número telefónico o nombre no válidos.'));
+          return;
+        }
 
-        String? idNewContact = await _contactsRepositoryImpl.createContact(nombre, numeroTelefonico, idLista!);
-        if(idNewContact != null) {
-          //Hacer el registro en la db local
+        String? idNewContact = await _contactsRepositoryImpl.createContact(nombre, numeroTelefonico, idLista);
+        if (idNewContact != null) {
+          // Hacer el registro en la DB local
           ContactoConfianza nuevoContacto = ContactoConfianza(
             id_confianza: idNewContact,
             alias: nombre,
@@ -72,8 +94,8 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
 
           await contacsDB.insertContacto(nuevoContacto);
         } else {
-          emit(ContactsError(
-              'Error al iniciar sesión, por favor intentelo más tarde'));
+          emit(ContactsError('Error al crear el contacto, por favor intente más tarde'));
+          return;
         }
         // Recargamos la lista de contactos
         final contactos = await contacsDB.contactos();
@@ -86,7 +108,7 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
     on<RemoveContact>((event, emit) async {
       emit(ContactsLoading());
       try {
-        await contacsDB.eliminarContacto(event.id_confianza);
+        await contacsDB.eliminarContacto(event.idConfianza);
         final contactos = await contacsDB.contactos();
         emit(ContactsLoaded(contactos));
       } catch (e) {
