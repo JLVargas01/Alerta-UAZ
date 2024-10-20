@@ -25,6 +25,12 @@ class UserStorange {
     return null;
   }
 
+  Future<String?> getIdContactList() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? idContactList = prefs.getString('_idContactList');
+    return idContactList;
+  }
+
   Future<void> clearUser() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('user');
