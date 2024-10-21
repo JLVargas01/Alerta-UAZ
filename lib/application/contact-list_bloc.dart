@@ -1,4 +1,8 @@
-import 'package:alerta_uaz/models/cont-confianza_model.dart';
+import 'package:alerta_uaz/data/data_sources/local/user_storange.dart';
+import 'package:alerta_uaz/data/data_sources/remote/user_service.dart';
+import 'package:alerta_uaz/data/repositories/contacts_repository_imp.dart';
+import 'package:alerta_uaz/domain/model/cont-confianza_model.dart';
+import 'package:alerta_uaz/domain/model/user_model.dart';
 import 'package:alerta_uaz/services/contacts_db.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttercontactpicker/fluttercontactpicker.dart';
@@ -10,8 +14,8 @@ class LoadContacts extends ContactsEvent {}
 class AddContact extends ContactsEvent {}
 
 class RemoveContact extends ContactsEvent {
-  final int id_confianza;
-  RemoveContact(this.id_confianza);
+  final String idConfianza;
+  RemoveContact(this.idConfianza);
 }
 
 abstract class ContactsState {}
@@ -32,7 +36,8 @@ class ContactsError extends ContactsState {
 
 class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
   final contacsDB = ContactosConfianza();
-  Future<List<ContactoConfianza>>? futureContcs;
+  final UserStorange _userStorange = UserStorange();
+  final ContactsRepositoryImpl _contactsRepositoryImpl = ContactsRepositoryImpl(UserService());
 
   ContactsBloc() : super(ContactsInitial()) {
     on<LoadContacts>((event, emit) async {
@@ -48,28 +53,50 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
     on<AddContact>((event, emit) async {
       emit(ContactsLoading());
       try {
-        //Tomar los datos del contacto seleccionado
-        final PhoneContact contactPicker = await FlutterContactPicker.pickPhoneContact();
-        String numeroTelefonico = contactPicker.phoneNumber?.number ?? '';
-        String nombreCompleto = contactPicker.fullName ?? '';
-
         /*
-        //
-        //Hacer un registro en el servidor
-        //TODO
-        // Tomar el id del registro del usuario para crear el usuario
-        //
-         */
+        //  Tomar los datos del contacto seleccionado
+        //  nota: aparentemente 'PhoneContact' esta deprecado, pero
+        //  aun funciona, es posible que sea necesario cambiar
+        //  la libreria a otra
+        */
+        final PhoneContact? contactPicker = await FlutterContactPicker.pickPhoneContact();
 
-        //Hacer el registro en la db local
-        ContactoConfianza nuevoContacto = ContactoConfianza(
-          id_confianza: 1,  //Este id es temporal, no funcionara mas de una vez
-          alias: nombreCompleto,  //ok
-          telephone: numeroTelefonico,  //ok
-          relacion: '', //Este dato es temporal, se debe desarrollar algo para obtenerlo
+        // Asegúrate de que contactPicker no sea nulo
+        if (contactPicker == null) {
+          emit(ContactsError('No se seleccionó ningún contacto.'));
+          return;
+        }
+
+        String? numeroTelefonico = contactPicker.phoneNumber?.number;
+        String? nombre = contactPicker.fullName;
+
+        // Verificar si el número telefónico y el nombre son válidos
+        if (numeroTelefonico == null || nombre == null) {
+          emit(ContactsError('Número telefónico o nombre no válidos.'));
+          return;
+        }
+
+        User? user = await _userStorange.getUser();
+        String? idLista = user?.idContacts;
+        if (idLista == null) {
+          emit(ContactsError('Número telefónico o nombre no válidos.'));
+          return;
+        }
+
+        String? idNewContact = await _contactsRepositoryImpl.createContact(nombre, numeroTelefonico, idLista);
+        if (idNewContact != null) {
+          // Hacer el registro en la DB local
+          ContactoConfianza nuevoContacto = ContactoConfianza(
+            id_confianza: idNewContact,
+            alias: nombre,
+            telephone: numeroTelefonico,
           );
-        await contacsDB.insertContacto(nuevoContacto);
 
+          await contacsDB.insertContacto(nuevoContacto);
+        } else {
+          emit(ContactsError('Error al crear el contacto, por favor intente más tarde'));
+          return;
+        }
         // Recargamos la lista de contactos
         final contactos = await contacsDB.contactos();
         emit(ContactsLoaded(contactos));
@@ -81,7 +108,7 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
     on<RemoveContact>((event, emit) async {
       emit(ContactsLoading());
       try {
-        await contacsDB.eliminarContacto(event.id);
+        await contacsDB.eliminarContacto(event.idConfianza);
         final contactos = await contacsDB.contactos();
         emit(ContactsLoaded(contactos));
       } catch (e) {

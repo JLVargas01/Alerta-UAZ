@@ -1,14 +1,20 @@
-class ContactoConfianza {
-  final int id_confianza;
-  final String telephone;
-  final String alias;
-  final String relacion;
+//
+//  Modelo para almacenar los contactos de confianza
+//  Este modelo esta pensado para funcionar con sqlite
+//  - JL
+//
 
-  const ContactoConfianza({
+class ContactoConfianza {
+  final String id_confianza;
+  String telephone;
+  String alias;
+  String relacion;
+
+   ContactoConfianza({
     required this.id_confianza,
     required this.telephone,
     required this.alias,
-    required this.relacion
+    this.relacion = '',
   });
 
   Map<String, Object?> toMap() {

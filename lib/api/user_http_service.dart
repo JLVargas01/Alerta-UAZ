@@ -3,7 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 class UsuarioHttpService {
-  final String _url = "http://${dotenv.env['API_URL']}/api/"; //IP  
+  final String _url = "http://192.168.1.13:4000/api/"; //IP
   final String _headerKey = "********************************************";
   final String _endPointUsers = "usuario/";
 
@@ -72,6 +72,24 @@ class UsuarioHttpService {
     } else {
       return false;
     }
+  }
+
+  /*
+  //  Enviar informacion para crear un contacto
+  */
+  Future<http.Response> createContactPost(Map<String, dynamic> contactoInfo) async {
+    String byUserRoute = 'contacto';
+    Uri uri = Uri.parse(_url + _endPointUsers + byUserRoute);
+    Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'Authorization': _headerKey,
+    };
+    String jsonBody = jsonEncode(contactoInfo);
+    return await http.post(
+      uri,
+      headers: headers,
+      body: jsonBody,
+    );
   }
 
 }
