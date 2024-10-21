@@ -29,4 +29,15 @@ class UsuarioServices {
     return resultado;
   }
 
+  Future<int> crearUsuarioConfianza(String nombreCompleto, String numeroTelefonico) async {
+    Map<String, dynamic> parametersSend = {
+      'Nombre': nombreCompleto,
+      'telefono': numeroTelefonico
+    };
+    print("#############################################################################################################");
+    print(await usuarioServApi.createContactPost(parametersSend));
+    print("#############################################################################################################");
+    return 0;
+  }
+
 }

@@ -1,5 +1,5 @@
 import 'package:alerta_uaz/services/database_service.dart';
-import 'package:alerta_uaz/models/cont-confianza_model.dart';
+import 'package:alerta_uaz/domain/model/cont-confianza_model.dart';
 import 'package:sqflite/sqflite.dart';
 
 class ContactosConfianza {
@@ -10,10 +10,10 @@ class ContactosConfianza {
   Future<void> createTable(Database database) async {
     await database.execute(
       """CREATE TABLE IF NOT EXISTS $tableName (
-        "id_confianza"  INTEGER NOT NULL,
+        "id_confianza"  TEXT NOT NULL,
         "alias" TEXT NOT NULL,
         "telephone" TEXT NOT NULL,
-        "relacion" TEXT NOT NULL,
+        "relacion" TEXT,
         PRIMARY KEY("id_confianza")
       );"""
     );
@@ -48,7 +48,7 @@ class ContactosConfianza {
     // Convertir la lista a objetos ContactoConfianza
       return [
         for (final {
-        'id_confianza': id_confianza as int,
+        'id_confianza': id_confianza as String,
         'telephone': telephone as String,
         'alias': alias as String,
         'relacion': relacion as String,
@@ -61,7 +61,7 @@ class ContactosConfianza {
     }
   }
 
-  Future<void> eliminarContacto(int id) async {
+  Future<void> eliminarContacto(String id) async {
     try {
       final db = await DatabaseService().getDatabase();
 
