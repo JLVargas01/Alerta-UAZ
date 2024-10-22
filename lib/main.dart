@@ -1,4 +1,4 @@
-import 'package:alerta_uaz/application/authentication/auth_bloc.dart';
+import 'package:alerta_uaz/application/auth_bloc.dart';
 import 'package:alerta_uaz/application/contact-list_bloc.dart';
 import 'package:alerta_uaz/presentation/routes.dart';
 import 'package:flutter/material.dart';
@@ -15,13 +15,11 @@ Future<void> main() async {
       providers: [
         // Verifica si ya está autenticado
         BlocProvider(
-          create: (context) => AuthBloc()
-            ..add(CheckUserAuthentication()),
+          create: (context) => AuthBloc()..add(CheckUserAuthentication()),
         ),
         // Cargar contactos guardados
         BlocProvider(
-          create: (context) => ContactsBloc()
-            ..add(LoadContacts()),
+          create: (context) => ContactsBloc()..add(LoadContacts()),
         ),
       ],
       child: const AppAlert(),
