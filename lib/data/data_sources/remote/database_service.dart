@@ -1,4 +1,4 @@
-import 'package:alerta_uaz/services/contacts_db.dart';
+import 'package:alerta_uaz/data/data_sources/local/contacts_db.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
