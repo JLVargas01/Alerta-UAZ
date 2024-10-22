@@ -1,4 +1,4 @@
-import 'package:alerta_uaz/services/database_service.dart';
+import 'package:alerta_uaz/data/data_sources/remote/database_service.dart';
 import 'package:alerta_uaz/domain/model/cont-confianza_model.dart';
 import 'package:sqflite/sqflite.dart';
 

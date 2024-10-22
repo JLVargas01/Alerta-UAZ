@@ -3,7 +3,7 @@ import 'package:alerta_uaz/data/data_sources/remote/user_service.dart';
 import 'package:alerta_uaz/data/repositories/contacts_repository_imp.dart';
 import 'package:alerta_uaz/domain/model/cont-confianza_model.dart';
 import 'package:alerta_uaz/domain/model/user_model.dart';
-import 'package:alerta_uaz/services/contacts_db.dart';
+import 'package:alerta_uaz/data/data_sources/local/contacts_db.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttercontactpicker/fluttercontactpicker.dart';
 
@@ -35,7 +35,7 @@ class ContactsError extends ContactsState {
 }
 
 class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
-  final contacsDB = ContactosConfianza();
+  final ContactosConfianza contactsDB = ContactosConfianza();
   final UserStorange _userStorange = UserStorange();
   final ContactsRepositoryImpl _contactsRepositoryImpl = ContactsRepositoryImpl(UserService());
 
@@ -43,7 +43,7 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
     on<LoadContacts>((event, emit) async {
       emit(ContactsLoading());
       try {
-        final contactos = await contacsDB.contactos();
+        final contactos = await contactsDB.contactos();
         emit(ContactsLoaded(contactos));
       } catch (e) {
         emit(ContactsError('Error al cargar contactos: ${e.toString()}'));
@@ -92,13 +92,12 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
             telephone: numeroTelefonico,
           );
 
-          await contacsDB.insertContacto(nuevoContacto);
+          await contactsDB.insertContacto(nuevoContacto);
         } else {
           emit(ContactsError('Error al crear el contacto, por favor intente más tarde'));
           return;
         }
-        // Recargamos la lista de contactos
-        final contactos = await contacsDB.contactos();
+        final contactos = await contactsDB.contactos();
         emit(ContactsLoaded(contactos));
       } catch (e) {
         emit(ContactsError('Error al agregar contacto: ${e.toString()}'));
@@ -108,8 +107,8 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
     on<RemoveContact>((event, emit) async {
       emit(ContactsLoading());
       try {
-        await contacsDB.eliminarContacto(event.idConfianza);
-        final contactos = await contacsDB.contactos();
+        await contactsDB.eliminarContacto(event.idConfianza);
+        final contactos = await contactsDB.contactos();
         emit(ContactsLoaded(contactos));
       } catch (e) {
         emit(ContactsError('Error al eliminar contacto: ${e.toString()}'));
