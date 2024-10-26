@@ -1,4 +1,5 @@
 import 'package:alerta_uaz/application/auth_bloc.dart';
+import 'package:alerta_uaz/application/notification_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -14,12 +15,13 @@ class LoginPage extends StatelessWidget {
         body: BlocListener<AuthBloc, AuthState>(
           listener: (context, state) {
             if (state is Authenticated) {
+              context.read<NotificationBloc>().add(Enabled());
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 Navigator.of(context).pushReplacementNamed('/main');
               });
             } else if (state is AuthError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Error: ${state.message}')));
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBar(content: Text(state.message)));
             }
           },
           child: BlocBuilder<AuthBloc, AuthState>(
