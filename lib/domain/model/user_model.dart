@@ -2,7 +2,7 @@ class User {
   String? _id;
   final String _name;
   final String _email;
-  final String? _phone;
+  String? _phone;
   String? _avatar;
   String? _deviceToken;
   String? _idContactList;
@@ -13,12 +13,14 @@ class User {
       required email,
       String? phone,
       String? avatar,
+      String? deviceToken,
       String? idContactList})
       : _id = id,
         _name = name,
         _email = email,
         _phone = phone,
         _avatar = avatar,
+        _deviceToken = deviceToken,
         _idContactList = idContactList;
 
   // getters
@@ -31,11 +33,7 @@ class User {
 
   // setters
   set deviceToken(String token) {
-    if (token.isNotEmpty) {
-      _deviceToken = token;
-    } else {
-      print('El token del dispositivo no puede estar vacío');
-    }
+    _deviceToken = token;
   }
 
   Map<String, dynamic> toJson() {
@@ -45,6 +43,7 @@ class User {
       'email': _email,
       'phone': _phone,
       'avatar': _avatar,
+      'token': _deviceToken,
       'id_contact_list': _idContactList
     };
   }
@@ -56,6 +55,7 @@ class User {
         email: json['email'],
         phone: json['phone'],
         avatar: json['avatar'],
+        deviceToken: json['token'],
         idContactList: json['id_contact_list']);
   }
 
