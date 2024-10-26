@@ -1,4 +1,5 @@
 import 'package:alerta_uaz/data/data_sources/local/user_storange.dart';
+import 'package:alerta_uaz/data/data_sources/remote/firebase_service.dart';
 import 'package:alerta_uaz/data/data_sources/remote/google_sign_in_service.dart';
 import 'package:alerta_uaz/data/data_sources/remote/user_service.dart';
 import 'package:alerta_uaz/data/repositories/auth_repository_imp.dart';
@@ -61,9 +62,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         } else {
           // Lógica para registrar el usuario
           User? user = User(
-              name: googleUser.displayName,
-              email: googleUser.email,
-              avatar: googleUser.photoUrl);
+            name: googleUser.displayName,
+            email: googleUser.email,
+            avatar: googleUser.photoUrl,
+          );
+
+          // Obtenemos el token del dispositivo
+          user.deviceToken = (await FirebaseService().getToken())!;
 
           user = await _authRepositoryImpl.signInUser(user);
 
