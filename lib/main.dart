@@ -1,10 +1,10 @@
 import 'package:alerta_uaz/application/alert/alert_bloc.dart';
 
-import 'package:alerta_uaz/application/auth_bloc.dart';
+import 'package:alerta_uaz/application/authentication/auth_bloc.dart';
 
 import 'package:alerta_uaz/application/contact-list_bloc.dart';
 
-import 'package:alerta_uaz/application/notification_bloc.dart';
+import 'package:alerta_uaz/application/notification/notification_bloc.dart';
 
 import 'package:alerta_uaz/data/data_sources/remote/firebase_service.dart';
 

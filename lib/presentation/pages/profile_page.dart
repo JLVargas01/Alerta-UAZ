@@ -5,7 +5,8 @@ import 'package:alerta_uaz/application/authentication/auth_bloc.dart';
 import 'package:alerta_uaz/application/authentication/auth_event.dart';
 import 'package:alerta_uaz/application/authentication/auth_state.dart';
 
-import 'package:alerta_uaz/application/notification_bloc.dart';
+import 'package:alerta_uaz/application/notification/notification_bloc.dart';
+import 'package:alerta_uaz/application/notification/notification_event.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -76,7 +77,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       onPressed: () {
                         context
                             .read<NotificationBloc>()
-                            .add(NotificationDisabled());
+                            .add(DisabledNotification());
                         context.read<AlertBloc>().add(DisabledAlert());
                         context.read<AuthBloc>().add(SignOut());
                       },
