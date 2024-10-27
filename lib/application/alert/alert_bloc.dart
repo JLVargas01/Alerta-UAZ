@@ -47,8 +47,6 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
           add(SentAlert(success));
         } catch (error) {
           add(ErrorAlert(error.toString()));
-        } finally {
-          _shakeDetectorService.resumeListening();
         }
       });
     }
