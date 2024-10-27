@@ -1,3 +1,4 @@
+import 'package:alerta_uaz/application/alert_bloc.dart';
 import 'package:alerta_uaz/application/auth_bloc.dart';
 import 'package:alerta_uaz/application/notification_bloc.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,8 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Verifica si ya está autenticado
+    context.read<AuthBloc>().add(CheckUserAuthentication());
     return Scaffold(
         appBar: AppBar(
           title: const Text('Iniciar Sesión con Google'),
@@ -15,7 +18,9 @@ class LoginPage extends StatelessWidget {
         body: BlocListener<AuthBloc, AuthState>(
           listener: (context, state) {
             if (state is Authenticated) {
+              // Activa las funciones para usuarios autenticados
               context.read<NotificationBloc>().add(Enabled());
+              context.read<AlertBloc>().add(AlertEnabled(state.user));
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 Navigator.of(context).pushReplacementNamed('/main');
               });
