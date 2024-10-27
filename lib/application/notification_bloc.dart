@@ -22,27 +22,24 @@ class NotificationError extends NotificationState {
 
 abstract class NotificationEvent {}
 
-class Enabled extends NotificationEvent {}
+class NotificationEnabled extends NotificationEvent {}
 
-class Disabled extends NotificationEvent {}
+class NotificationDisabled extends NotificationEvent {}
 
-class Received extends NotificationEvent {
+class _NotificationReceived extends NotificationEvent {
   NotificationMessage message;
 
-  Received(this.message);
+  _NotificationReceived(this.message);
 }
 
 class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   final FirebaseService _message;
 
   NotificationBloc(this._message) : super(NotificationInitial()) {
-    on<Enabled>(_onStartNotification);
-    on<Disabled>(_onStopNotification);
-    on<Received>(
-      (event, emit) {
-        emit(NotificationReceived(event.message));
-      },
-    );
+    on<NotificationEnabled>(_onStartNotification);
+    on<NotificationDisabled>(_onStopNotification);
+    on<_NotificationReceived>(
+        (event, emit) => emit(NotificationReceived(event.message)));
   }
 
   // Activa la llegada de notificaciones
@@ -51,7 +48,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     await _message.requestPermission();
     await _message.setUpMessages();
     _message.messageController.listen((notification) {
-      add(Received(notification));
+      add(_NotificationReceived(notification));
     });
   }
 
