@@ -1,5 +1,8 @@
+import 'package:alerta_uaz/application/alert/alert_bloc.dart';
+import 'package:alerta_uaz/application/alert/alert_state.dart';
+
 import 'package:alerta_uaz/application/notification_bloc.dart';
-import 'package:alerta_uaz/application/alert_bloc.dart';
+
 import 'package:alerta_uaz/domain/model/notification_model.dart';
 import 'package:alerta_uaz/presentation/widget/indexed_stack_navigation.dart';
 import 'package:alerta_uaz/presentation/widget/notification_alert.dart';

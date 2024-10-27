@@ -1,4 +1,6 @@
-import 'package:alerta_uaz/application/alert_bloc.dart';
+import 'package:alerta_uaz/application/alert/alert_bloc.dart';
+import 'package:alerta_uaz/application/alert/alert_state.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
