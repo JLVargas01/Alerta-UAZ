@@ -125,5 +125,5 @@ class ShakeDetectorService {
   }
 
   bool get isPaused => _isPaused;
-  bool get isListening => !_isPaused;
+  bool get isListening => _isPaused;
 }
