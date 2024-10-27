@@ -1,4 +1,5 @@
 import 'package:alerta_uaz/application/notification_bloc.dart';
+import 'package:alerta_uaz/application/alert_bloc.dart';
 import 'package:alerta_uaz/domain/model/notification_model.dart';
 import 'package:alerta_uaz/presentation/widget/indexed_stack_navigation.dart';
 import 'package:alerta_uaz/presentation/widget/notification_alert.dart';
@@ -10,12 +11,30 @@ class MainPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<NotificationBloc, NotificationState>(
-      listener: (context, state) {
-        if (state is NotificationReceived) {
-          _showNotificationAlert(context, state.notificationModel);
-        }
-      },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<AlertBloc, AlertState>(
+          listener: (context, state) {
+            if (state is AlertSent) {
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBar(content: Text(state.success)));
+            } else if (state is AlertSending) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Enviando alerta...')));
+            } else if (state is AlertError) {
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBar(content: Text(state.error)));
+            }
+          },
+        ),
+        BlocListener<NotificationBloc, NotificationState>(
+          listener: (context, state) {
+            if (state is NotificationReceived) {
+              _showNotificationAlert(context, state.notificationModel);
+            }
+          },
+        ),
+      ],
       child: const IndexedStackNavigation(),
     );
   }
