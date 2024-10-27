@@ -13,9 +13,10 @@ class FirebaseService {
 
   late FirebaseMessaging _firebaseMessaging;
 
-  late StreamController<NotificationModel> _messageController;
+  late StreamController<NotificationMessage> _messageController;
 
-  Stream<NotificationModel> get messageController => _messageController.stream;
+  Stream<NotificationMessage> get messageController =>
+      _messageController.stream;
 
   Future<void> initializeApp() async {
     try {
@@ -51,7 +52,7 @@ class FirebaseService {
   }
 
   Future<void> setUpMessages() async {
-    _messageController = StreamController<NotificationModel>.broadcast();
+    _messageController = StreamController<NotificationMessage>.broadcast();
 
     FirebaseMessaging.onMessage.listen(_handleMessage);
     FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
@@ -64,9 +65,9 @@ class FirebaseService {
   }
 
   void _handleMessage(RemoteMessage message) {
-    NotificationModel notificationModel = NotificationModel(
+    NotificationMessage notificationMessage = NotificationMessage(
         notification: message.notification, data: message.data);
-    _messageController.add(notificationModel);
+    _messageController.add(notificationMessage);
   }
 
   Future<String?> getToken() async {

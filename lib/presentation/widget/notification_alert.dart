@@ -2,13 +2,13 @@ import 'package:alerta_uaz/domain/model/notification_model.dart';
 import 'package:flutter/material.dart';
 
 class NotificationAlert extends StatelessWidget {
-  final NotificationModel notificationModel;
+  final NotificationMessage message;
 
-  const NotificationAlert({super.key, required this.notificationModel});
+  const NotificationAlert({super.key, required this.message});
 
   @override
   Widget build(BuildContext context) {
-    final notification = notificationModel.notification;
+    final notification = message.notification;
 
     return AlertDialog(
       title: Text(notification?.title ?? 'Notificación'),
@@ -17,8 +17,8 @@ class NotificationAlert extends StatelessWidget {
         TextButton(
             onPressed: () {
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                Navigator.of(context).pushReplacementNamed('/map',
-                    arguments: notificationModel.data);
+                Navigator.of(context)
+                    .pushReplacementNamed('/map', arguments: message.data);
               });
             },
             child: const Text('ver ubicación')),

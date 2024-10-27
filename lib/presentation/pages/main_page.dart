@@ -30,7 +30,7 @@ class MainPage extends StatelessWidget {
         BlocListener<NotificationBloc, NotificationState>(
           listener: (context, state) {
             if (state is NotificationReceived) {
-              _showNotificationAlert(context, state.notificationModel);
+              _showNotificationAlert(context, state.message);
             }
           },
         ),
@@ -40,11 +40,11 @@ class MainPage extends StatelessWidget {
   }
 
   void _showNotificationAlert(
-      BuildContext context, NotificationModel notification) {
+      BuildContext context, NotificationMessage message) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return NotificationAlert(notificationModel: notification);
+        return NotificationAlert(message: message);
       },
     );
   }

@@ -9,9 +9,9 @@ abstract class NotificationState {}
 class NotificationInitial extends NotificationState {}
 
 class NotificationReceived extends NotificationState {
-  NotificationModel notificationModel;
+  NotificationMessage message;
 
-  NotificationReceived(this.notificationModel);
+  NotificationReceived(this.message);
 }
 
 class NotificationError extends NotificationState {
@@ -27,22 +27,20 @@ class Enabled extends NotificationEvent {}
 class Disabled extends NotificationEvent {}
 
 class Received extends NotificationEvent {
-  NotificationModel notificationModel;
+  NotificationMessage message;
 
-  Received(this.notificationModel);
+  Received(this.message);
 }
 
 class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   final FirebaseService _message;
-
-  late StreamSubscription<NotificationModel> _stream;
 
   NotificationBloc(this._message) : super(NotificationInitial()) {
     on<Enabled>(_onStartNotification);
     on<Disabled>(_onStopNotification);
     on<Received>(
       (event, emit) {
-        emit(NotificationReceived(event.notificationModel));
+        emit(NotificationReceived(event.message));
       },
     );
   }
@@ -52,7 +50,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
       NotificationEvent event, Emitter<NotificationState> emit) async {
     await _message.requestPermission();
     await _message.setUpMessages();
-    _stream = _message.messageController.listen((notification) {
+    _message.messageController.listen((notification) {
       add(Received(notification));
     });
   }
