@@ -19,7 +19,7 @@ class LoginPage extends StatelessWidget {
           listener: (context, state) {
             if (state is Authenticated) {
               // Activa las funciones para usuarios autenticados
-              context.read<NotificationBloc>().add(Enabled());
+              context.read<NotificationBloc>().add(NotificationEnabled());
               context.read<AlertBloc>().add(AlertEnabled(state.user));
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 Navigator.of(context).pushReplacementNamed('/main');

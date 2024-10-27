@@ -68,7 +68,9 @@ class _ProfilePageState extends State<ProfilePage> {
                     const SizedBox(height: 24),
                     ElevatedButton(
                       onPressed: () {
-                        context.read<NotificationBloc>().add(Disabled());
+                        context
+                            .read<NotificationBloc>()
+                            .add(NotificationDisabled());
                         context.read<AlertBloc>().add(AlertDisabled());
                         context.read<AuthBloc>().add(SignOut());
                       },
