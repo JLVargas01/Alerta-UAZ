@@ -1,7 +1,9 @@
 import 'package:alerta_uaz/application/alert/alert_bloc.dart';
 import 'package:alerta_uaz/application/alert/alert_event.dart';
 
-import 'package:alerta_uaz/application/auth_bloc.dart';
+import 'package:alerta_uaz/application/authentication/auth_bloc.dart';
+import 'package:alerta_uaz/application/authentication/auth_event.dart';
+import 'package:alerta_uaz/application/authentication/auth_state.dart';
 
 import 'package:alerta_uaz/application/notification_bloc.dart';
 
