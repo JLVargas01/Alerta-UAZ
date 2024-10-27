@@ -1,3 +1,4 @@
+import 'package:alerta_uaz/application/alert_bloc.dart';
 import 'package:alerta_uaz/application/auth_bloc.dart';
 import 'package:alerta_uaz/application/notification_bloc.dart';
 import 'package:flutter/material.dart';
@@ -68,6 +69,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ElevatedButton(
                       onPressed: () {
                         context.read<NotificationBloc>().add(Disabled());
+                        context.read<AlertBloc>().add(AlertDisabled());
                         context.read<AuthBloc>().add(SignOut());
                       },
                       child: const Text('Cerrar sesión'),
