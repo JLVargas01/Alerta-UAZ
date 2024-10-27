@@ -19,12 +19,12 @@ class MainPage extends StatelessWidget {
       listeners: [
         BlocListener<AlertBloc, AlertState>(
           listener: (context, state) {
-            if (state is AlertSent) {
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text(state.success)));
-            } else if (state is AlertSending) {
+            if (state is AlertSending) {
               ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Enviando alerta...')));
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                Navigator.of(context).pushReplacementNamed('/alert');
+              });
             } else if (state is AlertError) {
               ScaffoldMessenger.of(context)
                   .showSnackBar(SnackBar(content: Text(state.error)));
