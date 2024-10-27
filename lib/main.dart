@@ -1,3 +1,4 @@
+import 'package:alerta_uaz/application/alert_bloc.dart';
 import 'package:alerta_uaz/application/auth_bloc.dart';
 import 'package:alerta_uaz/application/contact-list_bloc.dart';
 import 'package:alerta_uaz/application/notification_bloc.dart';
@@ -19,15 +20,15 @@ Future<void> main() async {
   runApp(
     MultiBlocProvider(
       providers: [
-        // Verifica si ya está autenticado
         BlocProvider(
-          create: (context) => AuthBloc()..add(CheckUserAuthentication()),
+          create: (context) => AuthBloc(),
         ),
         // Cargar contactos guardados
         BlocProvider(
           create: (context) => ContactsBloc()..add(LoadContacts()),
         ),
-        BlocProvider(create: (context) => NotificationBloc(FirebaseService()))
+        BlocProvider(create: (context) => NotificationBloc(FirebaseService())),
+        BlocProvider(create: (context) => AlertBloc()),
       ],
       child: const AppAlert(),
     ),
@@ -42,25 +43,7 @@ class AppAlert extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(useMaterial3: true),
       routes: routes,
-      home: Scaffold(
-        body: BlocListener<AuthBloc, AuthState>(
-          listener: (context, state) {
-            if (state is Authenticated) {
-              context.read<NotificationBloc>().add(Enabled());
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                Navigator.pushReplacementNamed(context, '/main');
-              });
-            } else if (state is Unauthenticated) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                Navigator.pushReplacementNamed(context, '/login');
-              });
-            }
-          },
-          child: const Center(
-            child: CircularProgressIndicator(),
-          ),
-        ),
-      ),
+      initialRoute: '/login',
     );
   }
 }
