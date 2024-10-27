@@ -1,10 +1,11 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 
-class Notification {
+class NotificationMessage {
   final RemoteNotification? _notification;
   final Map<String, dynamic>? _data;
 
-  Notification({RemoteNotification? notification, Map<String, dynamic>? data})
+  NotificationMessage(
+      {RemoteNotification? notification, Map<String, dynamic>? data})
       : _notification = notification,
         _data = data;
 
