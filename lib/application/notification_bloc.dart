@@ -33,9 +33,9 @@ class _NotificationReceived extends NotificationEvent {
 }
 
 class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
-  final FirebaseService _message;
+  final FirebaseService _message = FirebaseService();
 
-  NotificationBloc(this._message) : super(NotificationInitial()) {
+  NotificationBloc() : super(NotificationInitial()) {
     on<NotificationEnabled>(_onStartNotification);
     on<NotificationDisabled>(_onStopNotification);
     on<_NotificationReceived>(
