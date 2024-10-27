@@ -1,7 +1,11 @@
-import 'package:alerta_uaz/application/alert_bloc.dart';
+import 'package:alerta_uaz/application/alert/alert_bloc.dart';
+
 import 'package:alerta_uaz/application/auth_bloc.dart';
+
 import 'package:alerta_uaz/application/contact-list_bloc.dart';
+
 import 'package:alerta_uaz/application/notification_bloc.dart';
+
 import 'package:alerta_uaz/data/data_sources/remote/firebase_service.dart';
 
 import 'package:alerta_uaz/presentation/routes.dart';
@@ -27,7 +31,7 @@ Future<void> main() async {
         BlocProvider(
           create: (context) => ContactsBloc()..add(LoadContacts()),
         ),
-        BlocProvider(create: (context) => NotificationBloc(FirebaseService())),
+        BlocProvider(create: (context) => NotificationBloc()),
         BlocProvider(create: (context) => AlertBloc()),
       ],
       child: const AppAlert(),
