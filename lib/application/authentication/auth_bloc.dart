@@ -35,7 +35,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             await _authRepositoryImpl.logInGoogle();
 
         if (googleUser == null) {
-          emit(AuthError('El correo no existe.'));
+          emit(AuthError('Error al iniciar sesión: El correo no existe'));
         } else {
           // Lógica para registrar el usuario
           User? user = User(
@@ -60,7 +60,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           }
         }
       } catch (e) {
-        emit(AuthError('Error al iniciar sesión: ${e.toString()}'));
+        emit(AuthError(e.toString()));
       }
     });
 
