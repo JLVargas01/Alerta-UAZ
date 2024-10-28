@@ -45,8 +45,8 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
 
           // Emitir estado de alerta enviada
           add(SentAlert(success));
-        } catch (error) {
-          add(ErrorAlert(error.toString()));
+        } catch (e) {
+          add(ErrorAlert(e.toString()));
         }
       });
     }

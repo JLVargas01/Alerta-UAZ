@@ -20,7 +20,11 @@ class NotificationService {
       'data': data
     };
 
-    return await _sendNotification(endpoint, message);
+    try {
+      return await _sendNotification(endpoint, message);
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<String> _sendNotification(
@@ -33,11 +37,11 @@ class NotificationService {
       data = json.decode(response.body);
 
       if (response.statusCode != 200) {
-        throw Exception(data['error'].toString());
+        throw data['error']?.toString() ?? 'Error desconocido';
       }
       return data['success'].toString();
     } catch (e) {
-      throw Exception('Error de red: $e');
+      throw e.toString();
     }
   }
 }

@@ -47,21 +47,3 @@ class AlertPage extends StatelessWidget {
         ));
   }
 }
-
-
-/**
- * Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('Activaste una alerta'),
-            ElevatedButton(
-                onPressed: () {
-                  context.read<AlertBloc>().resumeListeningShake();
-                  Navigator.pop(context);
-                },
-                child: const Text('Desactivar alerta'))
-          ],
-        ),
-      ),
- */
