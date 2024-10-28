@@ -6,6 +6,7 @@ class ApiConfig {
   static final String hostname = dotenv.env['HOST_NAME'] ?? 'localhost';
   // ports
   static final String portUser = dotenv.env['PORT_USER'] ?? '3000';
+  static final String portSocket = dotenv.env['PORT_SOCKET'] ?? '3000';
   static final String portNotification =
       dotenv.env['PORT_NOTIFICATION'] ?? '3000';
 

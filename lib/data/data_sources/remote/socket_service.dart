@@ -1,5 +1,5 @@
+import 'package:alerta_uaz/core/constants/api_config.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class SocketService {
   static final SocketService _instance = SocketService._internal();
@@ -15,18 +15,9 @@ class SocketService {
   }
 
   void _initialize() {
-    final String? protocol = dotenv.env['PROTOCOL'];
-    final String? hostname = dotenv.env['HOST_NAME'];
-    final String? port = dotenv.env['PORT_SOCKET'];
+    final String baseUrl = ApiConfig.getBaseUrl(ApiConfig.portSocket);
 
-    if (protocol == null || hostname == null || port == null) {
-      throw Exception(
-          'Error: Asegúrate de que PROTOCOL, HOST_NAME y PORT están definidos.');
-    }
-
-    final String url = '$protocol://$hostname:$port';
-
-    _socket = io.io(url, <String, dynamic>{
+    _socket = io.io(baseUrl, <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': false,
       'reconnection': true,
@@ -34,7 +25,7 @@ class SocketService {
     });
 
     _socket?.onConnect((_) {
-      print('Conectado a $url');
+      print('Conectado a $baseUrl');
     });
 
     _socket?.onDisconnect((_) {
