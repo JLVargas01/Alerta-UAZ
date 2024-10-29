@@ -4,9 +4,13 @@ import 'package:alerta_uaz/application/alert/alert_event.dart';
 import 'package:alerta_uaz/application/authentication/auth_bloc.dart';
 import 'package:alerta_uaz/application/authentication/auth_event.dart';
 import 'package:alerta_uaz/application/authentication/auth_state.dart';
+import 'package:alerta_uaz/application/location/location_bloc.dart';
+import 'package:alerta_uaz/application/location/location_event.dart';
 
 import 'package:alerta_uaz/application/notification/notification_bloc.dart';
 import 'package:alerta_uaz/application/notification/notification_event.dart';
+import 'package:alerta_uaz/application/shake/shake_bloc.dart';
+import 'package:alerta_uaz/application/shake/shake_event.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -79,6 +83,8 @@ class _ProfilePageState extends State<ProfilePage> {
                             .read<NotificationBloc>()
                             .add(DisabledNotification());
                         context.read<AlertBloc>().add(DisabledAlert());
+                        context.read<LocationBloc>().add(DisabledLocation());
+                        context.read<ShakeBloc>().add(DisabledShake());
                         context.read<AuthBloc>().add(SignOut());
                       },
                       child: const Text('Cerrar sesión'),
