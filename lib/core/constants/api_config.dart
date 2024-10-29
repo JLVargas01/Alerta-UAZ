@@ -11,9 +11,10 @@ class ApiConfig {
       dotenv.env['PORT_NOTIFICATION'] ?? '3000';
 
   // endpoints
+  // Usuario
   static final String singIn = dotenv.env['USER_SIGN_IN'] ?? '';
   static final String createContact = dotenv.env['USER_CREATE_CONTACT'] ?? '';
-
+  // Notificación
   static final String notificationAlert =
       dotenv.env['NOTIFICATION_ALERT'] ?? '';
 
