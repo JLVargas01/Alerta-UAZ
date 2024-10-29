@@ -7,25 +7,23 @@ class SocketService {
   io.Socket? _socket;
 
   SocketService._internal() {
-    _initialize();
+    _socket ??= io.io(_baseUrl, <String, dynamic>{
+      'transports': ['websocket'],
+      'autoConnect': false,
+      'reconnection': true,
+      'reconnectionAttempts': 5,
+    });
   }
 
   factory SocketService() {
     return _instance;
   }
 
-  void _initialize() {
-    final String baseUrl = ApiConfig.getBaseUrl(ApiConfig.portSocket);
+  final String _baseUrl = ApiConfig.getBaseUrl(ApiConfig.portSocket);
 
-    _socket = io.io(baseUrl, <String, dynamic>{
-      'transports': ['websocket'],
-      'autoConnect': false,
-      'reconnection': true,
-      'reconnectionAttempts': 5,
-    });
-
+  void initialize() {
     _socket?.onConnect((_) {
-      print('Conectado a $baseUrl');
+      print('Conectado a $_baseUrl');
     });
 
     _socket?.onDisconnect((_) {
@@ -37,12 +35,18 @@ class SocketService {
     });
   }
 
-  void emit(String event, dynamic data) {
+  void emit(String event, Map<String, dynamic> data) {
     _socket?.emit(event, data);
   }
 
   void on(String event, Function(dynamic) handler) {
     _socket?.on(event, handler);
+  }
+
+  void connected() {
+    if (_socket!.connected == false) {
+      _socket?.connect();
+    }
   }
 
   void disconnect() {

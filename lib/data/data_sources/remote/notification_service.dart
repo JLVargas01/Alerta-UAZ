@@ -7,9 +7,8 @@ import 'package:http/http.dart' as http;
 class NotificationService {
   final String _baseUrl = ApiConfig.getBaseUrl(ApiConfig.portNotification);
 
-  Future<String> notificationAlert(
-      String idContact, Map<String, dynamic> data) async {
-    String? endpoint = '${ApiConfig.notificationAlert}/$idContact';
+  Future<String> sendAlert(String contacts, Map<String, dynamic> data) async {
+    String? endpoint = '${ApiConfig.notificationAlert}/$contacts';
 
     Map<String, Object> message = {
       'notification': {
