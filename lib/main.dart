@@ -1,10 +1,9 @@
 import 'package:alerta_uaz/application/alert/alert_bloc.dart';
-
 import 'package:alerta_uaz/application/authentication/auth_bloc.dart';
-
 import 'package:alerta_uaz/application/contact-list_bloc.dart';
-
+import 'package:alerta_uaz/application/location/location_bloc.dart';
 import 'package:alerta_uaz/application/notification/notification_bloc.dart';
+import 'package:alerta_uaz/application/shake/shake_bloc.dart';
 
 import 'package:alerta_uaz/data/data_sources/remote/firebase_service.dart';
 
@@ -33,6 +32,8 @@ Future<void> main() async {
         ),
         BlocProvider(create: (context) => NotificationBloc()),
         BlocProvider(create: (context) => AlertBloc()),
+        BlocProvider(create: (context) => LocationBloc()),
+        BlocProvider(create: (context) => ShakeBloc()),
       ],
       child: const AppAlert(),
     ),
