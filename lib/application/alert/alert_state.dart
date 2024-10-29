@@ -5,9 +5,9 @@ class AlertInitial extends AlertState {}
 class AlertSending extends AlertState {}
 
 class AlertSent extends AlertState {
-  final String success;
+  final String message;
 
-  AlertSent(this.success);
+  AlertSent(this.message);
 }
 
 class AlertError extends AlertState {
