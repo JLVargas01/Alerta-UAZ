@@ -59,27 +59,21 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
         //  aun funciona, es posible que sea necesario cambiar
         //  la libreria a otra
         */
-        final PhoneContact? contactPicker = await FlutterContactPicker.pickPhoneContact();
-
-        // Asegúrate de que contactPicker no sea nulo
-        if (contactPicker == null) {
-          emit(ContactsError('No se seleccionó ningún contacto.'));
-          return;
-        }
+        final PhoneContact contactPicker = await FlutterContactPicker.pickPhoneContact();
 
         String? numeroTelefonico = contactPicker.phoneNumber?.number;
         String? nombre = contactPicker.fullName;
 
         // Verificar si el número telefónico y el nombre son válidos
         if (numeroTelefonico == null || nombre == null) {
-          emit(ContactsError('Número telefónico o nombre no válidos.'));
+          emit(ContactsError('Número telefónico o nombre no válidos'));
           return;
         }
 
         User? user = await _userStorange.getUser();
         String? idLista = user?.idContacts;
         if (idLista == null) {
-          emit(ContactsError('Número telefónico o nombre no válidos.'));
+          emit(ContactsError('Error al autenticar al usuario'));
           return;
         }
 
