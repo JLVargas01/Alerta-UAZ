@@ -4,9 +4,13 @@ import 'package:alerta_uaz/application/alert/alert_event.dart';
 import 'package:alerta_uaz/application/authentication/auth_bloc.dart';
 import 'package:alerta_uaz/application/authentication/auth_event.dart';
 import 'package:alerta_uaz/application/authentication/auth_state.dart';
+import 'package:alerta_uaz/application/location/location_bloc.dart';
+import 'package:alerta_uaz/application/location/location_event.dart';
 
 import 'package:alerta_uaz/application/notification/notification_bloc.dart';
 import 'package:alerta_uaz/application/notification/notification_event.dart';
+import 'package:alerta_uaz/application/shake/shake_bloc.dart';
+import 'package:alerta_uaz/application/shake/shake_event.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -28,6 +32,8 @@ class LoginPage extends StatelessWidget {
               // Activa las funciones para usuarios autenticados
               context.read<NotificationBloc>().add(EnabledNotification());
               context.read<AlertBloc>().add(EnabledAlert(state.user));
+              context.read<LocationBloc>().add(EnabledLocation(state.user));
+              context.read<ShakeBloc>().add(EnabledShake());
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 Navigator.of(context).pushReplacementNamed('/main');
               });
