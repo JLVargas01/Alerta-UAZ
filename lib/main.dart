@@ -1,10 +1,9 @@
 import 'package:alerta_uaz/application/alert/alert_bloc.dart';
-
 import 'package:alerta_uaz/application/authentication/auth_bloc.dart';
-
 import 'package:alerta_uaz/application/contact-list_bloc.dart';
-
+import 'package:alerta_uaz/application/location/location_bloc.dart';
 import 'package:alerta_uaz/application/notification/notification_bloc.dart';
+import 'package:alerta_uaz/application/shake/shake_bloc.dart';
 
 import 'package:alerta_uaz/data/data_sources/remote/firebase_service.dart';
 
@@ -33,6 +32,8 @@ Future<void> main() async {
         ),
         BlocProvider(create: (context) => NotificationBloc()),
         BlocProvider(create: (context) => AlertBloc()),
+        BlocProvider(create: (context) => LocationBloc()),
+        BlocProvider(create: (context) => ShakeBloc()),
       ],
       child: const AppAlert(),
     ),
@@ -51,57 +52,3 @@ class AppAlert extends StatelessWidget {
     );
   }
 }
-
-
-// import 'package:alerta_uaz/pages/alert_screen.dart';
-// import 'package:alerta_uaz/pages/location_screen.dart';
-// import 'package:alerta_uaz/pages/logged_in_screen.dart';
-// import 'package:alerta_uaz/pages/login_screen.dart';
-
-// import 'package:alerta_uaz/services/api_service.dart';
-// import 'package:alerta_uaz/services/push_notification_service.dart';
-// import 'package:alerta_uaz/services/shake_detector_service.dart';
-// import 'package:flutter/material.dart';
-// import 'package:flutter_dotenv/flutter_dotenv.dart';
-
-// final Map<String, WidgetBuilder> routes = {
-//   "/singIn": (_) => const SignInUsuario(),
-//   "/location": (_) => const LocationPage(),
-//   "/alert": (_) => const AlertPage(),
-//   "/contacts": (_) => const ContactosPage(),
-//   "/main": (_) => const LoggedInPage(),
-// };
-
-// void main() async {
-//   WidgetsFlutterBinding.ensureInitialized();
-
-//   await dotenv.load(fileName: '.env');
-
-//   PushNotificationService.initialize();
-
-//   ShakeDetectorService.startListening(() async {
-//     await apiService.sendNotification('4921231234');
-//     ShakeDetectorService.pauseListening();
-
-//     navigatorKey.currentState
-//         ?.pushReplacement(MaterialPageRoute(builder: (_) => const AlertPage()));
-//   });
-
-//   runApp(const AppAlerta());
-// }
-
-// final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-// ApiService apiService = ApiService();
-
-// class AppAlerta extends StatelessWidget {
-//   const AppAlerta({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       theme: ThemeData(useMaterial3: true),
-//       initialRoute: "/singIn",
-//       routes: routes,
-//     );
-//   }
-// }

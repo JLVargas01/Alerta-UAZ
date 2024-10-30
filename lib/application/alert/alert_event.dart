@@ -10,16 +10,8 @@ class EnabledAlert extends AlertEvent {
 
 class DisabledAlert extends AlertEvent {}
 
-class SendingAlert extends AlertEvent {}
+class SendAlert extends AlertEvent {
+  final String room;
 
-class SentAlert extends AlertEvent {
-  final String success;
-
-  SentAlert(this.success);
-}
-
-class ErrorAlert extends AlertEvent {
-  final String error;
-
-  ErrorAlert(this.error);
+  SendAlert(this.room);
 }

@@ -1,8 +1,7 @@
-import 'package:alerta_uaz/application/alert/alert_bloc.dart';
-import 'package:alerta_uaz/application/alert/alert_state.dart';
-
 import 'package:alerta_uaz/application/notification/notification_bloc.dart';
 import 'package:alerta_uaz/application/notification/notification_state.dart';
+import 'package:alerta_uaz/application/shake/shake_bloc.dart';
+import 'package:alerta_uaz/application/shake/shake_state.dart';
 
 import 'package:alerta_uaz/domain/model/notification_model.dart';
 import 'package:alerta_uaz/presentation/widget/indexed_stack_navigation.dart';
@@ -17,17 +16,12 @@ class MainPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocListener(
       listeners: [
-        BlocListener<AlertBloc, AlertState>(
+        BlocListener<ShakeBloc, ShakeState>(
           listener: (context, state) {
-            if (state is AlertSending) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Enviando alerta...')));
+            if (state is ShakeOn) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 Navigator.of(context).pushReplacementNamed('/alert');
               });
-            } else if (state is AlertError) {
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text(state.error)));
             }
           },
         ),

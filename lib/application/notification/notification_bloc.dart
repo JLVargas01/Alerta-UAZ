@@ -30,36 +30,4 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
       NotificationEvent event, Emitter<NotificationState> emit) async {
     _message.deleteToken();
   }
-
-//   void _getToken() async {
-//     final settings = await _messaging.getNotificationSettings();
-
-//     if (settings.authorizationStatus != AuthorizationStatus.authorized) return;
-
-//     final String? token = await _messaging.getToken();
-
-//     if (token != null) {
-//       print('token: ${token}');
-//     }
-//   }
-
-//   void _onForegroundMessage() {
-//     FirebaseMessaging.onMessage.listen(handleRemoteMessage);
-//   }
-
-//   void _onBackgroundMessage() {
-//     FirebaseMessaging.onBackgroundMessage(handleRemoteMessage);
-//   }
-
-//   void _onMessageOpenedApp() {
-//     FirebaseMessaging.onMessageOpenedApp.listen(handleRemoteMessage);
-//   }
-// }
-
-// Future<void> handleRemoteMessage(RemoteMessage message) async {
-//   var data = message.data;
-//   var title = message.notification!.title;
-//   var body = message.notification!.body;
-
-//   print('Llego un mensaje: $title - $body: $data');
 }
