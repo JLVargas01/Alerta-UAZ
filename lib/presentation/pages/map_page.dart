@@ -9,9 +9,6 @@ import 'package:latlong2/latlong.dart';
 class MapPage extends StatelessWidget {
   const MapPage({super.key});
 
-  //Latitud: 22.7733
-  //Longitud: -102.5905
-
   @override
   Widget build(BuildContext context) {
     LatLng location;
@@ -69,23 +66,3 @@ class MapPage extends StatelessWidget {
         ));
   }
 }
-
-/**
- * return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('Ubicación: ${state.latitude} - ${state.longitude}'),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      ElevatedButton(
-                          onPressed: () {
-                            context.read<LocationBloc>().stopReceived();
-                            Navigator.pop(context);
-                          },
-                          child: const Text('Regresar'))
-                    ],
-                  ),
-                );
- */
