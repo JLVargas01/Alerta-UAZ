@@ -17,8 +17,8 @@ class NotificationAlert extends StatelessWidget {
         TextButton(
             onPressed: () {
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                Navigator.of(context)
-                    .pushReplacementNamed('/map', arguments: message.data);
+                Navigator.of(context).pushReplacementNamed('/map',
+                    arguments: message.data!['id_room']);
               });
             },
             child: const Text('ver ubicación')),
