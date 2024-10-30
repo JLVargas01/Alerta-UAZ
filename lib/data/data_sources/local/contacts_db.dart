@@ -76,4 +76,19 @@ class ContactosConfianza {
       rethrow;
     }
   }
+
+  Future<bool> existContact(String telephone) async {
+    try {
+      final db = await DatabaseService().getDatabase();
+      var retorno = await db.query(
+        tableName,
+        where: 'telephone = ?',
+        whereArgs: [telephone],
+      );
+      return retorno.isNotEmpty;
+    } catch (e) {
+      print('Error al buscar el contacto: $e');
+      rethrow;
+    }
+  }
 }
