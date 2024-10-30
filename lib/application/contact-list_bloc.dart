@@ -66,6 +66,12 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
           return;
         }
 
+        //Verificar si el contacto ya esta almacenado
+        if(await contactsDB.existContact(numeroTelefonico)) {
+          emit(ContactsError('El contacto ya esta agregado'));
+          return;
+        }
+
         User? user = await _userStorange.getUser();
         String? idLista = user?.idContacts;
         if (idLista == null) {
