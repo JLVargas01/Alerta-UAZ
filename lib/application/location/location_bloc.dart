@@ -27,14 +27,28 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
     );
     on<StartSendingLocation>(_startSending);
     on<StopSendingLocation>(_stopSending);
+    on<StartReceivedLocation>(
+      (event, emit) {
+        emit(LocationLoading());
+        _socket.connected();
+
+        _socket.emit('joinRoom', {'room': event.room, 'user': user!.name});
+        emit(LocationConnected(event.room));
+      },
+    );
+    on<ReceivedLocation>(
+      (event, emit) {
+        emit(LocationReceived(event.latitude, event.longitude));
+      },
+    );
   }
 
   void _startSending(StartSendingLocation event, Emitter<LocationState> emit) {
     emit(LocationLoading());
 
-    _socket.connected();
-
     final room = '${DateTime.now()}:${user!.name}'.replaceAll(' ', '');
+
+    _socket.connected();
 
     _socket.emit('createRoom', {'room': room, 'user': user!.name});
 
@@ -58,6 +72,16 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
 
   void _stopSending(LocationEvent event, Emitter<LocationState> emit) {
     _timer?.cancel();
+    _socket.disconnect();
+  }
+
+  void receivedLocation(String room) {
+    _socket.on('newCoordinates', (coordinates) {
+      add(ReceivedLocation(coordinates['latitude'], coordinates['longitude']));
+    });
+  }
+
+  void stopReceived() {
     _socket.disconnect();
   }
 }

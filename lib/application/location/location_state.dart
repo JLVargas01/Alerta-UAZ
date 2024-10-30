@@ -13,9 +13,10 @@ class LocationConnected extends LocationState {
 class LocationDisconnected extends LocationState {}
 
 class LocationReceived extends LocationState {
-  final Map<String, dynamic> coordinates;
+  final dynamic latitude;
+  final dynamic longitude;
 
-  LocationReceived(this.coordinates);
+  LocationReceived(this.latitude, this.longitude);
 }
 
 class LocationError extends LocationState {

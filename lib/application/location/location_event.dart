@@ -14,4 +14,17 @@ class StartSendingLocation extends LocationEvent {}
 
 class StopSendingLocation extends LocationEvent {}
 
-class ReceivedLocation extends LocationEvent {}
+class StartReceivedLocation extends LocationEvent {
+  final String room;
+
+  StartReceivedLocation(this.room);
+}
+
+class StopReceivedLocation extends LocationEvent {}
+
+class ReceivedLocation extends LocationEvent {
+  final dynamic latitude;
+  final dynamic longitude;
+
+  ReceivedLocation(this.latitude, this.longitude);
+}
