@@ -14,9 +14,9 @@ class ApiConfig {
   // Usuario
   static final String singIn = dotenv.env['USER_SIGN_IN'] ?? '';
   static final String createContact = dotenv.env['USER_CREATE_CONTACT'] ?? '';
+  static final String deleteContact = dotenv.env['USER_DELETE_CONTACT'] ?? '';
   // Notificación
-  static final String notificationAlert =
-      dotenv.env['NOTIFICATION_ALERT'] ?? '';
+  static final String notificationAlert =dotenv.env['NOTIFICATION_ALERT'] ?? '';
 
   static const headerKey = "********************************************";
 
