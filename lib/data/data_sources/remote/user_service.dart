@@ -46,4 +46,13 @@ class UserService {
       return null;
     }
   }
+
+  Future<bool> sendIdsDeleteContact(String idContactList, String idContact) async {
+    String endpoint = '${ApiConfig.deleteContact}/$idContactList/$idContact';
+    Uri uri = Uri.parse('$_baseUrl$endpoint');
+
+    final response = await HttpHelper.delete(uri);
+    return response.statusCode == 200;
+  }
+
 }
