@@ -4,9 +4,9 @@ import 'package:alerta_uaz/data/repositories/setting_repositoy_imp.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingBloc extends Bloc<SettingEvent, SettingState> {
-  final SettingRepositoyImp _settingRepositoyImp;
+  final _settingRepositoyImp = SettingRepositoyImp();
 
-  SettingBloc(this._settingRepositoyImp) : super(Settingloading()) {
+  SettingBloc() : super(Settingloading()) {
     on<LoadSetting>(
       (event, emit) async {
         try {

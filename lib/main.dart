@@ -7,8 +7,6 @@ import 'package:alerta_uaz/application/setting/setting_bloc.dart';
 import 'package:alerta_uaz/application/shake/shake_bloc.dart';
 
 import 'package:alerta_uaz/data/data_sources/remote/firebase_service.dart';
-import 'package:alerta_uaz/data/repositories/setting_repositoy_imp.dart';
-
 import 'package:alerta_uaz/presentation/routes.dart';
 
 import 'package:flutter/material.dart';
@@ -34,7 +32,7 @@ Future<void> main() async {
         BlocProvider(create: (context) => AlertBloc()),
         BlocProvider(create: (context) => LocationBloc()),
         BlocProvider(create: (context) => ShakeBloc()),
-        BlocProvider(create: (context) => SettingBloc(SettingRepositoyImp())),
+        BlocProvider(create: (context) => SettingBloc()),
       ],
       child: const AppAlert(),
     ),
