@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:alerta_uaz/core/constants/api_config.dart';
 import 'package:alerta_uaz/core/utils/http_helper.dart';
-import 'package:alerta_uaz/domain/model/user_model.dart';
 
 class UserService {
   final String _baseUrl = ApiConfig.getBaseUrl(ApiConfig.portUser);
@@ -27,7 +26,6 @@ class UserService {
       };
       final response = await HttpHelper.post(uri, data);
       final userDataResponse = jsonDecode(response.body);
-      print(userDataResponse);
       if (response.statusCode == 201 || response.statusCode == 200) {
         return userDataResponse;
       } else {
