@@ -106,21 +106,13 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
         User? user = await _userStorange.getUser();
         String? idLista = user?.idContacts;
         if (idLista == null) {
-          emit(ContactsError('Error al autenticar al usuario'));
+          emit(ContactsError('Error con la lista de contactos'));
           return;
         }
-        //NO se porque, pero el idContact aparece con comillas
-        //al inicio y al final
-        String idContact = event.idConfianza.replaceAll('"', '');
-        String idContactList = idLista;
-        bool resultado = await _contactsRepositoryImpl.deleteContact(idContactList, idContact);
-        if (resultado == false) {
-          emit(ContactsError('Error al borrar un contacto'));
-          return;
-        }
+        String idContact = event.idConfianza;
+        await _contactsRepositoryImpl.deleteContact(idLista, idContact);
         await contactsDB.eliminarContacto(idContact);
-        final contactos = await contactsDB.contactos();
-        emit(ContactsLoaded(contactos));
+        emit(ContactsLoaded(await contactsDB.contactos()));
       } catch (e) {
         emit(ContactsError('Error al eliminar contacto: ${e.toString()}'));
       }
