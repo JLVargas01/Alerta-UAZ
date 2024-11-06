@@ -103,9 +103,16 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
     on<RemoveContact>((event, emit) async {
       emit(ContactsLoading());
       try {
-        await contactsDB.eliminarContacto(event.idConfianza);
-        final contactos = await contactsDB.contactos();
-        emit(ContactsLoaded(contactos));
+        User? user = await _userStorange.getUser();
+        String? idLista = user?.idContacts;
+        if (idLista == null) {
+          emit(ContactsError('Error con la lista de contactos'));
+          return;
+        }
+        String idContact = event.idConfianza;
+        await _contactsRepositoryImpl.deleteContact(idLista, idContact);
+        await contactsDB.eliminarContacto(idContact);
+        emit(ContactsLoaded(await contactsDB.contactos()));
       } catch (e) {
         emit(ContactsError('Error al eliminar contacto: ${e.toString()}'));
       }

@@ -12,4 +12,14 @@ class HttpHelper {
         },
         body: jsonEncode(data));
   }
+
+  static Future<http.Response> delete(Uri url) async {
+    return await http.delete(url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': ApiConfig.headerKey
+      }
+    );
+  }
+
 }
