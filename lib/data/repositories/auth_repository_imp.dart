@@ -1,6 +1,5 @@
 import 'package:alerta_uaz/data/data_sources/remote/google_sign_in_service.dart';
 import 'package:alerta_uaz/data/data_sources/remote/user_service.dart';
-import 'package:alerta_uaz/domain/model/user_model.dart';
 import 'package:alerta_uaz/domain/repositories/auth_repository.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -26,7 +25,8 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<User?> signInUser(User user) async {
-    return await _userService.signInUser(user);
+  Future<Map<String, dynamic>?> signInUser(String nameUser, String emailUser,
+      String phoneUser, String avatarUserUrl, String deviceToken) async {
+    return await _userService.signInUser( nameUser, emailUser, phoneUser, avatarUserUrl, deviceToken);
   }
 }
