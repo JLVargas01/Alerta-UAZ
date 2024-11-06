@@ -5,5 +5,6 @@ abstract class AuthRepository {
   Future<void> logOutGoogle();
   Future<GoogleSignInAccount?> logInGoogle();
   GoogleSignInAccount? getUserGoogle();
-  Future<User?> signInUser(User user);
+  Future<Map<String, dynamic>?> signInUser(String nameUser, String emailUser,
+      String phoneUser, String avatarUserUrl, String deviceToken);
 }
