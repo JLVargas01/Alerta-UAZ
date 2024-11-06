@@ -41,7 +41,8 @@ class UserService {
     };
     final response = await HttpHelper.post(uri, parametersSend);
     if (response.statusCode == 201) {
-      return response.body;
+      final dataNewUser = jsonDecode(response.body);
+      return dataNewUser['id'];
     } else {
       return null;
     }
