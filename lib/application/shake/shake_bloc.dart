@@ -4,13 +4,13 @@ import 'package:alerta_uaz/data/data_sources/remote/shake_detector_service.dart'
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ShakeBloc extends Bloc<ShakeEvent, ShakeState> {
-  final ShakeDetectorService _shakeDetectorService = ShakeDetectorService();
+  final ShakeDetector _shakeDetector = ShakeDetector();
 
   ShakeBloc() : super(ShakeOff()) {
     on<EnabledShake>(
       (event, emit) {
-        _shakeDetectorService.startListening(() {
-          _shakeDetectorService.pauseListening();
+        _shakeDetector.startListening(() {
+          _shakeDetector.pauseListening();
           add(ListenShake('on'));
         });
       },
@@ -18,7 +18,7 @@ class ShakeBloc extends Bloc<ShakeEvent, ShakeState> {
 
     on<DisabledShake>(
       (event, emit) {
-        _shakeDetectorService.stopListening();
+        _shakeDetector.stopListening();
       },
     );
 
@@ -34,8 +34,8 @@ class ShakeBloc extends Bloc<ShakeEvent, ShakeState> {
   }
 
   void resumeListening() {
-    if (_shakeDetectorService.isPaused) {
-      _shakeDetectorService.resumeListening();
+    if (_shakeDetector.isPaused) {
+      _shakeDetector.resumeListening();
       add(ListenShake('off'));
     }
   }
