@@ -36,29 +36,38 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
         if (googleUser == null) {
           emit(AuthError('Error al iniciar sesión: El correo no existe'));
-        } else {
-          // Lógica para registrar el usuario
-          User? user = User(
-            name: googleUser.displayName,
-            email: googleUser.email,
-            avatar: googleUser.photoUrl,
-          );
-
-          // Obtenemos el token del dispositivo
-          user.deviceToken = (await FirebaseService().getToken())!;
-
-          user = await _authRepositoryImpl.signInUser(user);
-
-          // Almacenamos el usuario para persistir los datos
-          // en caso de cerrar la aplicación por completo
-          if (user != null) {
-            _userStorange.store(user);
-            emit(Authenticated(user));
-          } else {
-            emit(AuthError(
-                'Error al iniciar sesión, por favor intentelo más tarde'));
-          }
+          return;
         }
+        String nameUser = googleUser.displayName ?? "";
+        String emailUser = googleUser.email;
+        String avatarUserUrl = googleUser.photoUrl ?? "";
+        String deviceToken = await FirebaseService().getToken() ?? "";
+        String phoneUser = "/TODO";
+
+        final responseData = 
+          await _authRepositoryImpl.signInUser(nameUser, emailUser, phoneUser, avatarUserUrl, deviceToken);
+
+        if (responseData == null) {
+          emit(AuthError(
+              'Error al iniciar sesión, por favor intentelo más tarde'));
+          return;
+        }
+
+        // Lógica para registrar el usuario
+        User user = User(
+          id: responseData['_id'],
+          name: nameUser,
+          email: emailUser,
+          phone: phoneUser,
+          avatar: avatarUserUrl,
+          deviceToken: deviceToken,
+          idContactList: responseData['id_contact_list']
+        );
+
+        // Almacenamos el usuario para persistir los datos
+        // en caso de cerrar la aplicación por completo
+        _userStorange.store(user);
+        emit(Authenticated(user));
       } catch (e) {
         emit(AuthError(e.toString()));
       }
