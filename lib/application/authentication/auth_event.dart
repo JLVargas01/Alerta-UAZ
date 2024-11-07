@@ -2,9 +2,12 @@ abstract class AuthEvent {}
 
 class CheckUserAuthentication extends AuthEvent {}
 
-class SignIn extends AuthEvent {
-  final String? phoneNumber;
-  SignIn([this.phoneNumber]);
+class SignIn extends AuthEvent {}
+
+class CompleteSignIn extends AuthEvent {
+  final String phoneNumber;
+
+  CompleteSignIn(this.phoneNumber);
 }
 
 
