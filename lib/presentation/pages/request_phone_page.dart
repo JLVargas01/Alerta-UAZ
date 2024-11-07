@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
-// request_phone_page.dart
 class RequestPhonePage extends StatefulWidget {
   const RequestPhonePage({super.key});
 
@@ -18,6 +17,7 @@ class RequestPhonePage extends StatefulWidget {
 class _RequestPhonePageState extends State<RequestPhonePage> {
   final TextEditingController _controller = TextEditingController();
   PhoneNumber? _phoneNumber;
+  bool _isPhoneValid = true;
 
   @override
   Widget build(BuildContext context) {
@@ -28,18 +28,8 @@ class _RequestPhonePageState extends State<RequestPhonePage> {
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is Authenticated) {
-            // Activa las funciones para usuarios autenticados
-            //context.read<NotificationBloc>().add(EnabledNotification());
-            //context.read<AlertBloc>().add(EnabledAlert(state.user));
-            //context.read<LocationBloc>().add(EnabledLocation(state.user));
-            //context.read<ShakeBloc>().add(EnabledShake());
             WidgetsBinding.instance.addPostFrameCallback((_) {
               Navigator.of(context).pushReplacementNamed('/main');
-            });
-          } else if (state is AuthNeedsPhoneNumber) {
-            // Redirige a la pantalla de solicitud de número de teléfono
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              Navigator.of(context).pushReplacementNamed('/requestPhone');
             });
           } else if (state is AuthError) {
             ScaffoldMessenger.of(context)
@@ -54,15 +44,16 @@ class _RequestPhonePageState extends State<RequestPhonePage> {
                 _phoneNumber = number;
               },
               onInputValidated: (bool isValid) {
-                if (!isValid) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Número inválido")),
-                  );
+                if (_isPhoneValid != isValid) {
+                  setState(() {
+                    _isPhoneValid = isValid;
+                  });
                 }
               },
               selectorConfig: const SelectorConfig(
-                selectorType: PhoneInputSelectorType.DROPDOWN,
+                selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
               ),
+              initialValue: PhoneNumber(isoCode: 'MX'),
               ignoreBlank: false,
               autoValidateMode: AutovalidateMode.disabled,
               selectorTextStyle: const TextStyle(color: Colors.black),
@@ -73,11 +64,22 @@ class _RequestPhonePageState extends State<RequestPhonePage> {
               hintText: "Ingresa tu número",
             ),
             const SizedBox(height: 20),
+            if (!_isPhoneValid)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 10),
+                child: Text(
+                  "Número no válido",
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
             ElevatedButton(
               onPressed: () {
-                if (_phoneNumber != null) {
-                  context.read<AuthBloc>().add(SignIn(_phoneNumber!.phoneNumber!));
+                if (_phoneNumber != null && _isPhoneValid) {
+                  context.read<AuthBloc>().add(CompleteSignIn(_phoneNumber!.phoneNumber!));
                 } else {
+                  setState(() {
+                    _isPhoneValid = false;
+                  });
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text("Por favor, ingresa un número válido")),
                   );
