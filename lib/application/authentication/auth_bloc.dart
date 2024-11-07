@@ -42,7 +42,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         String emailUser = googleUser.email;
         String avatarUserUrl = googleUser.photoUrl ?? "";
         String deviceToken = await FirebaseService().getToken() ?? "";
-        String phoneUser = "/TODO";
+
+        // Verificar si el usuario tiene un número almacenado
+        String? phoneUser = event.phoneNumber;
+        if (phoneUser == null || phoneUser.isEmpty) {
+        // Solicitar número de teléfono si no está almacenado
+          emit(AuthNeedsPhoneNumber());
+          return;
+        }
 
         final responseData = 
           await _authRepositoryImpl.signInUser(nameUser, emailUser, phoneUser, avatarUserUrl, deviceToken);
