@@ -37,6 +37,11 @@ class LoginPage extends StatelessWidget {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 Navigator.of(context).pushReplacementNamed('/main');
               });
+            } else if (state is AuthNeedsPhoneNumber) {
+              // Redirige a la pantalla de solicitud de número de teléfono
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                Navigator.of(context).pushReplacementNamed('/requestPhone');
+              });
             } else if (state is AuthError) {
               ScaffoldMessenger.of(context)
                   .showSnackBar(SnackBar(content: Text(state.message)));
