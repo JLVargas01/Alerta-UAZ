@@ -5,29 +5,24 @@ import 'package:alerta_uaz/domain/repositories/setting_repository.dart';
 
 class SettingRepositoyImp implements SettingRepository {
   final SettingStorage _settingStorage = SettingStorage();
-  final ShakeDetector _shake = ShakeDetector();
+  final _shake = ShakeDetector();
 
   SettingRepositoyImp();
 
   @override
-  Future<void> loadSettings() async {
-    await _settingStorage.loadSettings();
-    _configureShake(_settingStorage.getSettings);
+  Future<Settings> loadSettings() async {
+    final settingsShake = await _settingStorage.loadSettings();
+    _setSettingsShake(settingsShake);
+    return settingsShake;
   }
 
   @override
-  Future<void> saveSettings() async {
-    await _settingStorage.saveSettings();
-    _configureShake(_settingStorage.getSettings);
+  Future<void> saveSettings(Settings settings) async {
+    await _settingStorage.saveSettings(settings);
+    _setSettingsShake(settings);
   }
 
-  Settings get getSettings => _settingStorage.getSettings;
-
-  void setSettings(Settings settings) {
-    _settingStorage.setSettings(settings);
-  }
-
-  void _configureShake(Settings settings) {
+  void _setSettingsShake(Settings settings) {
     _shake.setSettingsShake(
         settings.getSensitivity, settings.getMinTime, settings.getShakeAmount);
   }

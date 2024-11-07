@@ -12,8 +12,7 @@ class SettingBloc extends Bloc<SettingEvent, SettingState> {
         try {
           emit(Settingloading());
           await Future.delayed(const Duration(milliseconds: 500));
-          await _settingRepositoyImp.loadSettings();
-          final settings = _settingRepositoyImp.getSettings;
+          final settings = await _settingRepositoyImp.loadSettings();
           emit(SettingLoaded(settings: settings));
         } catch (e) {
           emit(SettingError(
@@ -28,8 +27,7 @@ class SettingBloc extends Bloc<SettingEvent, SettingState> {
           emit(Settingloading());
           await Future.delayed(const Duration(milliseconds: 500));
           final settings = event.settings;
-          _settingRepositoyImp.setSettings(settings);
-          await _settingRepositoyImp.saveSettings();
+          await _settingRepositoyImp.saveSettings(settings);
           emit(SettingSaved(settings: settings));
         } catch (error) {
           emit(SettingError(

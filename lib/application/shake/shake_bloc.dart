@@ -4,7 +4,7 @@ import 'package:alerta_uaz/data/data_sources/remote/shake_detector_service.dart'
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ShakeBloc extends Bloc<ShakeEvent, ShakeState> {
-  final ShakeDetector _shakeDetector = ShakeDetector();
+  final _shakeDetector = ShakeDetector();
 
   ShakeBloc() : super(ShakeOff()) {
     on<EnabledShake>(
