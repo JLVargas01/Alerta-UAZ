@@ -41,9 +41,19 @@ class UserService {
     };
     final response = await HttpHelper.post(uri, parametersSend);
     if (response.statusCode == 201) {
-      return response.body;
+      final dataNewUser = jsonDecode(response.body);
+      return dataNewUser['id'];
     } else {
       return null;
     }
   }
+
+  Future<bool> sendIdsDeleteContact(String idContactList, String idContact) async {
+    String endpoint = '${ApiConfig.deleteContact}/$idContactList/$idContact';
+    Uri uri = Uri.parse('$_baseUrl$endpoint');
+
+    final response = await HttpHelper.delete(uri);
+    return response.statusCode == 200;
+  }
+
 }
