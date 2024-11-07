@@ -6,15 +6,15 @@ import 'package:alerta_uaz/data/data_sources/remote/firebase_service.dart';
 import 'package:alerta_uaz/data/data_sources/remote/google_sign_in_service.dart';
 import 'package:alerta_uaz/data/data_sources/remote/user_service.dart';
 import 'package:alerta_uaz/data/repositories/auth_repository_imp.dart';
+import 'package:alerta_uaz/domain/model/google-data_model.dart';
 import 'package:alerta_uaz/domain/model/user_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final AuthRepositoryImpl _authRepositoryImpl =
-      AuthRepositoryImpl(GoogleSignInService(), UserService());
-
+  final AuthRepositoryImpl _authRepositoryImpl =AuthRepositoryImpl(GoogleSignInService(), UserService());
   final UserStorange _userStorange = UserStorange();
+  GoogleData? _temporaryUser;
 
   AuthBloc() : super(Unauthenticated()) {
     on<CheckUserAuthentication>((event, emit) async {
@@ -31,48 +31,66 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<SignIn>((event, emit) async {
       emit(AuthLoading());
       try {
-        final GoogleSignInAccount? googleUser =
-            await _authRepositoryImpl.logInGoogle();
+        final GoogleSignInAccount? googleUser = await _authRepositoryImpl.logInGoogle();
 
         if (googleUser == null) {
           emit(AuthError('Error al iniciar sesión: El correo no existe'));
           return;
         }
-        String nameUser = googleUser.displayName ?? "";
-        String emailUser = googleUser.email;
-        String avatarUserUrl = googleUser.photoUrl ?? "";
-        String deviceToken = await FirebaseService().getToken() ?? "";
 
-        // Verificar si el usuario tiene un número almacenado
-        String? phoneUser = event.phoneNumber;
-        if (phoneUser == null || phoneUser.isEmpty) {
-        // Solicitar número de teléfono si no está almacenado
-          emit(AuthNeedsPhoneNumber());
-          return;
-        }
-
-        final responseData = 
-          await _authRepositoryImpl.signInUser(nameUser, emailUser, phoneUser, avatarUserUrl, deviceToken);
-
-        if (responseData == null) {
-          emit(AuthError(
-              'Error al iniciar sesión, por favor intentelo más tarde'));
-          return;
-        }
-
-        // Lógica para registrar el usuario
-        User user = User(
-          id: responseData['_id'],
-          name: nameUser,
-          email: emailUser,
-          phone: phoneUser,
-          avatar: avatarUserUrl,
-          deviceToken: deviceToken,
-          idContactList: responseData['id_contact_list']
+        // Almacena temporalmente la información del usuario de Google en `_temporaryUser`
+        _temporaryUser = GoogleData(
+          nameGoogle: googleUser.displayName ?? "",
+          emailGoogle: googleUser.email,
+          avatarUrlGoogle: googleUser.photoUrl ?? "",
+          deviceToken: await FirebaseService().getToken() ?? "",
         );
 
-        // Almacenamos el usuario para persistir los datos
-        // en caso de cerrar la aplicación por completo
+        // Solicita el número de teléfono
+        emit(AuthNeedsPhoneNumber());
+      } catch (e) {
+        emit(AuthError(e.toString()));
+      }
+    });
+
+    on<CompleteSignIn>((event, emit) async {
+      emit(AuthLoading());
+      try {
+        // Verifica que `_temporaryUser` no sea nulo
+        if (_temporaryUser == null) {
+          emit(AuthError('Error: No se puede completar el registro sin datos de usuario.'));
+          return;
+        }
+
+        // Recupera los datos de `_temporaryUser`
+        final phoneUser = event.phoneNumber;
+        
+        // Llama al repositorio para registrar el usuario completo
+        final responseData = await _authRepositoryImpl.signInUser(
+          _temporaryUser!.nameGoogle,
+          _temporaryUser!.emailGoogle,
+          phoneUser,
+          _temporaryUser!.avatarUrlGoogle,
+          _temporaryUser!.deviceToken,
+        );
+
+        if (responseData == null) {
+          emit(AuthError('Error al iniciar sesión, por favor inténtelo más tarde'));
+          return;
+        }
+
+        // Crea el usuario final con todos los datos completados
+        User user = User(
+          id: responseData['_id'],
+          name: _temporaryUser!.nameGoogle,
+          email: _temporaryUser!.emailGoogle,
+          phone: phoneUser,
+          avatar: _temporaryUser!.avatarUrlGoogle,
+          deviceToken: _temporaryUser!.deviceToken,
+          idContactList: responseData['id_contact_list'],
+        );
+
+        // Almacena el usuario para persistir datos y actualizar el estado a `Authenticated`
         _userStorange.store(user);
         emit(Authenticated(user));
       } catch (e) {
