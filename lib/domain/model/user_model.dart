@@ -1,39 +1,45 @@
 class User {
-  final String _id;
-  final String _name;
-  final String _email;
-  final String _phone;
-  String? _avatar;
-  String? _deviceToken;
-  final String _idContactList;
 
-  User(
-      {required id,
-      required name,
-      required email,
-      required phone,
-      String? avatar,
-      String? deviceToken,
-      required idContactList})
-      : _id = id,
-        _name = name,
-        _email = email,
-        _phone = phone,
-        _avatar = avatar,
-        _deviceToken = deviceToken,
-        _idContactList = idContactList;
+  User({String? id, String? name, String? email, String? phone, String? deviceToken, String? avatar, String? idContactList});
+
+  late String _id;
+  late String _name;
+  late String _email;
+  late String _phone;
+  late String _avatar;
+  late String _deviceToken;
+  late String _idContactList;
 
   // getters
+  String get id => _id;
   String get name => _name;
   String get email => _email;
   String get phone => _phone;
-  String? get avatar => _avatar;
-  String? get token => _deviceToken;
+  String get avatar => _avatar;
+  String get token => _deviceToken;
   String get idContacts => _idContactList;
 
   // setters
+  set deviceId(String id) {
+    _id = id;
+  }
+  set deviceName(String name) {
+    _name = name;
+  }
+  set deviceEmail(String email) {
+    _email = email;
+  }
+  set devicePhone(String phone) {
+    _phone = phone;
+  }
+  set deviceAvatar(String avatar) {
+    _avatar = avatar;
+  }
   set deviceToken(String token) {
     _deviceToken = token;
+  }
+  set deviceIdContacts(String idContacts) {
+    _idContactList = idContacts;
   }
 
   Map<String, dynamic> toJson() {
