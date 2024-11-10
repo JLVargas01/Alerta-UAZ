@@ -8,12 +8,22 @@ import 'package:alerta_uaz/application/shake/shake_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class AlertPage extends StatelessWidget {
+class AlertPage extends StatefulWidget {
   const AlertPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  State<AlertPage> createState() => _AlertPageState();
+}
+
+class _AlertPageState extends State<AlertPage> {
+  @override
+  void initState() {
+    super.initState();
     context.read<LocationBloc>().add(StartSendingLocation());
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Alerta activada'),
@@ -22,7 +32,8 @@ class AlertPage extends StatelessWidget {
       body: MultiBlocListener(
         listeners: [
           BlocListener<LocationBloc, LocationState>(listener: (context, state) {
-            if (state is LocationConnected) {
+            if (state is LocationStarted) {
+              // Envía notificación de alerta a contactos
               context.read<AlertBloc>().add(SendAlert(state.room));
             }
           }),
@@ -39,29 +50,30 @@ class AlertPage extends StatelessWidget {
         child: BlocBuilder<LocationBloc, LocationState>(
           builder: (context, state) {
             if (state is LocationLoading) {
-              return const CircularProgressIndicator();
-            } else {
               return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('Activaste una alerta.'),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    ElevatedButton(
-                        onPressed: () {
-                          context
-                              .read<LocationBloc>()
-                              .add(StopSendingLocation());
-                          context.read<ShakeBloc>().resumeListening();
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            Navigator.of(context).pushReplacementNamed('/main');
-                          });
-                        },
-                        child: const Text('Desactivar alerta'))
-                  ],
-                ),
+                  child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const CircularProgressIndicator(),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  ElevatedButton(
+                      onPressed: () {
+                        context.read<LocationBloc>().add(StopSendingLocation());
+                        context.read<ShakeBloc>().resumeListening();
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          Navigator.of(context).pushReplacementNamed('/main');
+                        });
+                      },
+                      child: const Text('Cancelar y regresar'))
+                ],
+              ));
+            } else if (state is LocationStarted) {
+              return _buildMain(context);
+            } else {
+              return const Center(
+                child: Text('Alerta no disponible'),
               );
             }
           },
@@ -73,5 +85,28 @@ class AlertPage extends StatelessWidget {
   void _scaffold(BuildContext context, message) {
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Widget _buildMain(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text('Activaste una alerta.'),
+          const SizedBox(
+            height: 30,
+          ),
+          ElevatedButton(
+              onPressed: () {
+                context.read<LocationBloc>().add(StopSendingLocation());
+                context.read<ShakeBloc>().resumeListening();
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Navigator.of(context).pushReplacementNamed('/main');
+                });
+              },
+              child: const Text('Desactivar alerta'))
+        ],
+      ),
+    );
   }
 }
