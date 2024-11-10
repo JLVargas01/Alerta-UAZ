@@ -46,8 +46,9 @@ class AppAlert extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(useMaterial3: true),
+      debugShowCheckedModeBanner: false,
       routes: routes,
-      initialRoute: '/login',
+      initialRoute: '/splash',
     );
   }
 }
