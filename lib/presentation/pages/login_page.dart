@@ -20,8 +20,6 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Verifica si ya está autenticado
-    context.read<AuthBloc>().add(CheckUserAuthentication());
     return Scaffold(
         appBar: AppBar(
           title: const Text('Iniciar Sesión con Google'),
@@ -29,14 +27,12 @@ class LoginPage extends StatelessWidget {
         body: BlocListener<AuthBloc, AuthState>(
           listener: (context, state) {
             if (state is Authenticated) {
-              // Activa las funciones para usuarios autenticados
               context.read<NotificationBloc>().add(EnabledNotification());
               context.read<AlertBloc>().add(EnabledAlert(state.user));
               context.read<LocationBloc>().add(EnabledLocation(state.user));
               context.read<ShakeBloc>().add(EnabledShake());
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                Navigator.of(context).pushReplacementNamed('/main');
-              });
+
+              Navigator.of(context).pushReplacementNamed('/main');
             } else if (state is AuthError) {
               ScaffoldMessenger.of(context)
                   .showSnackBar(SnackBar(content: Text(state.message)));
@@ -44,11 +40,7 @@ class LoginPage extends StatelessWidget {
           },
           child: BlocBuilder<AuthBloc, AuthState>(
             builder: (context, state) {
-              if (state is AuthLoading) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              } else {
+              if (state is Unauthenticated) {
                 return Center(
                   child: ElevatedButton(
                     onPressed: () {
@@ -56,6 +48,10 @@ class LoginPage extends StatelessWidget {
                     },
                     child: const Text('Iniciar sesión con Google'),
                   ),
+                );
+              } else {
+                return const Center(
+                  child: CircularProgressIndicator(),
                 );
               }
             },
