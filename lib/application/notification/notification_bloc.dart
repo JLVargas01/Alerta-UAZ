@@ -11,8 +11,10 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   NotificationBloc() : super(NotificationInitial()) {
     on<EnabledNotification>(_onStartNotification);
     on<DisabledNotification>(_onStopNotification);
-    on<ReceivedNotification>(
-        (event, emit) => emit(NotificationReceived(event.message)));
+    on<ReceivedNotification>((event, emit) {
+      emit(NotificationReceived(event.message));
+      emit(NotificationInitial());
+    });
   }
 
   // Activa la llegada de notificaciones
