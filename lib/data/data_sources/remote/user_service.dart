@@ -49,9 +49,14 @@ class UserService {
     };
     final response = await HttpHelper.post(uri, parametersSend);
     if (response.statusCode == 201) {
+      //El contacto se creo correctamente
       final dataNewUser = jsonDecode(response.body);
       return dataNewUser['id'];
+    } else if(response.statusCode == 404){
+      //El contacto no existe
+      return "00";
     } else {
+      //Error en el servidor
       return null;
     }
   }
