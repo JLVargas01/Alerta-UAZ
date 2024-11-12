@@ -32,9 +32,11 @@ class _ProfilePageState extends State<ProfilePage> {
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is Unauthenticated) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              Navigator.of(context).pushReplacementNamed('/login');
-            });
+            context.read<NotificationBloc>().add(DisabledNotification());
+            context.read<AlertBloc>().add(DisabledAlert());
+            context.read<LocationBloc>().add(DisabledLocation());
+            context.read<ShakeBloc>().add(DisabledShake());
+            Navigator.of(context).pushReplacementNamed('/login');
           } else if (state is AuthError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('Error: ${state.message}')),
@@ -43,11 +45,7 @@ class _ProfilePageState extends State<ProfilePage> {
         },
         child: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
-            if (state is AuthLoading) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            } else if (state is Authenticated) {
+            if (state is Authenticated) {
               final user = state.user;
 
               return Center(
@@ -78,12 +76,6 @@ class _ProfilePageState extends State<ProfilePage> {
                     const SizedBox(height: 24),
                     ElevatedButton(
                       onPressed: () {
-                        context
-                            .read<NotificationBloc>()
-                            .add(DisabledNotification());
-                        context.read<AlertBloc>().add(DisabledAlert());
-                        context.read<LocationBloc>().add(DisabledLocation());
-                        context.read<ShakeBloc>().add(DisabledShake());
                         context.read<AuthBloc>().add(SignOut());
                       },
                       child: const Text('Cerrar sesión'),
@@ -93,7 +85,7 @@ class _ProfilePageState extends State<ProfilePage> {
               );
             } else {
               return const Center(
-                child: Text('No hay información disponible'),
+                child: CircularProgressIndicator(),
               );
             }
           },

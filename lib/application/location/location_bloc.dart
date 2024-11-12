@@ -1,18 +1,14 @@
-import 'dart:async';
-
 import 'package:alerta_uaz/application/location/location_event.dart';
 import 'package:alerta_uaz/application/location/location_state.dart';
-import 'package:alerta_uaz/data/data_sources/remote/socket_service.dart';
+import 'package:alerta_uaz/data/repositories/location_repository_imp.dart';
 import 'package:alerta_uaz/domain/model/user_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:location/location.dart';
+import 'package:latlong2/latlong.dart';
 
 class LocationBloc extends Bloc<LocationEvent, LocationState> {
-  final SocketService _socket = SocketService();
-  final Location _location = Location();
+  final _locationRepositoryImp = LocationRepositoryImp();
 
   User? user;
-  Timer? _timer;
 
   LocationBloc() : super(LocationInitial()) {
     on<EnabledLocation>(
@@ -22,66 +18,51 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
     );
     on<DisabledLocation>(
       (event, emit) {
-        _socket.disconnect();
+        user = null;
       },
     );
-    on<StartSendingLocation>(_startSending);
-    on<StopSendingLocation>(_stopSending);
-    on<StartReceivedLocation>(
+
+    on<StartSendingLocation>(
+      (event, emit) async {
+        emit(LocationLoading());
+
+        final room = '${DateTime.now()}:${user!.name}'.replaceAll(' ', '');
+        _locationRepositoryImp.startSendLocation(room, user!.name);
+        await Future.delayed(const Duration(milliseconds: 500));
+        emit(LocationStarted(room));
+      },
+    );
+
+    on<StopSendingLocation>(
+      (event, emit) {
+        _locationRepositoryImp.stopSendLocation();
+      },
+    );
+
+    on<StopReceivingLocation>(
+      (event, emit) {
+        _locationRepositoryImp.stopReceivedLocation();
+      },
+    );
+
+    on<StartReceivingLocation>(
       (event, emit) {
         emit(LocationLoading());
-        _socket.connected();
 
-        _socket.emit('joinRoom', {'room': event.room, 'user': user!.name});
-        emit(LocationConnected(event.room));
+        handler(dynamic location) {
+          add(ReceivedLocation(
+              LatLng(location['latitude'], location['longitude'])));
+        }
+
+        final room = event.room;
+        _locationRepositoryImp.startReceivedLocation(room, user!.name, handler);
       },
     );
+
     on<ReceivedLocation>(
       (event, emit) {
-        emit(LocationReceived(event.latitude, event.longitude));
+        emit(LocationReceived(event.location));
       },
     );
-  }
-
-  void _startSending(StartSendingLocation event, Emitter<LocationState> emit) {
-    emit(LocationLoading());
-
-    final room = '${DateTime.now()}:${user!.name}'.replaceAll(' ', '');
-
-    _socket.connected();
-
-    _socket.emit('createRoom', {'room': room, 'user': user!.name});
-
-    emit(LocationConnected(room));
-
-    LocationData locationData;
-    Map<String, dynamic> coordinates;
-
-    _timer = Timer.periodic(const Duration(seconds: 5), (_) async {
-      locationData = await _location.getLocation();
-
-      coordinates = {
-        'latitude': locationData.latitude,
-        'longitude': locationData.longitude
-      };
-
-      _socket.emit(
-          'sendingCoordinates', {'room': room, 'coordinates': coordinates});
-    });
-  }
-
-  void _stopSending(LocationEvent event, Emitter<LocationState> emit) {
-    _timer?.cancel();
-    _socket.disconnect();
-  }
-
-  void receivedLocation(String room) {
-    _socket.on('newCoordinates', (coordinates) {
-      add(ReceivedLocation(coordinates['latitude'], coordinates['longitude']));
-    });
-  }
-
-  void stopReceived() {
-    _socket.disconnect();
   }
 }

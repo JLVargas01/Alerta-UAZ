@@ -1,4 +1,5 @@
 import 'package:alerta_uaz/domain/model/user_model.dart';
+import 'package:latlong2/latlong.dart';
 
 abstract class LocationEvent {}
 
@@ -10,21 +11,22 @@ class EnabledLocation extends LocationEvent {
 
 class DisabledLocation extends LocationEvent {}
 
+// Eventos escenciales
 class StartSendingLocation extends LocationEvent {}
 
 class StopSendingLocation extends LocationEvent {}
 
-class StartReceivedLocation extends LocationEvent {
+class StartReceivingLocation extends LocationEvent {
   final String room;
 
-  StartReceivedLocation(this.room);
+  StartReceivingLocation(this.room);
 }
 
-class StopReceivedLocation extends LocationEvent {}
+class StopReceivingLocation extends LocationEvent {}
 
+// Eventos hechos para callbacks
 class ReceivedLocation extends LocationEvent {
-  final dynamic latitude;
-  final dynamic longitude;
+  final LatLng location;
 
-  ReceivedLocation(this.latitude, this.longitude);
+  ReceivedLocation(this.location);
 }

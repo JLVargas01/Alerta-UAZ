@@ -4,10 +4,10 @@ import 'package:alerta_uaz/application/authentication/auth_event.dart';
 import 'package:alerta_uaz/application/contact-list_bloc.dart';
 import 'package:alerta_uaz/application/location/location_bloc.dart';
 import 'package:alerta_uaz/application/notification/notification_bloc.dart';
+import 'package:alerta_uaz/application/setting/setting_bloc.dart';
 import 'package:alerta_uaz/application/shake/shake_bloc.dart';
 
 import 'package:alerta_uaz/data/data_sources/remote/firebase_service.dart';
-
 import 'package:alerta_uaz/presentation/routes.dart';
 
 import 'package:flutter/material.dart';
@@ -24,7 +24,7 @@ Future<void> main() async {
   runApp(
     MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => AuthBloc()..add(CheckUserAuthentication())),
+        BlocProvider(create: (context) => AuthBloc()),
         // Cargar contactos guardados
         BlocProvider(
           create: (context) => ContactsBloc()..add(LoadContacts()),
@@ -33,6 +33,7 @@ Future<void> main() async {
         BlocProvider(create: (context) => AlertBloc()),
         BlocProvider(create: (context) => LocationBloc()),
         BlocProvider(create: (context) => ShakeBloc()),
+        BlocProvider(create: (context) => SettingBloc()),
       ],
       child: const AppAlert(),
     ),
@@ -46,8 +47,9 @@ class AppAlert extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(useMaterial3: true),
+      debugShowCheckedModeBanner: false,
       routes: routes,
-      initialRoute: '/login',
+      initialRoute: '/splash',
     );
   }
 }

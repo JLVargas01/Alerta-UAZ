@@ -17,8 +17,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     on<CheckUserAuthentication>((event, emit) async {
       emit(AuthLoading());
-
       User? user = await UserStorage.getUserData();
+      await Future.delayed(const Duration(milliseconds: 3000));
       if (user == null) {
         emit(Unauthenticated());
       } else {

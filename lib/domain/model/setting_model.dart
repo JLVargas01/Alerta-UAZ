@@ -1,30 +1,31 @@
-class Settings {}
+class Settings {
+  String _sensitivity;
+  double _minTime;
+  double _shakeAmount;
 
-// class Usuario {
-//   final int id_usuario;
-//   final String sensibilidad;
-//   final String agitacion;
-//   final String tiempo;
+  Settings({required sensitivity, required minTime, required shakeAmount})
+      : _sensitivity = sensitivity,
+        _minTime = minTime,
+        _shakeAmount = shakeAmount;
 
-//   const Usuario({
-//     required this.id_usuario,
-//     required this.sensibilidad,
-//     required this.agitacion,
-//     required this.tiempo
-//   });
+  String get getSensitivity => _sensitivity;
+  double get getMinTime => _minTime;
+  double get getShakeAmount => _shakeAmount;
 
-//   Map<String, Object?> toMap() {
-//     return {
-//       'id_usuario': id_usuario,
-//       'sensibilidad': sensibilidad,
-//       'agitacion': agitacion,
-//       'tiempo': tiempo
-//     };
-//   }
+  void setSensitivity(String newValue) {
+    _sensitivity = newValue;
+  }
 
-//   @override
-//   String toString() {
-//     return '{id_usuario: $id_usuario, sensibilidad: $sensibilidad, alias: $agitacion, agitacion: $agitacion, tiempo: $tiempo}';
-//   }
+  void setMinTime(double newValue) {
+    _minTime = newValue;
+  }
 
-// }
+  void setShakeAmount(double newValue) {
+    _shakeAmount = newValue;
+  }
+
+  @override
+  String toString() {
+    return '{ sensitivity: $_sensitivity, time: $_minTime, shake: $_shakeAmount}';
+  }
+}

@@ -1,22 +1,22 @@
+import 'package:latlong2/latlong.dart';
+
 abstract class LocationState {}
 
+// Estados escenciales
 class LocationInitial extends LocationState {}
 
 class LocationLoading extends LocationState {}
 
-class LocationConnected extends LocationState {
+class LocationStarted extends LocationState {
   final String room;
 
-  LocationConnected(this.room);
+  LocationStarted(this.room);
 }
 
-class LocationDisconnected extends LocationState {}
-
 class LocationReceived extends LocationState {
-  final dynamic latitude;
-  final dynamic longitude;
+  final LatLng location;
 
-  LocationReceived(this.latitude, this.longitude);
+  LocationReceived(this.location);
 }
 
 class LocationError extends LocationState {

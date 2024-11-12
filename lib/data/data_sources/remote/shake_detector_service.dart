@@ -28,16 +28,21 @@ import 'package:vibration/vibration.dart';
 
 typedef PhoneShakeCallback = void Function();
 
-class ShakeDetectorService {
+class ShakeDetector {
+  // Singleton
+  static final ShakeDetector _instance = ShakeDetector._internal();
+  ShakeDetector._internal();
+  factory ShakeDetector() => _instance;
+
   bool _isPaused = false;
 
   int _lastResumedTimeStamp = 0;
 
   PhoneShakeCallback? _onShake;
 
-  final double _shakeThresholdGravity = 2.7;
+  double _shakeThresholdGravity = 2.7;
   // Mínimo de sacudidas necesarias dentro del tiempo permitido
-  final int _minimumShakeCount = 2;
+  int _minimumShakeCount = 2;
   // Tiempo mínimo entre sacudidas
   final int _shakeSlopTimeMS = 1000;
 
@@ -47,7 +52,7 @@ class ShakeDetectorService {
 
   StreamSubscription? _streamSubscription;
   // Tiempo total permitido para detectar las sacudidas
-  final int _totalTimeForShakes = 5000;
+  int _totalTimeForShakes = 5000;
 
   int _startTime = 0;
 
@@ -126,4 +131,19 @@ class ShakeDetectorService {
 
   bool get isPaused => _isPaused;
   bool get isListening => _isPaused;
+
+  void setSettingsShake(
+      String sensitivity, double minTime, double shakeAmount) {
+    if (sensitivity == 'Bajo') {
+      _shakeThresholdGravity = 2.5 * 2.7;
+    } else if (sensitivity == 'Medio') {
+      _shakeThresholdGravity = 3.0 * 2.7;
+    } else {
+      _shakeThresholdGravity = 3.5 * 2.7;
+    }
+
+    _totalTimeForShakes = (minTime.toInt()) * 1000;
+
+    _minimumShakeCount = shakeAmount.toInt();
+  }
 }

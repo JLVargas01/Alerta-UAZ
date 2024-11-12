@@ -4,10 +4,12 @@ import 'package:socket_io_client/socket_io_client.dart' as io;
 class SocketService {
   static final SocketService _instance = SocketService._internal();
 
-  io.Socket? _socket;
+  late io.Socket _socket;
+
+  final String _baseUrl = ApiConfig.getBaseUrl(ApiConfig.portSocket);
 
   SocketService._internal() {
-    _socket ??= io.io(_baseUrl, <String, dynamic>{
+    _socket = io.io(_baseUrl, <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': false,
       'reconnection': true,
@@ -19,37 +21,27 @@ class SocketService {
     return _instance;
   }
 
-  final String _baseUrl = ApiConfig.getBaseUrl(ApiConfig.portSocket);
+  void initialize(Function(dynamic) handler) {
+    _socket.onConnect((_) => handler('Conectado'));
 
-  void initialize() {
-    _socket?.onConnect((_) {
-      print('Conectado a $_baseUrl');
-    });
+    _socket.onDisconnect((_) => handler('Desconectado'));
 
-    _socket?.onDisconnect((_) {
-      print('Desconectado del servidor');
-    });
-
-    _socket?.onError((data) {
-      print('Error: $data');
-    });
+    _socket.onError((_) => handler('Error en el servidor'));
   }
 
   void emit(String event, Map<String, dynamic> data) {
-    _socket?.emit(event, data);
+    _socket.emit(event, data);
   }
 
   void on(String event, Function(dynamic) handler) {
-    _socket?.on(event, handler);
+    _socket.on(event, handler);
   }
 
-  void connected() {
-    if (_socket!.connected == false) {
-      _socket?.connect();
-    }
+  void connect() {
+    _socket.connect();
   }
 
   void disconnect() {
-    _socket?.disconnect();
+    _socket.disconnect();
   }
 }
