@@ -38,7 +38,7 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
             };
 
             final message =
-                await _notificationService.sendAlert(contacts!, data);
+                await _notificationService.sendAlert(contacts, data);
 
             emit(AlertSent(message));
           } else {
