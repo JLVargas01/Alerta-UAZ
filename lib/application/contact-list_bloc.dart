@@ -37,7 +37,6 @@ class ContactsError extends ContactsState {
 
 class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
   final ContactosConfianza contactsDB = ContactosConfianza();
-  final UserStorange _userStorange = UserStorange();
   final ContactsRepositoryImpl _contactsRepositoryImpl = ContactsRepositoryImpl(UserService());
 
   ContactsBloc() : super(ContactsInitial()) {
@@ -72,27 +71,29 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
           return;
         }
 
-        User? user = await _userStorange.getUser();
-        String? idLista = user?.idContacts;
+        String? idLista = await UserStorage.getIdListContaData();
         if (idLista == null) {
           emit(ContactsError('Error al autenticar al usuario'));
           return;
         }
 
         String? idNewContact = await _contactsRepositoryImpl.createContact(nombre, numeroTelefonico, idLista);
-        if (idNewContact != null) {
-          // Hacer el registro en la DB local
-          ContactoConfianza nuevoContacto = ContactoConfianza(
-            id_confianza: idNewContact,
-            alias: nombre,
-            telephone: numeroTelefonico,
-          );
-
-          await contactsDB.insertContacto(nuevoContacto);
-        } else {
+        if (idNewContact == "00") {
+          emit(ContactsError('El contacto no esta registrado en el sistema'));
+          return;
+        }
+        if (idNewContact == null) {
           emit(ContactsError('Error al crear el contacto, por favor intente más tarde'));
           return;
         }
+
+        // Hacer el registro en la DB local
+        ContactoConfianza nuevoContacto = ContactoConfianza(
+          id_confianza: idNewContact,
+          alias: nombre,
+          telephone: numeroTelefonico,
+        );
+        await contactsDB.insertContacto(nuevoContacto);
         final contactos = await contactsDB.contactos();
         emit(ContactsLoaded(contactos));
       } catch (e) {
@@ -103,7 +104,7 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
     on<RemoveContact>((event, emit) async {
       emit(ContactsLoading());
       try {
-        User? user = await _userStorange.getUser();
+        User? user = await UserStorage.getUserData();
         String? idLista = user?.idContacts;
         if (idLista == null) {
           emit(ContactsError('Error con la lista de contactos'));
