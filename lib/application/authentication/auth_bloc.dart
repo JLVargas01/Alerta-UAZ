@@ -8,19 +8,17 @@ import 'package:alerta_uaz/data/data_sources/remote/user_service.dart';
 import 'package:alerta_uaz/data/repositories/auth_repository_imp.dart';
 import 'package:alerta_uaz/domain/model/user_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepositoryImpl _authRepositoryImpl =AuthRepositoryImpl(GoogleSignInService(), UserService());
-  final UserStorange _userStorange = UserStorange();
-  User user = User();
+  User userRegistrer = User();
 
   AuthBloc() : super(Unauthenticated()) {
 
     on<CheckUserAuthentication>((event, emit) async {
       emit(AuthLoading());
 
-      User? user = await _userStorange.getUser();
+      User? user = await UserStorage.getUserData();
       if (user == null) {
         emit(Unauthenticated());
       } else {
@@ -37,10 +35,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           return;
         }
 
-        user.deviceName = googleUser.displayName ?? "";
-        user.deviceEmail = googleUser.email;
-        user.deviceAvatar = googleUser.photoUrl ?? "";
-        user.deviceToken = await FirebaseService().getToken() ?? "";
+        userRegistrer.name = googleUser.displayName ?? "";
+        userRegistrer.email = googleUser.email;
+        userRegistrer.avatar = googleUser.photoUrl ?? "";
+        userRegistrer.token = await FirebaseService().getToken() ?? "";
 
         emit(AuthNeedsPhoneNumber());
       } catch (e) {
@@ -51,15 +49,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<ProvidePhoneNumber>((event, emit) async {
       emit(AuthLoading());
       try {
-        user.devicePhone = event.phoneNumber;
+        userRegistrer.phone = event.phoneNumber;
 
         // Realiza el registro completo en el repositorio
         final responseData = await _authRepositoryImpl.signInUser(
-          user.name,
-          user.email,
-          user.phone,
-          user.avatar,
-          user.token,
+          userRegistrer.name,
+          userRegistrer.email,
+          userRegistrer.phone,
+          userRegistrer.avatar,
+          userRegistrer.token,
         );
 
         if (responseData == null) {
@@ -67,11 +65,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           return;
         }
 
-        user.deviceId = responseData['_id'];
-        user.deviceIdContacts = responseData['id_contact_list'];
-
-        _userStorange.store(user);
-        emit(Authenticated(user));
+        userRegistrer.id = responseData['_id'];
+        userRegistrer.idContacts = responseData['id_contact_list'];
+        UserStorage.store(userRegistrer);
+        emit(Authenticated(userRegistrer));
       } catch (e) {
         emit(AuthError(e.toString()));
       }
