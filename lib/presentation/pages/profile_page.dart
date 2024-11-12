@@ -55,11 +55,10 @@ class _ProfilePageState extends State<ProfilePage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     // Mostrar avatar si está disponible
-                    if (user.avatar != null)
-                      CircleAvatar(
-                        radius: 50,
-                        backgroundImage: NetworkImage(user.avatar!),
-                      ),
+                    CircleAvatar(
+                      radius: 50,
+                      backgroundImage: NetworkImage(user.avatar),
+                    ),
                     const SizedBox(height: 16),
                     Text(
                       user.name,
