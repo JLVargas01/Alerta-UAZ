@@ -54,7 +54,7 @@ class UserService {
       return dataNewUser['id'];
     } else if(response.statusCode == 404){
       //El contacto no existe
-      return "00";
+      return '';
     } else {
       //Error en el servidor
       return null;
