@@ -78,12 +78,12 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
         }
 
         String? idNewContact = await _contactsRepositoryImpl.createContact(nombre, numeroTelefonico, idLista);
-        if (idNewContact == "00") {
-          emit(ContactsError('El contacto no esta registrado en el sistema'));
-          return;
-        }
         if (idNewContact == null) {
           emit(ContactsError('Error al crear el contacto, por favor intente más tarde'));
+          return;
+        }
+        if (idNewContact.isEmpty) {
+          emit(ContactsError('El contacto no esta registrado en el sistema'));
           return;
         }
 
