@@ -37,7 +37,7 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
         };
 
         try {
-          await _notificationRepositoryImp.sendAlert(contacts!, data);
+          await _notificationRepositoryImp.sendAlert(contacts, data);
           emit(AlertSent('La alerta fue envíada exitosamente.'));
         } catch (e) {
           emit(AlertError(e.toString()));
