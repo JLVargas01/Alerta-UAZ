@@ -1,38 +1,41 @@
 import 'dart:convert';
-
 import 'package:alerta_uaz/domain/model/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class UserStorange {
-  Future<void> store(User user) async {
+class UserStorage {
+  static const String _userKey = 'user';
+
+  static Future<void> store(User user) async {
     final prefs = await SharedPreferences.getInstance();
-
     final String userJson = jsonEncode(user.toJson());
-
-    await prefs.setString('user', userJson);
+    await prefs.setString(_userKey, userJson);
   }
 
-  Future<User?> getUser() async {
+  // Obtiene el usuario completo
+  static Future<User?> getUserData() async {
     final prefs = await SharedPreferences.getInstance();
-
-    final String? userJson = prefs.getString('user');
-
+    final String? userJson = prefs.getString(_userKey);
     if (userJson != null) {
       final Map<String, dynamic> userMap = jsonDecode(userJson);
       return User.fromJson(userMap);
     }
-
     return null;
   }
 
-  Future<String?> getIdContactList() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String? idContactList = prefs.getString('_idContactList');
-    return idContactList;
+  // Obtiene el id de la lista
+  static Future<String?> getIdListContaData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? userJson = prefs.getString(_userKey);
+    if (userJson != null) {
+      final Map<String, dynamic> userMap = jsonDecode(userJson);
+      return userMap['id_contact_list'];
+    }
+    return null;
   }
 
-  Future<void> clearUser() async {
+  // Borra el usuario completo
+  static Future<void> clearUser() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('user');
+    await prefs.remove(_userKey);
   }
 }

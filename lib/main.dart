@@ -1,5 +1,6 @@
 import 'package:alerta_uaz/application/alert/alert_bloc.dart';
 import 'package:alerta_uaz/application/authentication/auth_bloc.dart';
+import 'package:alerta_uaz/application/authentication/auth_event.dart';
 import 'package:alerta_uaz/application/contact-list_bloc.dart';
 import 'package:alerta_uaz/application/location/location_bloc.dart';
 import 'package:alerta_uaz/application/notification/notification_bloc.dart';

@@ -21,41 +21,44 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Iniciar Sesión con Google'),
-        ),
-        body: BlocListener<AuthBloc, AuthState>(
-          listener: (context, state) {
-            if (state is Authenticated) {
-              context.read<NotificationBloc>().add(EnabledNotification());
-              context.read<AlertBloc>().add(EnabledAlert(state.user));
-              context.read<LocationBloc>().add(EnabledLocation(state.user));
-              context.read<ShakeBloc>().add(EnabledShake());
+      appBar: AppBar(
+        title: const Text('Iniciar Sesión con Google'),
+      ),
+      body: BlocListener<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (state is Authenticated) {
+            context.read<NotificationBloc>().add(EnabledNotification());
+            context.read<AlertBloc>().add(EnabledAlert(state.user));
+            context.read<LocationBloc>().add(EnabledLocation(state.user));
+            context.read<ShakeBloc>().add(EnabledShake());
 
-              Navigator.of(context).pushReplacementNamed('/main');
-            } else if (state is AuthError) {
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text(state.message)));
+            Navigator.of(context).pushReplacementNamed('/main');
+          } else if (state is AuthNeedsPhoneNumber) {
+          // Redirige a la solicitud de número de teléfono
+          Navigator.of(context).pushReplacementNamed('/requestPhone');
+          } else if (state is AuthError) {
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text(state.message)));
+          }
+        },
+        child: BlocBuilder<AuthBloc, AuthState>(
+          builder: (context, state) {
+            if (state is Unauthenticated) {
+              return Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    context.read<AuthBloc>().add(SignIn());
+                  },
+                  child: const Text('Iniciar sesión con Google'),
+                ),
+              );
+            } else {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
             }
           },
-          child: BlocBuilder<AuthBloc, AuthState>(
-            builder: (context, state) {
-              if (state is Unauthenticated) {
-                return Center(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      context.read<AuthBloc>().add(SignIn());
-                    },
-                    child: const Text('Iniciar sesión con Google'),
-                  ),
-                );
-              } else {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-            },
-          ),
-        ));
+        ),
+      ));
   }
 }

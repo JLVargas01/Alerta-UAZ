@@ -8,19 +8,16 @@ import 'package:alerta_uaz/data/data_sources/remote/user_service.dart';
 import 'package:alerta_uaz/data/repositories/auth_repository_imp.dart';
 import 'package:alerta_uaz/domain/model/user_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final AuthRepositoryImpl _authRepositoryImpl =
-      AuthRepositoryImpl(GoogleSignInService(), UserService());
-
-  final UserStorange _userStorange = UserStorange();
+  final AuthRepositoryImpl _authRepositoryImpl =AuthRepositoryImpl(GoogleSignInService(), UserService());
+  User userRegistrer = User();
 
   AuthBloc() : super(Unauthenticated()) {
+
     on<CheckUserAuthentication>((event, emit) async {
       emit(AuthLoading());
-
-      User? user = await _userStorange.getUser();
+      User? user = await UserStorage.getUserData();
       await Future.delayed(const Duration(milliseconds: 3000));
       if (user == null) {
         emit(Unauthenticated());
@@ -32,44 +29,49 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<SignIn>((event, emit) async {
       emit(AuthLoading());
       try {
-        final GoogleSignInAccount? googleUser =
-            await _authRepositoryImpl.logInGoogle();
-
+        final googleUser = await _authRepositoryImpl.logInGoogle();
         if (googleUser == null) {
           emit(AuthError('Error al iniciar sesión: El correo no existe'));
-        } else {
-          // Lógica para registrar el usuario
-          User? user = User(
-            name: googleUser.displayName,
-            email: googleUser.email,
-            avatar: googleUser.photoUrl,
-          );
-
-          // Obtenemos el token del dispositivo
-          user.deviceToken = (await FirebaseService().getToken())!;
-
-          user = await _authRepositoryImpl.signInUser(user);
-
-          // Almacenamos el usuario para persistir los datos
-          // en caso de cerrar la aplicación por completo
-          if (user != null) {
-            _userStorange.store(user);
-            emit(Authenticated(user));
-          } else {
-            emit(AuthError(
-                'Error al iniciar sesión, por favor intentelo más tarde'));
-          }
+          return;
         }
+
+        userRegistrer.name = googleUser.displayName ?? "";
+        userRegistrer.email = googleUser.email;
+        userRegistrer.avatar = googleUser.photoUrl ?? "";
+        userRegistrer.token = await FirebaseService().getToken() ?? "";
+
+        emit(AuthNeedsPhoneNumber());
       } catch (e) {
         emit(AuthError(e.toString()));
       }
     });
 
-    on<SignOut>((event, emit) async {
+    on<ProvidePhoneNumber>((event, emit) async {
       emit(AuthLoading());
-      await _userStorange.clearUser();
-      await _authRepositoryImpl.logOutGoogle();
-      emit(Unauthenticated());
+      try {
+        userRegistrer.phone = event.phoneNumber;
+
+        // Realiza el registro completo en el repositorio
+        final responseData = await _authRepositoryImpl.signInUser(
+          userRegistrer.name,
+          userRegistrer.email,
+          userRegistrer.phone,
+          userRegistrer.avatar,
+          userRegistrer.token,
+        );
+
+        if (responseData == null) {
+          emit(AuthError('Error al iniciar sesión, por favor inténtelo más tarde'));
+          return;
+        }
+
+        userRegistrer.id = responseData['_id'];
+        userRegistrer.idContacts = responseData['id_contact_list'];
+        UserStorage.store(userRegistrer);
+        emit(Authenticated(userRegistrer));
+      } catch (e) {
+        emit(AuthError(e.toString()));
+      }
     });
   }
 }
