@@ -1,3 +1,7 @@
+import 'package:alerta_uaz/data/data_sources/local/alerts_received_db.dart';
+import 'package:alerta_uaz/data/data_sources/local/alerts_sent_db.dart';
+import 'package:alerta_uaz/domain/model/alerts_received_model.dart';
+import 'package:alerta_uaz/domain/model/alerts_sent_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class HistoryEvent {}
@@ -11,13 +15,9 @@ class HistoryInitialState extends HistoryState {}
 class HistoryLoadingState extends HistoryState {}
 
 class HistoryLoadedState extends HistoryState {
-  final List<String> receivedAlerts; // Lista de alertas recibidas
-  final List<String> sentAlerts;     // Lista de alertas enviadas
-
-  HistoryLoadedState({
-    required this.receivedAlerts,
-    required this.sentAlerts,
-  });
+  final List<AlertReceived> receivedAlerts;
+  final List<AlertSent> sentAlerts;
+  HistoryLoadedState(this.receivedAlerts, this.sentAlerts);
 }
 
 class HistoryErrorState extends HistoryState {
@@ -27,31 +27,23 @@ class HistoryErrorState extends HistoryState {
 }
 
 class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
+
   HistoryBloc() : super(HistoryInitialState()) {
     on<FetchHistoryEvent>((event, emit) async {
       emit(HistoryLoadingState());
       try {
-        // Simulación de carga de datos
-        await Future.delayed(const Duration(seconds: 2));
+        // Obtener alertas emitidas por otros usuasios
+        final AlertsReceived alertasRecibidasDB = AlertsReceived();
+        final listaRecividasAlmacenadas = await alertasRecibidasDB.getAlertsReceived();
 
-        // Ejemplo de datos de prueba
-        final receivedAlerts = [
-          "Alerta recibida 1",
-          "Alerta recibida 2",
-          "Alerta recibida 3",
-        ];
-        final sentAlerts = [
-          "Alerta enviada 1",
-          "Alerta enviada 2",
-        ];
+        final AlertsSent alertasEmitidasDB = AlertsSent();
+        final listaEmitidasAlmacenadas = await alertasEmitidasDB.getAlertsSent();
 
-        emit(HistoryLoadedState(
-          receivedAlerts: receivedAlerts,
-          sentAlerts: sentAlerts,
-        ));
+        emit(HistoryLoadedState(listaRecividasAlmacenadas,listaEmitidasAlmacenadas));
       } catch (e) {
         emit(HistoryErrorState('Error al cargar el historial'));
       }
     });
+
   }
 }
