@@ -37,7 +37,7 @@ class AlertsReceived {
   }
 
   // Obtener todas las alertas recibidas
-  Future<List<AlertReceived>> getAlertsSent() async {
+  Future<List<AlertReceived>> getAlertsReceived() async {
     try {
     // Obtener referencia a la base de datos
       final db = await DatabaseService().getDatabase();
