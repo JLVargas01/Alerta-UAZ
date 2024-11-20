@@ -1,6 +1,8 @@
+import 'package:alerta_uaz/domain/model/alerts_received_model.dart';
+import 'package:alerta_uaz/domain/model/alerts_sent_model.dart';
 import 'package:flutter/material.dart';
-import 'package:alerta_uaz/application/history_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:alerta_uaz/application/history_bloc.dart';
 
 class AlertHistoryPage extends StatefulWidget {
   const AlertHistoryPage({super.key});
@@ -17,6 +19,13 @@ class _AlertHistoryPageState extends State<AlertHistoryPage>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+
+    // Escucha cambios en el TabController y reconstruye la UI
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        setState(() {});
+      }
+    });
   }
 
   @override
@@ -51,10 +60,10 @@ class _AlertHistoryPageState extends State<AlertHistoryPage>
             if (state is HistoryInitialState || state is HistoryLoadingState) {
               return const Center(child: CircularProgressIndicator());
             } else if (state is HistoryLoadedState) {
-              // Filtra las alertas según la pestaña seleccionada
-              final alerts = _tabController.index == 0
-                  ? state.receivedAlerts // Mostrar alertas recibidas
-                  : state.sentAlerts;    // Mostrar alertas enviadas
+              // Seleccionar las alertas según la pestaña activa
+              final alerts = _tabController.index == 0 
+                  ? state.receivedAlerts 
+                  : state.sentAlerts;
 
               if (alerts.isEmpty) {
                 return const Center(
@@ -65,11 +74,22 @@ class _AlertHistoryPageState extends State<AlertHistoryPage>
               return ListView.builder(
                 itemCount: alerts.length,
                 itemBuilder: (context, index) {
-                  final alert = alerts[index];
-                  return ListTile(
-                    title: Text(alert), // Cambiar según tus datos
-                    subtitle: Text("date"), // Cambiar según tus datos
-                  );
+                  if (_tabController.index == 0) {
+                    // Caso: Alertas recibidas (AlertReceived)
+                    final alert = alerts[index] as AlertReceived;
+                    return ListTile(
+                      leading: const Icon(Icons.notifications_active),
+                      title: Text(alert.nameUser),
+                      subtitle: Text(alert.dateReceived as String),
+                    );
+                  } else {
+                    // Caso: Alertas enviadas (AlertSent)
+                    final alert = alerts[index] as AlertSent;
+                    return ListTile(
+                      leading: const Icon(Icons.outbox),
+                      title: Text(alert.dateSended as String),
+                    );
+                  }
                 },
               );
             } else if (state is HistoryErrorState) {
