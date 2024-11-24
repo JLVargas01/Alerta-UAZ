@@ -1,11 +1,14 @@
 import 'package:alerta_uaz/application/alert/alert_event.dart';
 import 'package:alerta_uaz/application/alert/alert_state.dart';
-import 'package:alerta_uaz/data/repositories/notification_repository_imp.dart';
+import 'package:alerta_uaz/data/data_sources/remote/alert_api.dart';
+import 'package:alerta_uaz/data/data_sources/remote/notification_api.dart';
+import 'package:alerta_uaz/data/repositories/alert_repository_impl.dart';
 import 'package:alerta_uaz/domain/model/user_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AlertBloc extends Bloc<AlertEvent, AlertState> {
-  final _notificationRepositoryImp = NotificationRepositoryImp();
+  final _alertRepositoryImp =
+      AlertRepositoryImpl(NotificationApi(), AlertApi());
 
   User? user;
 
@@ -24,23 +27,25 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
 
     on<SendAlert>(
       (event, emit) async {
-        emit(AlertSending());
-
+        emit(AlertLoading(message: 'Enviando notificación a contactos....'));
         String room = event.room;
-        String? contacts = user!.idContacts;
-
-        // Estructura para compartir la ubicación actual del emisor
-        Map<String, dynamic> data = {
-          'room': room, // Cuarto dónde se compartira la localización.
-          'name': user!.name, // Nombre del emisor que envía la alerta
-          'avatar': user!.avatar
-        };
-
         try {
-          await _notificationRepositoryImp.sendAlert(contacts, data);
-          emit(AlertSent('La alerta fue envíada exitosamente.'));
+          await _alertRepositoryImp.sendAlert(room, user);
+          emit(AlertSent(message: 'La alerta fue envíada exitosamente.'));
         } catch (e) {
-          emit(AlertError(e.toString()));
+          emit(AlertError(message: e.toString()));
+        }
+      },
+    );
+
+    on<RegisterAlert>(
+      (event, emit) async {
+        emit(AlertLoading(message: 'Registrando alerta...'));
+        try {
+          await _alertRepositoryImp.registerAlert();
+          emit(AlertRegistered(message: 'Alerta registrada exitosamente.'));
+        } catch (e) {
+          emit(AlertError(message: e.toString()));
         }
       },
     );

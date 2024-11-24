@@ -15,3 +15,5 @@ class SendAlert extends AlertEvent {
 
   SendAlert(this.room);
 }
+
+class RegisterAlert extends AlertEvent {}
