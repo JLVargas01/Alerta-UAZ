@@ -37,7 +37,7 @@ class _IndexedStackNavigationState extends State<IndexedStackNavigation> {
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: _onItemTapped,
         selectedIndex: _selectedIndex,
-        indicatorColor: Colors.amber, // Personalización del color del indicador
+        indicatorColor: Colors.amber,
         destinations: const [
           NavigationDestination(
             selectedIcon: Icon(Icons.person),
@@ -50,7 +50,7 @@ class _IndexedStackNavigationState extends State<IndexedStackNavigation> {
             label: 'Contactos',
           ),
           NavigationDestination(
-            selectedIcon: Icon(Icons.history),
+            selectedIcon: Icon(Icons.history_toggle_off_rounded),
             icon: Icon(Icons.history_outlined),
             label: 'Historial',
           ),
