@@ -14,6 +14,13 @@ class IndexedStackNavigation extends StatefulWidget {
 class _IndexedStackNavigationState extends State<IndexedStackNavigation> {
   int _selectedIndex = 0;
 
+  final List<Widget> _pages = const [
+    ProfilePage(),
+    ContactPage(),
+    AlertHistoryPage(),
+    SettingPage(),
+  ];
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -25,26 +32,33 @@ class _IndexedStackNavigationState extends State<IndexedStackNavigation> {
     return Scaffold(
       body: IndexedStack(
         index: _selectedIndex,
-        children: const [
-          ProfilePage(),
-          ContactPage(),
-          AlertHistoryPage(),
-          SettingPage(),
-        ],
+        children: _pages,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        selectedItemColor: Colors.black, // Colores para íconos seleccionados
-        unselectedItemColor: Colors.grey, // Colores para íconos no seleccionados
-        backgroundColor: Colors.white, // Fondo
-        selectedLabelStyle: const TextStyle(fontSize: 15),
-        unselectedLabelStyle: const TextStyle(fontSize: 15),
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.person, size: 24), label: 'Perfil'),
-          BottomNavigationBarItem(icon: Icon(Icons.contacts, size: 24), label: 'Contactos'),
-          BottomNavigationBarItem(icon: Icon(Icons.history, size: 24), label: 'Historial'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings, size: 24), label: 'Configuración'),
+      bottomNavigationBar: NavigationBar(
+        onDestinationSelected: _onItemTapped,
+        selectedIndex: _selectedIndex,
+        indicatorColor: Colors.amber, // Personalización del color del indicador
+        destinations: const [
+          NavigationDestination(
+            selectedIcon: Icon(Icons.person),
+            icon: Icon(Icons.person_outline),
+            label: 'Perfil',
+          ),
+          NavigationDestination(
+            selectedIcon: Icon(Icons.contacts),
+            icon: Icon(Icons.contacts_outlined),
+            label: 'Contactos',
+          ),
+          NavigationDestination(
+            selectedIcon: Icon(Icons.history),
+            icon: Icon(Icons.history_outlined),
+            label: 'Historial',
+          ),
+          NavigationDestination(
+            selectedIcon: Icon(Icons.settings),
+            icon: Icon(Icons.settings_outlined),
+            label: 'Configuración',
+          ),
         ],
       ),
     );
