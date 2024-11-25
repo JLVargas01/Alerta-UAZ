@@ -24,9 +24,12 @@ class AuthRepositoryImpl implements AuthRepository {
     await _googleSignInService.logOut();
   }
 
-  @override
-  Future<Map<String, dynamic>?> signInUser(String nameUser, String emailUser,
+  Future<Map<String, dynamic>> signInUser(String nameUser, String emailUser,
       String phoneUser, String avatarUserUrl, String deviceToken) async {
     return await _userService.signInUser( nameUser, emailUser, phoneUser, avatarUserUrl, deviceToken);
+  }
+
+  Future<Map<String, dynamic>?> getDataUserByEmail(String emailUser) async {
+    return await _userService.findUserByEmail(emailUser);
   }
 }
