@@ -38,9 +38,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         userRegistrer.name = googleUser.displayName ?? "";
         userRegistrer.email = googleUser.email;
         userRegistrer.avatar = googleUser.photoUrl ?? "";
-        userRegistrer.token = await FirebaseService().getToken() ?? "";
+        Map<String, dynamic>? responseDataGetted = await _authRepositoryImpl.getDataUserByEmail(googleUser.email);
+        if(responseDataGetted == null){
+          //Nuevo usuario
+          userRegistrer.token = await FirebaseService().getToken() ?? "";
+          emit(AuthNeedsPhoneNumber());
+        }else{
+          //Antiguo usuario
+          final phoneData = responseDataGetted["phone"];
+          userRegistrer.phone = "${phoneData["countryCode"]}${phoneData["nacionalNumber"]}";
+          userRegistrer.token = responseDataGetted['token'];
+          userRegistrer.idContacts = responseDataGetted['id_contact_list'];
+          emit(Authenticated(userRegistrer));
+        }
 
-        emit(AuthNeedsPhoneNumber());
       } catch (e) {
         emit(AuthError(e.toString()));
       }
@@ -52,7 +63,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         userRegistrer.phone = event.phoneNumber;
 
         // Realiza el registro completo en el repositorio
-        final responseData = await _authRepositoryImpl.signInUser(
+        Map<String, dynamic>? responseDataCreated = await _authRepositoryImpl.signInUser(
           userRegistrer.name,
           userRegistrer.email,
           userRegistrer.phone,
@@ -60,13 +71,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           userRegistrer.token,
         );
 
-        if (responseData == null) {
-          emit(AuthError('Error al iniciar sesión, por favor inténtelo más tarde'));
-          return;
-        }
-
-        userRegistrer.id = responseData['_id'];
-        userRegistrer.idContacts = responseData['id_contact_list'];
+        userRegistrer.id = responseDataCreated['_id'];
+        userRegistrer.idContacts = responseDataCreated['id_contact_list'];
         UserStorage.store(userRegistrer);
         emit(Authenticated(userRegistrer));
       } catch (e) {
