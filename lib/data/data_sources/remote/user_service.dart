@@ -5,7 +5,7 @@ import 'package:alerta_uaz/core/utils/http_helper.dart';
 class UserService {
   final String _baseUrl = ApiConfig.getBaseUrl(ApiConfig.portUser);
 
-  Future<Map<String, dynamic>?> signInUser(
+  Future<Map<String, dynamic>> signInUser(
     String nameUser,
     String emailUser,
     String phoneUser,
@@ -35,6 +35,29 @@ class UserService {
       throw Exception('Error de red: $e');
     }
   }
+
+Future<Map<String, dynamic>?> findUserByEmail(String emailUser) async {
+  final String endpoint = ApiConfig.getInfoUserByEmail;
+  final Uri uri = Uri.parse('$_baseUrl$endpoint/$emailUser');
+
+  try {
+    final response = await HttpHelper.get(uri);
+
+    if (response.statusCode == 200) {
+      // El usuario existe, devolvemos su información
+      final userDataResponse = jsonDecode(response.body);
+      return userDataResponse;
+    } else if (response.statusCode == 404) {
+      // El usuario no existe
+      return null;
+    } else {
+      // Error en el servidor u otra respuesta inesperada
+      throw Exception('Error en la solicitud: ${response.statusCode} - ${response.reasonPhrase}');
+    }
+  } catch (e) {
+    throw Exception('Error en el servidor: $e');
+  }
+}
 
   Future<String?> sendDataNewContact(
       String nombre, String telefono, String idLista) async {
