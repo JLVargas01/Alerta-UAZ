@@ -26,4 +26,8 @@ class AuthRepositoryImpl {
     return await _userService.signInUser(
         nameUser, emailUser, phoneUser, avatarUserUrl, deviceToken);
   }
+
+  Future<Map<String, dynamic>?> getDataUserByEmail(String emailUser) async {
+    return await _userService.findUserByEmail(emailUser);
+  }
 }

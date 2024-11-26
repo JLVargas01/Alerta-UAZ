@@ -1,3 +1,5 @@
+import 'package:alerta_uaz/data/data_sources/local/alerts_received_db.dart';
+import 'package:alerta_uaz/data/data_sources/local/alerts_sent_db.dart';
 import 'package:alerta_uaz/data/data_sources/local/contacts_db.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -25,6 +27,8 @@ class DatabaseService {
   //Crear las tablas de la base de datos
   Future<void> create(Database database, int version) async {
     await ContactosConfianza().createTable(database);
+    await AlertsSent().createTable(database);
+    await AlertsReceived().createTable(database);
   }
 
   //Iniciar la base de datos
