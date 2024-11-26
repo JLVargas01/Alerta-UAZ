@@ -77,8 +77,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           return;
         }
         userRegistrer.id = responseData['_id'];
-        userRegistrer.idContactList = responseData['idContactList'];
-        userRegistrer.idAlertList = responseData['idAlertList'];
+        userRegistrer.idContactList = responseData['id_contact_list'];
+        userRegistrer.idAlertList = responseData['id_alert_list'];
         UserStorage.store(userRegistrer);
         emit(Authenticated(userRegistrer));
       } catch (e) {
