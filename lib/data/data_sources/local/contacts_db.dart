@@ -31,7 +31,6 @@ class ContactosConfianza {
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
     } catch (e) {
-      print('Error al insertar contacto: $e');
       rethrow;
     }
   }
@@ -43,7 +42,7 @@ class ContactosConfianza {
       final db = await DatabaseService().getDatabase();
 
     // Query a todos los contactos de confianza.
-      final List<Map<String, Object?>> contactoMaps = await db.query(tableName);
+      final List<Map<String, Object?>> contactoMap = await db.query(tableName);
 
     // Convertir la lista a objetos ContactoConfianza
       return [
@@ -52,12 +51,11 @@ class ContactosConfianza {
         'telephone': telephone as String,
         'alias': alias as String,
         'relacion': relacion as String,
-        } in contactoMaps)
+        } in contactoMap)
           ContactoConfianza(id_confianza: id_confianza, alias: alias, telephone: telephone, relacion: relacion),
       ];
     } catch (e) {
-      print('Error al obtener contactos: $e');
-      return [];
+      rethrow;
     }
   }
 
@@ -72,7 +70,6 @@ class ContactosConfianza {
         whereArgs: [id],
       );
     } catch (e) {
-      print('Error al eliminar contacto: $e');
       rethrow;
     }
   }
@@ -87,7 +84,6 @@ class ContactosConfianza {
       );
       return retorno.isNotEmpty;
     } catch (e) {
-      print('Error al buscar el contacto: $e');
       rethrow;
     }
   }
