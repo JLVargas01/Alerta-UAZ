@@ -1,5 +1,6 @@
 import 'package:alerta_uaz/data/data_sources/local/storage.dart';
 import 'package:alerta_uaz/domain/model/user_model.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 abstract class AuthRepository {
   Future<void> logOutGoogle();
