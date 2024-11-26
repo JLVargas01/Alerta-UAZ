@@ -46,7 +46,7 @@ class UserService {
       final response = await HttpHelper.get(uri);
 
       if (response.statusCode == 200) {
-        return jsonDecode(response.body) as Map<String, dynamic>;
+        return json.decode(response.body);
       } else if (response.statusCode == 404) {
         return null;
       } else {
