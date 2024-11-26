@@ -87,7 +87,7 @@ class _AlertHistoryPageState extends State<AlertHistoryPage>
                     final alert = alerts[index] as AlertSent;
                     return ListTile(
                       leading: const Icon(Icons.outbox),
-                      title: Text(alert.dateSended as String),
+                      title: Text("Latitud; ${alert.latitude} longitude: ${alert.longitude}"),
                     );
                   }
                 },
