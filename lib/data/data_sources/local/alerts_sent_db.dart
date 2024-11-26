@@ -7,15 +7,15 @@ class AlertsSent {
   final tableName = 'alertas_enviadas';
 
   //Crear la tabla para las alertas mandadas a otros usuarios
-  Future<void> createTable(Database database) async {
-    await database.execute(
-      """CREATE TABLE IF NOT EXISTS $tableName (
-        "idAlertSent" TEXT NOT NULL,
-        "dateSended" DATE NOT NULL,
-        PRIMARY KEY("idAlertSent")
+Future<void> createTable(Database database) async {
+  await database.execute(
+    """CREATE TABLE IF NOT EXISTS $tableName (
+        "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+        "latitude" TEXT NOT NULL,
+        "longitude" TEXT NOT NULL
       );"""
-    );
-  }
+  );
+}
 
   //Insertar nuevo registro de alerta enviada
   Future<void> insertRecordAlertSent(AlertSent alert) async {
@@ -43,12 +43,19 @@ class AlertsSent {
       final List<Map<String, Object?>> alertasEnviadasMap = await db.query(tableName);
 
     // Convertir la lista a objetos AlertSent
+      //return [
+      //  for (final {
+      //  'idAlertSent': idAlertSent as String,
+      //  'dateSended': dateSended as DateTime,
+      //  } in alertasEnviadasMap)
+      //    AlertSent(idAlertSent: idAlertSent, dateSended: dateSended ),
+      //];
       return [
         for (final {
-        'idAlertSent': idAlertSent as String,
-        'dateSended': dateSended as DateTime,
+        'idAlertSent': latitude as String,
+        'dateSended': longitude as String,
         } in alertasEnviadasMap)
-          AlertSent(idAlertSent: idAlertSent, dateSended: dateSended ),
+          AlertSent( latitude: latitude, longitude: longitude),
       ];
     } catch (e) {
       rethrow;
