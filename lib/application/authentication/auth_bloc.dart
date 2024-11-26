@@ -4,17 +4,21 @@ import 'package:alerta_uaz/application/authentication/auth_state.dart';
 import 'package:alerta_uaz/data/data_sources/local/user_storange.dart';
 import 'package:alerta_uaz/data/data_sources/remote/firebase_service.dart';
 import 'package:alerta_uaz/data/data_sources/remote/google_sign_in_service.dart';
+import 'package:alerta_uaz/data/data_sources/remote/user_api.dart';
 import 'package:alerta_uaz/data/data_sources/remote/user_service.dart';
 import 'package:alerta_uaz/data/repositories/auth_repository_imp.dart';
+import 'package:alerta_uaz/data/repositories/auth_with_google.dart';
 import 'package:alerta_uaz/domain/model/user_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final AuthRepositoryImpl _authRepositoryImpl =AuthRepositoryImpl(GoogleSignInService(), UserService());
+  final AuthRepositoryImpl _authRepositoryImpl =
+      AuthRepositoryImpl(GoogleSignInService(), UserService());
   User userRegistrer = User();
 
-  AuthBloc() : super(Unauthenticated()) {
+  final AuthWithGoogle _authWithGoogle = AuthWithGoogle(UserApi());
 
+  AuthBloc() : super(Unauthenticated()) {
     on<CheckUserAuthentication>((event, emit) async {
       emit(AuthLoading());
       User? user = await UserStorage.getUserData();
@@ -63,16 +67,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         userRegistrer.phone = event.phoneNumber;
 
         // Realiza el registro completo en el repositorio
-        Map<String, dynamic>? responseDataCreated = await _authRepositoryImpl.signInUser(
-          userRegistrer.name,
-          userRegistrer.email,
-          userRegistrer.phone,
-          userRegistrer.avatar,
-          userRegistrer.token,
+        final responseData = await _authRepositoryImpl.signInUser(
+          userRegistrer.name!,
+          userRegistrer.email!,
+          userRegistrer.phone!,
+          userRegistrer.avatar!,
+          userRegistrer.token!,
         );
 
-        userRegistrer.id = responseDataCreated['_id'];
-        userRegistrer.idContacts = responseDataCreated['id_contact_list'];
+        if (responseData == null) {
+          emit(AuthError('Error al iniciar sesión, por favor inténtelo más tarde'));
+          return;
+        }
+        userRegistrer.id = responseData['_id'];
+        userRegistrer.idContactList = responseData['id_contact_list'];
         UserStorage.store(userRegistrer);
         emit(Authenticated(userRegistrer));
       } catch (e) {
@@ -86,6 +94,5 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await _authRepositoryImpl.logOutGoogle();
       emit(Unauthenticated());
     });
-
   }
 }

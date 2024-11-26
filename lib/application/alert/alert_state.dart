@@ -1,17 +1,23 @@
-abstract class AlertState {}
+abstract class AlertState {
+  final String? message;
+
+  AlertState({this.message});
+}
 
 class AlertInitial extends AlertState {}
 
-class AlertSending extends AlertState {}
+class AlertLoading extends AlertState {
+  AlertLoading({required super.message});
+}
 
 class AlertSent extends AlertState {
-  final String message;
+  AlertSent({required super.message});
+}
 
-  AlertSent(this.message);
+class AlertRegistered extends AlertState {
+  AlertRegistered({required super.message});
 }
 
 class AlertError extends AlertState {
-  final String error;
-
-  AlertError(this.error);
+  AlertError({required super.message});
 }

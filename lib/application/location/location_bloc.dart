@@ -27,7 +27,7 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
         emit(LocationLoading());
 
         final room = '${DateTime.now()}:${user!.name}'.replaceAll(' ', '');
-        _locationRepositoryImp.startSendLocation(room, user!.name);
+        _locationRepositoryImp.startSendLocation(room, user!.name!);
         await Future.delayed(const Duration(milliseconds: 500));
         emit(LocationStarted(room));
       },
@@ -55,7 +55,8 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
         }
 
         final room = event.room;
-        _locationRepositoryImp.startReceivedLocation(room, user!.name, handler);
+        _locationRepositoryImp.startReceivedLocation(
+            room, user!.name!, handler);
       },
     );
 
