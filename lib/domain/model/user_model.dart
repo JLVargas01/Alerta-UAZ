@@ -19,6 +19,7 @@ class User {
   // Método para serializar a JSON
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'name': name,
       'email': email,
       'phone': phone,
