@@ -48,7 +48,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           final phoneData = responseDataGetted["phone"];
           userRegistrer.phone = "${phoneData["countryCode"]}${phoneData["nacionalNumber"]}";
           userRegistrer.token = responseDataGetted['token'];
-          userRegistrer.idContactList = responseDataGetted['id_contact_list'];
+          userRegistrer.idContactList = responseDataGetted['idContactList'];
+          userRegistrer.idAlertList = responseDataGetted['idAlertList'];
           emit(Authenticated(userRegistrer));
         }
 
@@ -76,7 +77,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           return;
         }
         userRegistrer.id = responseData['_id'];
-        userRegistrer.idContactList = responseData['id_contact_list'];
+        userRegistrer.idContactList = responseData['idContactList'];
+        userRegistrer.idAlertList = responseData['idAlertList'];
         UserStorage.store(userRegistrer);
         emit(Authenticated(userRegistrer));
       } catch (e) {
