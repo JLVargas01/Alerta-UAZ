@@ -4,6 +4,8 @@ class CheckUserAuthentication extends AuthEvent {}
 
 class SignIn extends AuthEvent {}
 
+class LogIn extends AuthEvent {}
+
 class ProvidePhoneNumber extends AuthEvent {
   final String phoneNumber;
 

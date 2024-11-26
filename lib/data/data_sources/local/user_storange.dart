@@ -17,7 +17,10 @@ class UserStorage {
     final String? userJson = prefs.getString(_userKey);
     if (userJson != null) {
       final Map<String, dynamic> userMap = jsonDecode(userJson);
-      return User.fromJson(userMap);
+      User user = User();
+      user.fromJson(userMap);
+      ;
+      return user;
     }
     return null;
   }

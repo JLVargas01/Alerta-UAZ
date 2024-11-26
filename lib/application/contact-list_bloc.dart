@@ -37,7 +37,8 @@ class ContactsError extends ContactsState {
 
 class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
   final ContactosConfianza contactsDB = ContactosConfianza();
-  final ContactsRepositoryImpl _contactsRepositoryImpl = ContactsRepositoryImpl(UserService());
+  final ContactsRepositoryImpl _contactsRepositoryImpl =
+      ContactsRepositoryImpl(UserService());
 
   ContactsBloc() : super(ContactsInitial()) {
     on<LoadContacts>((event, emit) async {
@@ -53,7 +54,8 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
     on<AddContact>((event, emit) async {
       emit(ContactsLoading());
       try {
-        final FlutterNativeContactPicker contactPicker = FlutterNativeContactPicker();
+        final FlutterNativeContactPicker contactPicker =
+            FlutterNativeContactPicker();
         Contact? contact = await contactPicker.selectContact();
 
         String? numeroTelefonico = contact?.phoneNumbers?.single;
@@ -66,7 +68,7 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
         }
 
         //Verificar si el contacto ya esta almacenado
-        if(await contactsDB.existContact(numeroTelefonico)) {
+        if (await contactsDB.existContact(numeroTelefonico)) {
           emit(ContactsError('El contacto ya esta agregado'));
           return;
         }
@@ -77,9 +79,11 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
           return;
         }
 
-        String? idNewContact = await _contactsRepositoryImpl.createContact(nombre, numeroTelefonico, idLista);
+        String? idNewContact = await _contactsRepositoryImpl.createContact(
+            nombre, numeroTelefonico, idLista);
         if (idNewContact == null) {
-          emit(ContactsError('Error al crear el contacto, por favor intente más tarde'));
+          emit(ContactsError(
+              'Error al crear el contacto, por favor intente más tarde'));
           return;
         }
         if (idNewContact.isEmpty) {
@@ -105,7 +109,7 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
       emit(ContactsLoading());
       try {
         User? user = await UserStorage.getUserData();
-        String? idLista = user?.idContacts;
+        String? idLista = user!.idContactList;
         if (idLista == null) {
           emit(ContactsError('Error con la lista de contactos'));
           return;

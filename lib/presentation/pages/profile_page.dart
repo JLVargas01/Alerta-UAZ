@@ -55,11 +55,11 @@ class _ProfilePageState extends State<ProfilePage> {
                     // Mostrar avatar si está disponible
                     CircleAvatar(
                       radius: 50,
-                      backgroundImage: NetworkImage(user.avatar),
+                      backgroundImage: NetworkImage(user.avatar!),
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      user.name,
+                      user.name!,
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -67,7 +67,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      user.email,
+                      user.email!,
                       style: const TextStyle(
                         fontSize: 18,
                         color: Colors.grey,

@@ -5,7 +5,7 @@ class GoogleSignInService {
     scopes: ['email'],
   );
 
-  Future<GoogleSignInAccount?> logIn() => _googleSignIn.signIn();
+  Future<GoogleSignInAccount?> signIn() => _googleSignIn.signIn();
 
   Future<void> logOut() => _googleSignIn.disconnect();
 
