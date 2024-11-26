@@ -34,25 +34,25 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           emit(AuthError('Error al iniciar sesión: El correo no existe'));
           return;
         }
-
         userRegistrer.name = googleUser.displayName ?? "";
         userRegistrer.email = googleUser.email;
         userRegistrer.avatar = googleUser.photoUrl ?? "";
-        Map<String, dynamic>? responseDataGetted = await _authRepositoryImpl.getDataUserByEmail(googleUser.email);
-        if(responseDataGetted == null){
+        Map<String, dynamic>? responseDataGetted =
+            await _authRepositoryImpl.getDataUserByEmail(googleUser.email);
+        if (responseDataGetted == null) {
           //Nuevo usuario
           userRegistrer.token = await FirebaseService().getToken() ?? "";
           emit(AuthNeedsPhoneNumber());
-        }else{
+        } else {
           //Antiguo usuario
           final phoneData = responseDataGetted["phone"];
-          userRegistrer.phone = "${phoneData["countryCode"]}${phoneData["nacionalNumber"]}";
+          userRegistrer.phone =
+              "${phoneData["countryCode"]}${phoneData["nacionalNumber"]}";
           userRegistrer.token = responseDataGetted['token'];
-          userRegistrer.idContactList = responseDataGetted['idContactList'];
-          userRegistrer.idAlertList = responseDataGetted['idAlertList'];
+          userRegistrer.idContactList = responseDataGetted['id_contact_list'];
+          userRegistrer.idAlertList = responseDataGetted['id_alert_list'];
           emit(Authenticated(userRegistrer));
         }
-
       } catch (e) {
         emit(AuthError(e.toString()));
       }
@@ -73,12 +73,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         );
 
         if (responseData == null) {
-          emit(AuthError('Error al iniciar sesión, por favor inténtelo más tarde'));
+          emit(AuthError(
+              'Error al iniciar sesión, por favor inténtelo más tarde'));
           return;
         }
         userRegistrer.id = responseData['_id'];
-        userRegistrer.idContactList = responseData['idContactList'];
-        userRegistrer.idAlertList = responseData['idAlertList'];
+        userRegistrer.idContactList = responseData['id_contact_list'];
+        userRegistrer.idAlertList = responseData['id_alert_list'];
         UserStorage.store(userRegistrer);
         emit(Authenticated(userRegistrer));
       } catch (e) {

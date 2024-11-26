@@ -28,9 +28,9 @@ class UserService {
 
       if (response.statusCode == 201 || response.statusCode == 200) {
         // Convertir la respuesta a Map
-        return jsonDecode(response.body) as Map<String, dynamic>;
+        return json.decode(response.body);
       } else {
-        final errorResponse = jsonDecode(response.body);
+        final errorResponse = json.decode(response.body);
         throw Exception('${errorResponse['error']}');
       }
     } catch (e) {
@@ -42,10 +42,15 @@ class UserService {
     String endpoint = ApiConfig.getInfoUserByEmail;
     Uri uri = Uri.parse('$_baseUrl$endpoint/$email');
 
+    print('Uri a enviar: $_baseUrl$endpoint/$email');
+
     try {
+      print('Enviando datos...');
       final response = await HttpHelper.get(uri);
+      print('Response obtenida...');
 
       if (response.statusCode == 200) {
+        print('Datos obtenidos.');
         return json.decode(response.body);
       } else if (response.statusCode == 404) {
         return null;
@@ -59,14 +64,14 @@ class UserService {
     }
   }
 
-  Future<String?> sendDataNewContact(String name, String phone, String contactListId) async {
+  Future<String?> sendDataNewContact(
+      String name, String phone, String contactListId) async {
     String endpoint = ApiConfig.createContact;
-    Uri uri = Uri.parse('$_baseUrl$endpoint');
+    Uri uri = Uri.parse('$_baseUrl$endpoint/$contactListId');
 
     Map<String, dynamic> data = {
-      'id_listConta': contactListId,
       'alias': name,
-      'telephone': phone,
+      'phone': phone.replaceAll(' ', ''),
     };
 
     try {
@@ -74,7 +79,7 @@ class UserService {
 
       if (response.statusCode == 201) {
         final responseData = jsonDecode(response.body);
-        return responseData['id'] as String?;
+        return responseData['id_contact'] as String?;
       } else if (response.statusCode == 404) {
         return null;
       } else {
@@ -86,7 +91,8 @@ class UserService {
     }
   }
 
-  Future<bool> sendIdsDeleteContact(String contactListId, String contactId) async {
+  Future<bool> sendIdsDeleteContact(
+      String contactListId, String contactId) async {
     String endpoint = '${ApiConfig.deleteContact}/$contactListId/$contactId';
     Uri uri = Uri.parse('$_baseUrl$endpoint');
 

@@ -30,8 +30,9 @@ class UserStorage {
     final prefs = await SharedPreferences.getInstance();
     final String? userJson = prefs.getString(_userKey);
     if (userJson != null) {
-      final Map<String, dynamic> userMap = jsonDecode(userJson);
-      return userMap['idContactList'];
+      final Map<String, dynamic> userMap = json.decode(userJson);
+
+      return userMap['id_contact_list'];
     }
     return null;
   }

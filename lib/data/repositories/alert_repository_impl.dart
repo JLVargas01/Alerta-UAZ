@@ -1,16 +1,19 @@
 import 'package:alerta_uaz/data/data_sources/remote/alert_api.dart';
 import 'package:alerta_uaz/data/data_sources/remote/notification_api.dart';
+import 'package:alerta_uaz/domain/model/user_model.dart';
 import 'package:location/location.dart';
 
 class AlertRepositoryImpl {
   final NotificationApi _notificationApi;
   final AlertApi _alertApi;
 
+  final User _user = User();
+
   AlertRepositoryImpl(this._notificationApi, this._alertApi);
 
   Future<void> registerAlert() async {
     // id temporal
-    const alertId = '6742db2bb98ef71d14ec7afc';
+    final String alertId = _user.idAlertList!;
 
     final locationData = await Location().getLocation();
 
@@ -25,14 +28,14 @@ class AlertRepositoryImpl {
     await _alertApi.addAlert(alertId, data);
   }
 
-  Future<void> sendAlert(room, user) async {
-    String contactListId = user!.idContacts;
+  Future<void> sendAlert(String room, User user) async {
+    String contactListId = user.idContactList!;
 
     // Estructura para compartir la ubicación actual del emisor
     Map<String, dynamic> data = {
       'room': room, // Cuarto dónde se compartira la localización.
-      'name': user!.name, // Nombre del emisor que envía la alerta
-      'avatar': user!.avatar
+      'name': user.name, // Nombre del emisor que envía la alerta
+      'avatar': user.avatar
     };
 
     // Contruyendo estructura de una notificación

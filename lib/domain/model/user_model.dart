@@ -24,6 +24,8 @@ class User {
       'phone': phone,
       'avatar': avatar,
       'token': token,
+      'id_contact_list': idContactList,
+      'id_alert_list': idAlertList
     };
   }
 
@@ -51,6 +53,6 @@ class User {
 
   @override
   String toString() {
-    return '$id $name,\n $email,\n $phone,\n $avatar,\n $token,\n $idContactList,\n $idAlertList';
+    return 'id: $id, name: $name, email: $email, phone: $phone, avatar: $avatar, token: $token, id_contact: $idContactList, id_alert: $idAlertList';
   }
 }
