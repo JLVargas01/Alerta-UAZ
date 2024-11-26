@@ -1,11 +1,14 @@
+import 'package:alerta_uaz/data/data_sources/local/alerts_sent_db.dart';
 import 'package:alerta_uaz/data/data_sources/remote/alert_api.dart';
 import 'package:alerta_uaz/data/data_sources/remote/notification_api.dart';
+import 'package:alerta_uaz/domain/model/alerts_sent_model.dart';
 import 'package:alerta_uaz/domain/model/user_model.dart';
 import 'package:location/location.dart';
 
 class AlertRepositoryImpl {
   final NotificationApi _notificationApi;
   final AlertApi _alertApi;
+  final AlertsSent lertasDB = AlertsSent();
 
   final User _user = User();
 
@@ -24,6 +27,12 @@ class AlertRepositoryImpl {
       },
       'media': 'https://mx.pinterest.com/pin/351912465120658/'
     };
+
+    AlertSent nuevaAlerta = AlertSent(
+      latitude: locationData.latitude as String,
+      longitude: locationData.longitude  as String
+    );
+    await lertasDB.insertRecordAlertSent(nuevaAlerta);
 
     await _alertApi.addAlert(alertId, data);
   }
