@@ -25,6 +25,12 @@ class _AlertPageState extends State<AlertPage> {
     context.read<LocationBloc>().add(StartSendingLocation());
   }
 
+  void _exitPage(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Navigator.of(context).pushReplacementNamed('/main');
+    });
+  }
+
   Future<bool?> _showStopAlertDialog(BuildContext context) {
     return showDialog(
       context: context,
@@ -45,7 +51,7 @@ class _AlertPageState extends State<AlertPage> {
               context.read<LocationBloc>().add(StopSendingLocation()),
               // Vuelve activar la herramienta shake.
               context.read<ShakeBloc>().resumeListening(),
-              Navigator.pushReplacementNamed(context, '/main')
+              Navigator.pop(context, true)
             },
             child: const Text('Detener'),
           ),
@@ -67,7 +73,10 @@ class _AlertPageState extends State<AlertPage> {
           const SizedBox(height: 30),
           TextButton(
             onPressed: () async {
-              await _showStopAlertDialog(context);
+              final value = await _showStopAlertDialog(context);
+              if (value == true) {
+                _exitPage(context);
+              }
             },
             child: const Text('Desactivar alerta'),
           ),
@@ -84,7 +93,10 @@ class _AlertPageState extends State<AlertPage> {
         title: const Text('Alerta'),
         leading: IconButton(
           onPressed: () async {
-            await _showStopAlertDialog(context);
+            final value = await _showStopAlertDialog(context);
+            if (value == true) {
+              _exitPage(context);
+            }
           },
           icon: const Icon(Icons.arrow_back),
         ),

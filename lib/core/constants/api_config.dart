@@ -15,8 +15,10 @@ class ApiConfig {
   // endpoints
   // Usuario
   static final String singIn = dotenv.env['USER_SIGN_IN'] ?? '';
-  static final String getInfoUserByEmail = dotenv.env['USER_GET_USER_EMAIL'] ?? '';
-  static final String createContact = dotenv.env['USER_CREATE_CONTACT'] ?? '';
+  static final String getInfoUserByEmail =
+      dotenv.env['USER_GET_USER_EMAIL'] ?? '/api/user/byEmail';
+  static final String createContact =
+      dotenv.env['USER_CREATE_CONTACT'] ?? '/api/contact/createContact';
   static final String deleteContact = dotenv.env['USER_DELETE_CONTACT'] ?? '';
 
   static const headerKey = "********************************************";

@@ -30,7 +30,7 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
         emit(AlertLoading(message: 'Enviando notificación a contactos....'));
         String room = event.room;
         try {
-          await _alertRepositoryImp.sendAlert(room, user);
+          await _alertRepositoryImp.sendAlert(room, user!);
           emit(AlertSent(message: 'La alerta fue envíada exitosamente.'));
         } catch (e) {
           emit(AlertError(message: e.toString()));
