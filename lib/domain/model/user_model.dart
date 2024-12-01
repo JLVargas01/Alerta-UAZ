@@ -19,24 +19,27 @@ class User {
   // Método para serializar a JSON
   Map<String, dynamic> toJson() {
     return {
+      '_id': id,
       'name': name,
       'email': email,
       'phone': phone,
       'avatar': avatar,
       'token': token,
+      'id_contact_list': idContactList,
+      'id_alert_list': idAlertList
     };
   }
 
   // Método para actualizar los datos desde un JSON
   void fromJson(Map<String, dynamic> json) {
-    id = json['id'] ?? id;
-    name = json['name'] ?? name;
-    email = json['email'] ?? email;
-    phone = json['phone'] ?? phone;
-    avatar = json['avatar'] ?? avatar;
-    token = json['token'] ?? token;
-    idContactList = json['id_contact_list'] ?? idContactList;
-    idAlertList = json['id_alert_list'] ?? idAlertList;
+    id = json['_id'].toString();
+    name = json['name'].toString();
+    email = json['email'].toString();
+    phone = json['phone'].toString();
+    avatar = json['avatar'].toString();
+    token = json['token'].toString();
+    idContactList = json['id_contact_list'].toString();
+    idAlertList = json['id_alert_list'].toString();
   }
 
   void clean() {
@@ -51,6 +54,6 @@ class User {
 
   @override
   String toString() {
-    return '$id $name,\n $email,\n $phone,\n $avatar,\n $token,\n $idContactList,\n $idAlertList';
+    return 'id: $id, name: $name, email: $email, phone: $phone, avatar: $avatar, token: $token, id_contact: $idContactList, id_alert: $idAlertList';
   }
 }

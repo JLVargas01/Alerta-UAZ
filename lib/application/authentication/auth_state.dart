@@ -3,9 +3,9 @@ import 'package:alerta_uaz/domain/model/user_model.dart';
 abstract class AuthState {}
 
 class Authenticated extends AuthState {
-  final User user;
+  final user = User();
 
-  Authenticated(this.user);
+  Authenticated();
 }
 
 class Unauthenticated extends AuthState {}
