@@ -65,13 +65,14 @@ class UserService {
   }
 
   Future<String?> sendDataNewContact(
-      String name, String phone, String contactListId) async {
+      String name, String phone, String idContactsList) async {
     String endpoint = ApiConfig.createContact;
-    Uri uri = Uri.parse('$_baseUrl$endpoint/$contactListId');
+    Uri uri = Uri.parse('$_baseUrl$endpoint');
 
     Map<String, dynamic> data = {
+      'idContactsList': idContactsList,
       'alias': name,
-      'phone': phone.replaceAll(' ', ''),
+      'phone': phone,
     };
 
     try {
@@ -81,10 +82,9 @@ class UserService {
         final responseData = jsonDecode(response.body);
         return responseData['id_contact'] as String?;
       } else if (response.statusCode == 404) {
-        return null;
+        return '';
       } else {
-        final errorResponse = jsonDecode(response.body);
-        throw Exception('Error: ${errorResponse['error']}');
+        return null;
       }
     } catch (e) {
       throw Exception('Error al crear contacto: $e');
