@@ -45,12 +45,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           emit(AuthNeedsPhoneNumber());
         } else {
           //Antiguo usuario
+          userRegistrer.id = responseDataGetted['_id'];
           final phoneData = responseDataGetted["phone"];
-          userRegistrer.phone =
-              "${phoneData["countryCode"]}${phoneData["nacionalNumber"]}";
+          userRegistrer.phone ="${phoneData["countryCode"]}${phoneData["nacionalNumber"]}";
           userRegistrer.token = responseDataGetted['token'];
           userRegistrer.idContactList = responseDataGetted['id_contact_list'];
           userRegistrer.idAlertList = responseDataGetted['id_alert_list'];
+         UserStorage.store(userRegistrer);
           emit(Authenticated(userRegistrer));
         }
       } catch (e) {
