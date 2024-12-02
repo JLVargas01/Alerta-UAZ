@@ -18,6 +18,12 @@ class AlertRegistered extends AlertState {
   AlertRegistered({required super.message});
 }
 
+class AlertActivated extends AlertState {}
+
+class AlertDeactivated extends AlertState {}
+
 class AlertError extends AlertState {
-  AlertError({required super.message});
+  final String title;
+
+  AlertError({required super.message, required this.title});
 }

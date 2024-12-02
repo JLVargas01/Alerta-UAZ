@@ -1,7 +1,7 @@
+import 'package:alerta_uaz/application/alert/alert_bloc.dart';
+import 'package:alerta_uaz/application/alert/alert_state.dart';
 import 'package:alerta_uaz/application/notification/notification_bloc.dart';
 import 'package:alerta_uaz/application/notification/notification_state.dart';
-import 'package:alerta_uaz/application/shake/shake_bloc.dart';
-import 'package:alerta_uaz/application/shake/shake_state.dart';
 
 import 'package:alerta_uaz/domain/model/notification_model.dart';
 import 'package:alerta_uaz/presentation/widget/indexed_stack_navigation.dart';
@@ -16,12 +16,30 @@ class MainPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocListener(
       listeners: [
-        BlocListener<ShakeBloc, ShakeState>(
+        BlocListener<AlertBloc, AlertState>(
           listener: (context, state) {
-            if (state is ShakeOn) {
+            if (state is AlertActivated) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 Navigator.of(context).pushReplacementNamed('/alert');
               });
+            } else if (state is AlertRegistered) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.message!)),
+              );
+            } else if (state is AlertError) {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text('Error en ${state.title}'),
+                  content: Text(state.message!),
+                  actions: [
+                    TextButton(
+                      onPressed: () => {Navigator.pop(context)},
+                      child: const Text('Cerrar'),
+                    ),
+                  ],
+                ),
+              );
             }
           },
         ),

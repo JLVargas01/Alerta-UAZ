@@ -1,6 +1,7 @@
 import 'package:alerta_uaz/data/data_sources/local/alerts_sent_db.dart';
 import 'package:alerta_uaz/data/data_sources/remote/alert_api.dart';
 import 'package:alerta_uaz/data/data_sources/remote/notification_api.dart';
+import 'package:alerta_uaz/data/data_sources/remote/shake_detector_service.dart';
 import 'package:alerta_uaz/domain/model/alerts_sent_model.dart';
 import 'package:alerta_uaz/domain/model/user_model.dart';
 import 'package:location/location.dart';
@@ -8,16 +9,17 @@ import 'package:location/location.dart';
 class AlertRepositoryImpl {
   final NotificationApi _notificationApi;
   final AlertApi _alertApi;
-  final AlertsSent lertasDB = AlertsSent();
-
-  final User _user = User();
+  final _lertasDB = AlertsSent();
+  final _user = User();
+  final _shake = ShakeDetector();
 
   AlertRepositoryImpl(this._notificationApi, this._alertApi);
 
   Future<void> registerAlert() async {
-    // id temporal
+    // Se obtiene el id de la lista de alertas del usuario.
     final String alertId = _user.idAlertList!;
 
+    // última ubicación a registrar.
     final locationData = await Location().getLocation();
 
     Map<String, dynamic> data = {
@@ -25,26 +27,28 @@ class AlertRepositoryImpl {
         'latitude': locationData.latitude,
         'longitude': locationData.longitude
       },
-      'media': 'https://mx.pinterest.com/pin/351912465120658/'
+      'media':
+          'https://i.pinimg.com/736x/80/72/f9/8072f92472418239a3ff1a3d07e96bdd.jpg'
     };
 
-    AlertSent nuevaAlerta = AlertSent(
-      latitude: locationData.latitude as String,
-      longitude: locationData.longitude  as String
-    );
-    await lertasDB.insertRecordAlertSent(nuevaAlerta);
-
+    // Se envía la alerta para ser registrada en el servidor.
     await _alertApi.addAlert(alertId, data);
+
+    // Y se registra de manera local la alerta.
+    // AlertSent nuevaAlerta = AlertSent(
+    //     latitude: locationData.latitude as String,
+    //     longitude: locationData.longitude as String);
+    // await lertasDB.insertRecordAlertSent(nuevaAlerta);
   }
 
-  Future<void> sendAlert(String room, User user) async {
-    String contactListId = user.idContactList!;
+  Future<void> sendAlert(String room) async {
+    String contactListId = _user.idContactList!;
 
     // Estructura para compartir la ubicación actual del emisor
     Map<String, dynamic> data = {
       'room': room, // Cuarto dónde se compartira la localización.
-      'name': user.name, // Nombre del emisor que envía la alerta
-      'avatar': user.avatar
+      'name': _user.name, // Nombre del emisor que envía la alerta
+      'avatar': _user.avatar
     };
 
     // Contruyendo estructura de una notificación
@@ -58,5 +62,24 @@ class AlertRepositoryImpl {
     };
 
     await _notificationApi.sendAlert(contactListId, message);
+  }
+
+  ///
+  /// Funcionalidades con Shake
+  ///
+  void startAlert(Function() handler) {
+    _shake.startListening(handler);
+  }
+
+  void stopAlert() {
+    _shake.stopListening();
+  }
+
+  void pauseAlert() {
+    _shake.pauseListening();
+  }
+
+  void resumeAlert() {
+    _shake.resumeListening();
   }
 }

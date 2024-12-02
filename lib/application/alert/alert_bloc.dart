@@ -3,25 +3,24 @@ import 'package:alerta_uaz/application/alert/alert_state.dart';
 import 'package:alerta_uaz/data/data_sources/remote/alert_api.dart';
 import 'package:alerta_uaz/data/data_sources/remote/notification_api.dart';
 import 'package:alerta_uaz/data/repositories/alert_repository_impl.dart';
-import 'package:alerta_uaz/domain/model/user_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AlertBloc extends Bloc<AlertEvent, AlertState> {
   final _alertRepositoryImp =
       AlertRepositoryImpl(NotificationApi(), AlertApi());
 
-  User? user;
-
   AlertBloc() : super(AlertInitial()) {
     on<EnabledAlert>(
       (event, emit) {
-        user = event.user;
+        _alertRepositoryImp.startAlert(() {
+          add(ShakeAlert(true));
+        });
       },
     );
 
     on<DisabledAlert>(
       (event, emit) {
-        user = null;
+        _alertRepositoryImp.stopAlert();
       },
     );
 
@@ -30,10 +29,10 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
         emit(AlertLoading(message: 'Enviando notificación a contactos....'));
         String room = event.room;
         try {
-          await _alertRepositoryImp.sendAlert(room, user!);
+          await _alertRepositoryImp.sendAlert(room);
           emit(AlertSent(message: 'La alerta fue envíada exitosamente.'));
         } catch (e) {
-          emit(AlertError(message: e.toString()));
+          emit(AlertError(message: e.toString(), title: 'notificación'));
         }
       },
     );
@@ -45,7 +44,19 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
           await _alertRepositoryImp.registerAlert();
           emit(AlertRegistered(message: 'Alerta registrada exitosamente.'));
         } catch (e) {
-          emit(AlertError(message: e.toString()));
+          emit(AlertError(message: e.toString(), title: 'alerta'));
+        }
+      },
+    );
+
+    on<ShakeAlert>(
+      (event, emit) {
+        if (event.isActivated) {
+          _alertRepositoryImp.pauseAlert();
+          emit(AlertActivated());
+        } else {
+          _alertRepositoryImp.resumeAlert();
+          emit(AlertDeactivated());
         }
       },
     );
