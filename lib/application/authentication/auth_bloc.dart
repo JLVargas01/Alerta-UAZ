@@ -23,6 +23,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<SignIn>((event, emit) async {
       emit(AuthLoading());
       try {
+        /* CODIGO COMENTADO
         final googleUser = await _authRepositoryImpl.logInGoogle();
         if (googleUser == null) {
           emit(AuthError('Error al iniciar sesión: El correo no existe'));
@@ -48,6 +49,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           UserStorage.store(userRegistrer);
           emit(Authenticated(userRegistrer));
         }
+        */
         await _authGoogle.signIn();
         emit(AuthNeedsPhoneNumber());
       } catch (e) {
