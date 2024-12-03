@@ -3,24 +3,22 @@ import 'package:alerta_uaz/domain/model/alerts_sent_model.dart';
 import 'package:sqflite/sqflite.dart';
 
 class AlertsSent {
-
   final tableName = 'alertas_enviadas';
 
   //Crear la tabla para las alertas mandadas a otros usuarios
-Future<void> createTable(Database database) async {
-  await database.execute(
-    """CREATE TABLE IF NOT EXISTS $tableName (
+  Future<void> createTable(Database database) async {
+    await database.execute("""CREATE TABLE IF NOT EXISTS $tableName (
         "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-        "latitude" TEXT NOT NULL,
-        "longitude" TEXT NOT NULL
-      );"""
-  );
-}
+        "userId" TEXT NOT NULL,
+        "latitude" REAL NOT NULL,
+        "longitude" REAL NOT NULL
+      );""");
+  }
 
   //Insertar nuevo registro de alerta enviada
-  Future<void> insertRecordAlertSent(AlertSent alert) async {
+  Future<void> registerAlert(AlertSent alert) async {
     try {
-    // Obtener referencia a la base de datos
+      // Obtener referencia a la base de datos
       final db = await DatabaseService().getDatabase();
 
       await db.insert(
@@ -34,32 +32,18 @@ Future<void> createTable(Database database) async {
   }
 
   // Obtener todas las alertas enviadas
-  Future<List<AlertSent>> getAlertsSent() async {
+  Future<List<AlertSent>> getAlerts(String userId) async {
     try {
-    // Obtener referencia a la base de datos
+      // Obtener referencia a la base de datos
       final db = await DatabaseService().getDatabase();
 
-    // Query a todas las alertas generadas y enviadas
-      final List<Map<String, Object?>> alertasEnviadasMap = await db.query(tableName);
+      // Query a todas las alertas generadas y enviadas
+      final List<Map<String, Object?>> alertasEnviadasMap =
+          await db.query(tableName, where: 'userId = ?', whereArgs: [userId]);
 
-    // Convertir la lista a objetos AlertSent
-      //return [
-      //  for (final {
-      //  'idAlertSent': idAlertSent as String,
-      //  'dateSended': dateSended as DateTime,
-      //  } in alertasEnviadasMap)
-      //    AlertSent(idAlertSent: idAlertSent, dateSended: dateSended ),
-      //];
-      return [
-        for (final {
-        'idAlertSent': latitude as String,
-        'dateSended': longitude as String,
-        } in alertasEnviadasMap)
-          AlertSent( latitude: latitude, longitude: longitude),
-      ];
+      return alertasEnviadasMap.map((map) => AlertSent.fromMap(map)).toList();
     } catch (e) {
       rethrow;
     }
   }
-
 }

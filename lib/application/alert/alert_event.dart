@@ -1,12 +1,6 @@
-import 'package:alerta_uaz/domain/model/user_model.dart';
-
 abstract class AlertEvent {}
 
-class EnabledAlert extends AlertEvent {
-  final User user;
-
-  EnabledAlert(this.user);
-}
+class EnabledAlert extends AlertEvent {}
 
 class DisabledAlert extends AlertEvent {}
 
@@ -17,3 +11,11 @@ class SendAlert extends AlertEvent {
 }
 
 class RegisterAlert extends AlertEvent {}
+
+class ShakeAlert extends AlertEvent {
+  final bool isActivated;
+
+  ShakeAlert(this.isActivated);
+}
+
+class LoadAlertHistory extends AlertEvent {}

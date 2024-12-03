@@ -1,30 +1,33 @@
 import 'dart:async';
 
 import 'package:alerta_uaz/data/data_sources/remote/socket_service.dart';
-import 'package:alerta_uaz/domain/repositories/location_repository.dart';
+import 'package:alerta_uaz/domain/model/user_model.dart';
 import 'package:location/location.dart';
 
-class LocationRepositoryImp implements LocationRepository {
+class LocationRepositoryImp {
   final _socket = SocketService();
+  final _user = User();
 
   Timer? _timer;
 
-  @override
-  void startReceivedLocation(
-      String room, String username, Function(dynamic) handler) {
+  void startReceivedLocation(String room, Function(dynamic) handler) {
     _socket.connect();
 
-    _socket.emit('joinRoom', {'room': room, 'user': username});
-
+    // Nos unimos al canal para visualizar la ubicación del emisor
+    _socket.emit('joinRoom', {'room': room, 'user': _user.name});
+    // Obtenemos y mostramos las coordenadas
     _socket.on('newCoordinates', handler);
   }
 
-  @override
-  void startSendLocation(String room, String username) {
+  String startSendLocation() {
     _socket.connect();
 
-    _socket.emit('createRoom', {'room': room, 'user': username});
+    // Se crea un cuarto dónde solo usuarios específicos podrán entrar
+    final room = '${DateTime.now()}:${_user.name}'.replaceAll(' ', '');
+    // El usuario emisor abre un nuevo cuarto donde compartira su ubicación
+    _socket.emit('createRoom', {'room': room, 'user': _user.name});
 
+    // Envío constante de ubicación
     LocationData locationData;
     Map<String, dynamic> coordinates;
 
@@ -39,14 +42,14 @@ class LocationRepositoryImp implements LocationRepository {
       _socket.emit(
           'sendingCoordinates', {'room': room, 'coordinates': coordinates});
     });
+
+    return room;
   }
 
-  @override
   void stopReceivedLocation() {
     _socket.disconnect();
   }
 
-  @override
   void stopSendLocation() {
     _timer!.cancel();
     _socket.disconnect();

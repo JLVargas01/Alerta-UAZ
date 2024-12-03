@@ -5,27 +5,31 @@
 //
 
 class AlertSent {
-
-  String latitude;
-  String longitude;
+  String userId;
+  double latitude;
+  double longitude;
   //final String idAlertSent;
   //DateTime dateSended;
   //Media mediaEnviada
 
-  AlertSent({
-    //required this.idAlertSent,
-    //required this.dateSended,
-    required this.latitude,
-    required this.longitude,
-  });
+  AlertSent(
+      {required this.userId, required this.latitude, required this.longitude});
 
   Map<String, Object?> toMap() {
     return {
       //'idAlertSent': idAlertSent,
       //'dateSended': dateSended'
+      'userId': userId,
       'latitude': latitude,
       'longitude': longitude
     };
+  }
+
+  factory AlertSent.fromMap(Map<String, Object?> map) {
+    return AlertSent(
+        userId: map['userId'].toString(),
+        latitude: double.parse(map['latitude'].toString()),
+        longitude: double.parse(map['longitude'].toString()));
   }
 
   @override
@@ -33,5 +37,4 @@ class AlertSent {
     //return '{id: $idAlertSent, dateSended: $dateSended }';
     return '{latitude: $latitude, longitude: $longitude }';
   }
-
 }
