@@ -10,10 +10,12 @@ class SendAlert extends AlertEvent {
   SendAlert(this.room);
 }
 
+class RegisterAlert extends AlertEvent {}
+
 class ShakeAlert extends AlertEvent {
   final bool isActivated;
 
   ShakeAlert(this.isActivated);
 }
 
-class RegisterAlert extends AlertEvent {}
+class LoadAlertHistory extends AlertEvent {}

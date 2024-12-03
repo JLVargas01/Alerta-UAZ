@@ -1,7 +1,9 @@
+import 'package:alerta_uaz/data/data_sources/local/alerts_received_db.dart';
 import 'package:alerta_uaz/data/data_sources/local/alerts_sent_db.dart';
 import 'package:alerta_uaz/data/data_sources/remote/alert_api.dart';
 import 'package:alerta_uaz/data/data_sources/remote/notification_api.dart';
 import 'package:alerta_uaz/data/data_sources/remote/shake_detector_service.dart';
+import 'package:alerta_uaz/domain/model/alerts_received_model.dart';
 import 'package:alerta_uaz/domain/model/alerts_sent_model.dart';
 import 'package:alerta_uaz/domain/model/user_model.dart';
 import 'package:location/location.dart';
@@ -9,7 +11,7 @@ import 'package:location/location.dart';
 class AlertRepositoryImpl {
   final NotificationApi _notificationApi;
   final AlertApi _alertApi;
-  final _lertasDB = AlertsSent();
+  final _myAlertHistory = AlertsSent();
   final _user = User();
   final _shake = ShakeDetector();
 
@@ -35,10 +37,9 @@ class AlertRepositoryImpl {
     await _alertApi.addAlert(alertId, data);
 
     // Y se registra de manera local la alerta.
-    // AlertSent nuevaAlerta = AlertSent(
-    //     latitude: locationData.latitude as String,
-    //     longitude: locationData.longitude as String);
-    // await lertasDB.insertRecordAlertSent(nuevaAlerta);
+    final newAlert = AlertSent(
+        latitude: locationData.latitude!, longitude: locationData.longitude!);
+    await _myAlertHistory.registerAlert(newAlert);
   }
 
   Future<void> sendAlert(String room) async {
@@ -62,6 +63,29 @@ class AlertRepositoryImpl {
     };
 
     await _notificationApi.sendAlert(contactListId, message);
+  }
+
+  Future<List<AlertSent>?> loadMyAlertHistory() async {
+    // Primero verificamos si hay un historial de alerta en local
+    final myAlertsDB = AlertsSent();
+    final alertHistory = await myAlertsDB.getAlerts();
+
+    // Si hay algo, lo retornamos
+    if (alertHistory.isNotEmpty) return alertHistory;
+
+    // Sino... entonces consultamos al servidor
+    // TODO: Hacer una función que almacene todo el historial de alerta (en caso de haber registro) de manera local.
+
+    // En caso de no tener ningún registro entonces retornamos null.
+    return null;
+  }
+
+  Future<List<AlertReceived>?> loadContactsAlertHistory() async {
+    // final contactsAlertsDB = AlertsReceived();
+    // final contactAlertHistory = await contactsAlertsDB.getAlertsReceived();
+
+    // return contactAlertHistory;
+    return null;
   }
 
   ///

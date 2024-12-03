@@ -4,6 +4,9 @@ import 'package:alerta_uaz/core/constants/api_config.dart';
 import 'package:http/http.dart' as http;
 
 class HttpHelper {
+  static const String errorInServer =
+      'Hay problemas en el servidor, por favor intenelo más tarde.';
+
   static Map<String, String> _defaultHeaders() {
     return {
       'Content-Type': 'application/json',

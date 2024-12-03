@@ -22,10 +22,6 @@ class MainPage extends StatelessWidget {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 Navigator.of(context).pushReplacementNamed('/alert');
               });
-            } else if (state is AlertRegistered) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(state.message!)),
-              );
             } else if (state is AlertError) {
               showDialog(
                 context: context,

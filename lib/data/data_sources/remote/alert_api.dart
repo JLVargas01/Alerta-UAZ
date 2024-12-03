@@ -18,10 +18,31 @@ class AlertApi {
       if (response.statusCode == 404) {
         throw 'Error al registrar la alerta: La lista de alertas no existe.';
       } else if (response.statusCode >= 500) {
-        throw 'Hubo algún error en el servidor, por favor intentelo más tarde.';
+        throw HttpHelper.errorInServer;
       }
     } catch (e) {
       rethrow;
     }
+  }
+
+  Future<Map<String, dynamic>> getAlertList(String alertListId) async {
+    final endpoint = '/getList/$alertListId';
+    final uri = Uri.parse('$_baseUrl$endpoint');
+
+    try {
+      http.Response response = await HttpHelper.get(uri);
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else if (response.statusCode == 404) {
+        throw 'La lista de alertas no existe.';
+      } else if (response.statusCode >= 500) {
+        throw HttpHelper.errorInServer;
+      }
+    } catch (e) {
+      rethrow;
+    }
+
+    return {};
   }
 }

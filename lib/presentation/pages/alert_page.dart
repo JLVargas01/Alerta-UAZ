@@ -40,10 +40,12 @@ class _AlertPageState extends State<AlertPage> {
             ),
             BlocListener<AlertBloc, AlertState>(
               listener: (context, state) {
-                if (state is AlertSent || state is AlertLoading) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(state.message!)),
-                  );
+                if (state is AlertLoaded || state is AlertLoading) {
+                  if (state.message != null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(state.message!)),
+                    );
+                  }
                 } else if (state is AlertError) {
                   showDialog(
                     context: context,

@@ -26,7 +26,7 @@ class NotificationApi {
       } else if (response.statusCode == 404) {
         throw 'No tienes contactos que puedan recibir la alerta.';
       } else {
-        throw 'Hay problemas en el servidor, por favor vuelva a intentarlo más tarde.';
+        throw HttpHelper.errorInServer;
       }
     } catch (e) {
       rethrow;

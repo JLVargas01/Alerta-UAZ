@@ -22,7 +22,7 @@ class UserApi {
       } else if (response.statusCode == 409) {
         return null; // Usuario ya existe.
       } else {
-        throw 'Hay problemas en el servidor, por favor intenelo más tarde.';
+        throw HttpHelper.errorInServer;
       }
     } catch (error) {
       rethrow;
@@ -44,7 +44,7 @@ class UserApi {
       } else if (response.statusCode == 404) {
         return null; // El usuario no existe.
       } else {
-        throw 'Hay problemas en el servidor, por favor intenelo más tarde.';
+        throw HttpHelper.errorInServer;
       }
     } catch (error) {
       rethrow;
@@ -62,7 +62,7 @@ class UserApi {
       data = json.decode(response.body);
 
       if (response.statusCode != 200) {
-        throw 'Hay problemas en el servidor, por favor intenelo más tarde.';
+        throw HttpHelper.errorInServer;
       }
     } catch (error) {
       rethrow;

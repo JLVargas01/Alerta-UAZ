@@ -9,7 +9,7 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
   final _alertRepositoryImp =
       AlertRepositoryImpl(NotificationApi(), AlertApi());
 
-  AlertBloc() : super(AlertInitial()) {
+  AlertBloc() : super(AlertDeactivated()) {
     on<EnabledAlert>(
       (event, emit) {
         _alertRepositoryImp.startAlert(() {
@@ -18,11 +18,7 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
       },
     );
 
-    on<DisabledAlert>(
-      (event, emit) {
-        _alertRepositoryImp.stopAlert();
-      },
-    );
+    on<DisabledAlert>((event, emit) => _alertRepositoryImp.stopAlert());
 
     on<SendAlert>(
       (event, emit) async {
@@ -30,7 +26,7 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
         String room = event.room;
         try {
           await _alertRepositoryImp.sendAlert(room);
-          emit(AlertSent(message: 'La alerta fue envíada exitosamente.'));
+          emit(AlertLoaded(message: 'La alerta fue envíada exitosamente.'));
         } catch (e) {
           emit(AlertError(message: e.toString(), title: 'notificación'));
         }
@@ -42,7 +38,7 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
         emit(AlertLoading(message: 'Registrando alerta...'));
         try {
           await _alertRepositoryImp.registerAlert();
-          emit(AlertRegistered(message: 'Alerta registrada exitosamente.'));
+          add(LoadAlertHistory()); // Actualizamos las listas de alerta.
         } catch (e) {
           emit(AlertError(message: e.toString(), title: 'alerta'));
         }
@@ -57,6 +53,24 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
         } else {
           _alertRepositoryImp.resumeAlert();
           emit(AlertDeactivated());
+        }
+      },
+    );
+
+    on<LoadAlertHistory>(
+      (event, emit) async {
+        emit(AlertLoading());
+
+        try {
+          final myAlertHistory = await _alertRepositoryImp.loadMyAlertHistory();
+          final contactAlertHistory =
+              await _alertRepositoryImp.loadContactsAlertHistory();
+
+          emit(AlertHistoryLoaded(myAlertHistory, contactAlertHistory));
+        } catch (e) {
+          emit(AlertError(
+              message: 'No se pudo obtener el historial: ${e.toString()}',
+              title: 'Historial'));
         }
       },
     );
