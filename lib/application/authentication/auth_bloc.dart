@@ -1,28 +1,22 @@
 import 'package:alerta_uaz/application/authentication/auth_event.dart';
 import 'package:alerta_uaz/application/authentication/auth_state.dart';
 
-import 'package:alerta_uaz/data/data_sources/local/user_storange.dart';
-import 'package:alerta_uaz/data/data_sources/remote/firebase_service.dart';
-import 'package:alerta_uaz/data/data_sources/remote/google_sign_in_service.dart';
-import 'package:alerta_uaz/data/data_sources/remote/user_service.dart';
-import 'package:alerta_uaz/data/repositories/auth_repository_imp.dart';
-import 'package:alerta_uaz/domain/model/user_model.dart';
+import 'package:alerta_uaz/data/data_sources/remote/user_api.dart';
+import 'package:alerta_uaz/data/repositories/auth_with_google.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final AuthRepositoryImpl _authRepositoryImpl =
-      AuthRepositoryImpl(GoogleSignInService(), UserService());
-  User userRegistrer = User();
+  final _authGoogle = AuthWithGoogle(UserApi());
 
   AuthBloc() : super(Unauthenticated()) {
     on<CheckUserAuthentication>((event, emit) async {
       emit(AuthLoading());
-      User? user = await UserStorage.getUserData();
-      await Future.delayed(const Duration(milliseconds: 3000));
-      if (user == null) {
-        emit(Unauthenticated());
+      bool isAuthenticated = await _authGoogle.checkUserAuthentication();
+
+      if (isAuthenticated) {
+        emit(Authenticated());
       } else {
-        emit(Authenticated(user));
+        emit(Unauthenticated());
       }
     });
 
@@ -51,48 +45,58 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           userRegistrer.token = responseDataGetted['token'];
           userRegistrer.idContactList = responseDataGetted['id_contact_list'];
           userRegistrer.idAlertList = responseDataGetted['id_alert_list'];
-         UserStorage.store(userRegistrer);
+          UserStorage.store(userRegistrer);
           emit(Authenticated(userRegistrer));
         }
+        await _authGoogle.signIn();
+        emit(AuthNeedsPhoneNumber());
       } catch (e) {
         emit(AuthError(e.toString()));
+        await Future.delayed(const Duration(milliseconds: 500));
+        emit(Unauthenticated());
+      }
+    });
+
+    on<LogIn>(
+      (event, emit) async {
+        emit(AuthLoading());
+        try {
+          await _authGoogle.logIn();
+          emit(Authenticated());
+        } catch (e) {
+          emit(AuthError(e.toString()));
+          await Future.delayed(const Duration(milliseconds: 500));
+          emit(Unauthenticated());
+        }
+      },
+    );
+
+    on<LogOut>((event, emit) async {
+      try {
+        emit(AuthLoading());
+        await _authGoogle.logOut();
+        emit(Unauthenticated());
+      } catch (e) {
+        AuthError(e.toString());
       }
     });
 
     on<ProvidePhoneNumber>((event, emit) async {
       emit(AuthLoading());
       try {
-        userRegistrer.phone = event.phoneNumber;
-
-        // Realiza el registro completo en el repositorio
-        final responseData = await _authRepositoryImpl.signInUser(
-          userRegistrer.name!,
-          userRegistrer.email!,
-          userRegistrer.phone!,
-          userRegistrer.avatar!,
-          userRegistrer.token!,
-        );
-
-        if (responseData == null) {
-          emit(AuthError(
-              'Error al iniciar sesión, por favor inténtelo más tarde'));
-          return;
-        }
-        userRegistrer.id = responseData['_id'];
-        userRegistrer.idContactList = responseData['id_contact_list'];
-        userRegistrer.idAlertList = responseData['id_alert_list'];
-        UserStorage.store(userRegistrer);
-        emit(Authenticated(userRegistrer));
+        await _authGoogle.requestPhone(event.phoneNumber);
+        emit(Authenticated());
       } catch (e) {
         emit(AuthError(e.toString()));
+        await Future.delayed(const Duration(milliseconds: 500));
+        emit(Unauthenticated());
       }
     });
 
-    on<SignOut>((event, emit) async {
-      emit(AuthLoading());
-      await UserStorage.clearUser();
-      await _authRepositoryImpl.logOutGoogle();
-      emit(Unauthenticated());
-    });
+    on<CancelAuth>(
+      (event, emit) {
+        emit(Unauthenticated());
+      },
+    );
   }
 }
