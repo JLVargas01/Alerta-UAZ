@@ -83,8 +83,8 @@ class FirebaseService {
   }
 
   void deleteToken() async {
-    _firebaseMessaging.deleteToken();
-    _messageController.close();
+    await _firebaseMessaging.deleteToken();
+    // await _messageController.close();
   }
 
   void dispose() {

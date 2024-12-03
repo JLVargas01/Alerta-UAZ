@@ -32,10 +32,10 @@ class _ProfilePageState extends State<ProfilePage> {
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is Unauthenticated) {
-            context.read<NotificationBloc>().add(DisabledNotification());
-            context.read<AlertBloc>().add(DisabledAlert());
-            context.read<LocationBloc>().add(DisabledLocation());
-            context.read<ShakeBloc>().add(DisabledShake());
+            // context.read<NotificationBloc>().add(DisabledNotification());
+            // context.read<AlertBloc>().add(DisabledAlert());
+            // context.read<LocationBloc>().add(DisabledLocation());
+            // context.read<ShakeBloc>().add(DisabledShake());
             Navigator.of(context).pushReplacementNamed('/login');
           } else if (state is AuthError) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -76,7 +76,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     const SizedBox(height: 24),
                     ElevatedButton(
                       onPressed: () {
-                        context.read<AuthBloc>().add(SignOut());
+                        context.read<AuthBloc>().add(LogOut());
                       },
                       child: const Text('Cerrar sesión'),
                     ),
