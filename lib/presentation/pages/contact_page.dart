@@ -47,7 +47,33 @@ class ContactPage extends StatelessWidget {
                       trailing: IconButton(
                         icon: const Icon(Icons.remove_circle_outline_outlined),
                         onPressed: () {
-                          context.read<ContactsBloc>().add(RemoveContact(contacto.id_confianza));
+                          // Mostrar el mensaje de confirmación
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext dialogContext) {
+                              return AlertDialog(
+                                title: const Text('Eliminar contacto'),
+                                content: const Text('¿Deseas eliminar este contacto?'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      // Cerrar el diálogo sin realizar ninguna acción
+                                      Navigator.of(dialogContext).pop();
+                                    },
+                                    child: const Text('Cancelar'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      context.read<ContactsBloc>().add(RemoveContact(contacto.id_confianza));
+                                      // Cerrar el diálogo
+                                      Navigator.of(dialogContext).pop();
+                                    },
+                                    child: const Text('Eliminar'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
                         },
                       ),
                     ),
