@@ -18,7 +18,6 @@ class AlertRepositoryImpl {
   AlertRepositoryImpl(this._notificationApi, this._alertApi);
 
   Future<void> registerAlert() async {
-    // Se obtiene el id de la lista de alertas del usuario.
     final String alertId = _user.idAlertList!;
 
     // última ubicación a registrar.
@@ -33,33 +32,32 @@ class AlertRepositoryImpl {
           'https://i.pinimg.com/736x/80/72/f9/8072f92472418239a3ff1a3d07e96bdd.jpg'
     };
 
-    // Se envía la alerta para ser registrada en el servidor.
+    // Al final se registra la alerta en el servidor.
     await _alertApi.addAlert(alertId, data);
 
-    // Y se registra de manera local la alerta.
+    // También se registra de manera local.
     final newAlert = AlertSent(
-        latitude: locationData.latitude!, longitude: locationData.longitude!);
+        userId: _user.id!,
+        latitude: locationData.latitude!,
+        longitude: locationData.longitude!);
+
     await _myAlertHistory.registerAlert(newAlert);
   }
 
   Future<void> sendAlert(String room) async {
     String contactListId = _user.idContactList!;
 
-    // Estructura para compartir la ubicación actual del emisor
-    Map<String, dynamic> data = {
-      'room': room, // Cuarto dónde se compartira la localización.
-      'name': _user.name, // Nombre del emisor que envía la alerta
-      'avatar': _user.avatar
-    };
-
-    // Contruyendo estructura de una notificación
     Map<String, Object> message = {
       'notification': {
         'title': '¡Alerta de emergencia!',
         'body':
-            '${data['name']} necesita ayuda urgente. Se encuentra en una situación de peligro.'
+            '${_user.name} necesita ayuda urgente. Se encuentra en una situación de peligro.'
       },
-      'data': data
+      'data': {
+        'room': room, // Cuarto dónde se compartira la localización.
+        'name': _user.name, // Nombre del emisor que envía la alerta
+        'avatar': _user.avatar
+      }
     };
 
     await _notificationApi.sendAlert(contactListId, message);
@@ -68,7 +66,7 @@ class AlertRepositoryImpl {
   Future<List<AlertSent>?> loadMyAlertHistory() async {
     // Primero verificamos si hay un historial de alerta en local
     final myAlertsDB = AlertsSent();
-    final alertHistory = await myAlertsDB.getAlerts();
+    final alertHistory = await myAlertsDB.getAlerts(_user.id!);
 
     // Si hay algo, lo retornamos
     if (alertHistory.isNotEmpty) return alertHistory;

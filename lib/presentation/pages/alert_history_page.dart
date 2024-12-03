@@ -62,7 +62,7 @@ class _AlertHistoryPageState extends State<AlertHistoryPage>
         },
         child: BlocBuilder<AlertBloc, AlertState>(
           builder: (context, state) {
-            if (state is AlertHistoryLoaded) {
+            if (state is AlertLoaded) {
               // Seleccionar las alertas según la pestaña activa
               final history = _tabController.index == 0
                   ? state.contactAlertHistory

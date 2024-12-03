@@ -9,6 +9,7 @@ class AlertsSent {
   Future<void> createTable(Database database) async {
     await database.execute("""CREATE TABLE IF NOT EXISTS $tableName (
         "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+        "userId" TEXT NOT NULL,
         "latitude" REAL NOT NULL,
         "longitude" REAL NOT NULL
       );""");
@@ -31,23 +32,15 @@ class AlertsSent {
   }
 
   // Obtener todas las alertas enviadas
-  Future<List<AlertSent>> getAlerts() async {
+  Future<List<AlertSent>> getAlerts(String userId) async {
     try {
       // Obtener referencia a la base de datos
       final db = await DatabaseService().getDatabase();
 
       // Query a todas las alertas generadas y enviadas
       final List<Map<String, Object?>> alertasEnviadasMap =
-          await db.query(tableName);
+          await db.query(tableName, where: 'userId = ?', whereArgs: [userId]);
 
-      // Convertir la lista a objetos AlertSent
-      //return [
-      //  for (final {
-      //  'idAlertSent': idAlertSent as String,
-      //  'dateSended': dateSended as DateTime,
-      //  } in alertasEnviadasMap)
-      //    AlertSent(idAlertSent: idAlertSent, dateSended: dateSended ),
-      //];
       return alertasEnviadasMap.map((map) => AlertSent.fromMap(map)).toList();
     } catch (e) {
       rethrow;

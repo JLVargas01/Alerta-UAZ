@@ -66,11 +66,11 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
           final contactAlertHistory =
               await _alertRepositoryImp.loadContactsAlertHistory();
 
-          emit(AlertHistoryLoaded(myAlertHistory, contactAlertHistory));
+          emit(AlertLoaded(
+              myAlertHistory: myAlertHistory,
+              contactAlertHistory: contactAlertHistory));
         } catch (e) {
-          emit(AlertError(
-              message: 'No se pudo obtener el historial: ${e.toString()}',
-              title: 'Historial'));
+          emit(AlertError(message: e.toString(), title: 'historial'));
         }
       },
     );
