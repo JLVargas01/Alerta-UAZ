@@ -74,6 +74,17 @@ class ContactosConfianza {
     }
   }
 
+  Future<void> eliminarTodosContacto() async {
+    try {
+      // Obtener la instancia de la base de datos
+      final db = await DatabaseService().getDatabase();
+      // Eliminar todos los registros de la tabla
+       await db.delete(tableName);
+    } catch (e) {
+      throw Exception('Error al intentar eliminar todos los contactos');  
+    }
+  }
+
   Future<bool> existContact(String telephone) async {
     try {
       final db = await DatabaseService().getDatabase();
