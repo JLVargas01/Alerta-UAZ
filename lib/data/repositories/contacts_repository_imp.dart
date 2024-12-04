@@ -12,7 +12,11 @@ class ContactsRepositoryImpl {
   ContactsRepositoryImpl(this._userService);
 
   Future<List<ContactoConfianza>> getAllContacts() async {
-    return await contactsDB.contactos();
+    try{
+      return await contactsDB.contactos();
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<Contact> selecNativeContact() async {
@@ -75,7 +79,7 @@ class ContactsRepositoryImpl {
     }
   }
 
-Future<void> storeContact(String idNewContact, Contact contactSelected) async {
+  Future<void> storeContact(String idNewContact, Contact contactSelected) async {
     try {
         if (idNewContact.isEmpty) {
             throw ('El contacto no está registrado en el sistema');
@@ -95,7 +99,7 @@ Future<void> storeContact(String idNewContact, Contact contactSelected) async {
     } catch (e) {
         rethrow;
     }
-}
+  }
 
   Future<bool> deleteContact(String idContactList, String idContact) async {
     try {
@@ -105,7 +109,7 @@ Future<void> storeContact(String idNewContact, Contact contactSelected) async {
     }
   }
 
-  void purgeContact(String idContactConf) async {
+  Future<void> purgeContact(String idContactConf) async {
     try {
       String? idListContacts = await UserStorage.getIdListContaData();
       if (idListContacts == null) {
@@ -113,6 +117,14 @@ Future<void> storeContact(String idNewContact, Contact contactSelected) async {
       }
       deleteContact(idListContacts, idContactConf);
       await contactsDB.eliminarContacto(idContactConf);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> purgeAllContact() async {
+    try {
+      await contactsDB.eliminarTodosContacto();
     } catch (e) {
       rethrow;
     }
