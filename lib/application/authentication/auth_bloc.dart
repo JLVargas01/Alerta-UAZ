@@ -1,6 +1,5 @@
 import 'package:alerta_uaz/application/authentication/auth_event.dart';
 import 'package:alerta_uaz/application/authentication/auth_state.dart';
-
 import 'package:alerta_uaz/data/data_sources/remote/user_api.dart';
 import 'package:alerta_uaz/data/repositories/auth_with_google.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,33 +22,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<SignIn>((event, emit) async {
       emit(AuthLoading());
       try {
-        /* CODIGO COMENTADO
-        final googleUser = await _authRepositoryImpl.logInGoogle();
-        if (googleUser == null) {
-          emit(AuthError('Error al iniciar sesión: El correo no existe'));
-          return;
-        }
-        userRegistrer.name = googleUser.displayName ?? "";
-        userRegistrer.email = googleUser.email;
-        userRegistrer.avatar = googleUser.photoUrl ?? "";
-        Map<String, dynamic>? responseDataGetted =
-            await _authRepositoryImpl.getDataUserByEmail(googleUser.email);
-        if (responseDataGetted == null) {
-          //Nuevo usuario
-          userRegistrer.token = await FirebaseService().getToken() ?? "";
-          emit(AuthNeedsPhoneNumber());
-        } else {
-          //Antiguo usuario
-          userRegistrer.id = responseDataGetted['_id'];
-          final phoneData = responseDataGetted["phone"];
-          userRegistrer.phone ="${phoneData["countryCode"]}${phoneData["nacionalNumber"]}";
-          userRegistrer.token = responseDataGetted['token'];
-          userRegistrer.idContactList = responseDataGetted['id_contact_list'];
-          userRegistrer.idAlertList = responseDataGetted['id_alert_list'];
-          UserStorage.store(userRegistrer);
-          emit(Authenticated(userRegistrer));
-        }
-        */
         await _authGoogle.signIn();
         emit(AuthNeedsPhoneNumber());
       } catch (e) {
