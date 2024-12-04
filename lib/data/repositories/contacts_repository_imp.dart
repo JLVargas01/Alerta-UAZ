@@ -1,16 +1,121 @@
+import 'package:alerta_uaz/data/data_sources/local/contacts_db.dart';
+import 'package:alerta_uaz/data/data_sources/local/user_storange.dart';
 import 'package:alerta_uaz/data/data_sources/remote/user_service.dart';
+import 'package:alerta_uaz/domain/model/cont-confianza_model.dart';
+import 'package:flutter_native_contact_picker/flutter_native_contact_picker.dart';
+import 'package:flutter_native_contact_picker/model/contact.dart';
 
 class ContactsRepositoryImpl {
   final UserService _userService;
+  final ContactosConfianza contactsDB = ContactosConfianza();
 
   ContactsRepositoryImpl(this._userService);
 
-  Future<String?> createContact(String nombre, String numeroTelefonico, String idLista) async {
-    return await _userService.sendDataNewContact(nombre, numeroTelefonico, idLista);
+  Future<List<ContactoConfianza>> getAllContacts() async {
+    return await contactsDB.contactos();
   }
 
+  Future<Contact> selecNativeContact() async {
+    try {
+      final FlutterNativeContactPicker contactPicker = FlutterNativeContactPicker();
+      Contact? contact = await contactPicker.selectContact();
+
+      if(contact == null) {
+        throw 'Error al seleccionar el contacto';
+      }
+      return contact;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<String> getIdContactsList() async {
+    try {
+      String? idLista = await UserStorage.getIdListContaData();
+      if (idLista == null) {
+        throw 'Error al autenticar al usuario';
+      }
+      return idLista;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Contact> validateContact(Contact contact) async {
+    try {
+      String? numeroTelefonico = contact.phoneNumbers?.single;
+      String? nombre = contact.fullName;
+
+      // Verificar si el número telefónico y el nombre son válidos
+      if (nombre == null || 
+          numeroTelefonico == null || 
+          numeroTelefonico.isEmpty) {
+          throw ('Los datos del contacto son inválidos');
+      }
+
+      //Verificar si el contacto ya esta almacenado
+      if (await contactsDB.existContact(numeroTelefonico)) {
+        throw 'El contacto ya esta agregado';
+      }
+      return contact;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<String> createContact(Contact newContact) async {
+    try {
+      String idListContacts = await getIdContactsList();
+      Contact newContactValidate = await validateContact(newContact);
+      String phoneNumberCont = newContactValidate.phoneNumbers!.single;
+      String fullNameCont = newContactValidate.fullName!;
+      return await _userService.sendDataNewContact(fullNameCont,phoneNumberCont, idListContacts);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+Future<void> storeContact(String idNewContact, Contact contactSelected) async {
+    try {
+        if (idNewContact.isEmpty) {
+            throw ('El contacto no está registrado en el sistema');
+        }
+
+        // Selecciona un número de teléfono
+        String telephone = contactSelected.phoneNumbers!.single;
+
+        // Crea un nuevo contacto
+        ContactoConfianza nuevoContacto = ContactoConfianza(
+            id_confianza: idNewContact,
+            alias: contactSelected.fullName!,
+            telephone: telephone,
+        );
+        // Inserta en la base de datos
+        await contactsDB.insertContacto(nuevoContacto);
+    } catch (e) {
+        rethrow;
+    }
+}
+
   Future<bool> deleteContact(String idContactList, String idContact) async {
-    return await _userService.sendIdsDeleteContact(idContactList, idContact);
+    try {
+      return await _userService.sendIdsDeleteContact(idContactList, idContact);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  void purgeContact(String idContactConf) async {
+    try {
+      String? idListContacts = await UserStorage.getIdListContaData();
+      if (idListContacts == null) {
+        throw 'Error con la lista de contactos';
+      }
+      deleteContact(idListContacts, idContactConf);
+      await contactsDB.eliminarContacto(idContactConf);
+    } catch (e) {
+      rethrow;
+    }
   }
 
 }
