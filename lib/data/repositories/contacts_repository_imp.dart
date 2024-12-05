@@ -67,32 +67,26 @@ class ContactsRepositoryImpl {
     }
   }
 
-  Future<String> createContact(Contact newContact) async {
+  Future<String> createContact(String phoneNewContact, String nameNewContact) async {
     try {
       String idListContacts = await getIdContactsList();
-      Contact newContactValidate = await validateContact(newContact);
-      String phoneNumberCont = newContactValidate.phoneNumbers!.single;
-      String fullNameCont = newContactValidate.fullName!;
-      return await _userService.sendDataNewContact(fullNameCont,phoneNumberCont, idListContacts);
+      return await _userService.sendDataNewContact(nameNewContact,phoneNewContact, idListContacts);
     } catch (e) {
       rethrow;
     }
   }
 
-  Future<void> storeContact(String idNewContact, Contact contactSelected) async {
+  Future<void> storeContact(String idNewContact, String phoneNewContact, String nameNewContact) async {
     try {
         if (idNewContact.isEmpty) {
             throw ('El contacto no está registrado en el sistema');
         }
 
-        // Selecciona un número de teléfono
-        String telephone = contactSelected.phoneNumbers!.single;
-
         // Crea un nuevo contacto
         ContactoConfianza nuevoContacto = ContactoConfianza(
             id_confianza: idNewContact,
-            alias: contactSelected.fullName!,
-            telephone: telephone,
+            alias: nameNewContact,
+            telephone: phoneNewContact,
         );
         // Inserta en la base de datos
         await contactsDB.insertContacto(nuevoContacto);
