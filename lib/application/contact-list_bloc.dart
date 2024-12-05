@@ -8,18 +8,35 @@ abstract class ContactsEvent {}
 
 class LoadContacts extends ContactsEvent {}
 
-class AddContact extends ContactsEvent {}
+class SelectContact extends ContactsEvent {}
 
 class RemoveContact extends ContactsEvent {
   final String idConfianza;
   RemoveContact(this.idConfianza);
 }
 
+class AddContact extends ContactsEvent {
+  final String phoneNumber;
+  final String nameContact;
+  AddContact(this.phoneNumber, this.nameContact);
+}
+
+class ResetNavigationState extends ContactsEvent {}
+
 abstract class ContactsState {}
 
 class ContactsInitial extends ContactsState {}
 
 class ContactsLoading extends ContactsState {}
+
+class NavigateToCompletePhonePage extends ContactsState {
+  final String initialPhoneNumber;
+  final String nameContact;
+
+  NavigateToCompletePhonePage(this.initialPhoneNumber, this.nameContact);
+}
+
+class ContactAddedSuccessfully extends ContactsState {}
 
 class ContactsLoaded extends ContactsState {
   final List<ContactoConfianza> contactos;
@@ -44,12 +61,35 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
       }
     });
 
-    on<AddContact>((event, emit) async {
+    on<SelectContact>((event, emit) async {
       emit(ContactsLoading());
       try {
         Contact contactSelected = await _contactsRepositoryImpl.selecNativeContact();
-        String idNewContact = await _contactsRepositoryImpl.createContact(contactSelected);
-        await _contactsRepositoryImpl.storeContact(idNewContact, contactSelected);
+        emit(NavigateToCompletePhonePage(
+          contactSelected.phoneNumbers!.single,
+          contactSelected.fullName!,
+        ));
+      } catch (e) {
+        emit(ContactsError("Error al seleccionar el contacto: ${e.toString()}"));
+      }
+    });
+
+    on<AddContact>((event, emit) async {
+      emit(ContactsLoading());
+      try {
+        final idNewContact = await _contactsRepositoryImpl.createContact(
+          event.phoneNumber,
+          event.nameContact,
+        );
+        await _contactsRepositoryImpl.storeContact(idNewContact, event.phoneNumber, event.nameContact);
+        emit(ContactAddedSuccessfully());
+      } catch (e) {
+        emit(ContactsError('Error al agregar el contacto: ${e.toString()}'));
+      }
+    });
+
+    on<ResetNavigationState>((event, emit) async {
+      try {
         emit(ContactsLoaded(await _contactsRepositoryImpl.getAllContacts()));
       } catch (e) {
         emit(ContactsError(e.toString()));
