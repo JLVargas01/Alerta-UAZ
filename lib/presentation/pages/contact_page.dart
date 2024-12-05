@@ -1,9 +1,16 @@
+import 'package:alerta_uaz/presentation/pages/complete_phone.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:alerta_uaz/application/contact-list_bloc.dart';
 
-class ContactPage extends StatelessWidget {
+class ContactPage extends StatefulWidget {
   const ContactPage({super.key});
+
+  @override
+  State<ContactPage> createState() => _ContactPageState();
+}
+
+class _ContactPageState extends State<ContactPage>  {
 
   @override
   Widget build(BuildContext context) {
@@ -12,8 +19,24 @@ class ContactPage extends StatelessWidget {
         title: const Text('Contactos'),
       ),
       body: BlocListener<ContactsBloc, ContactsState>(
-        listener: (context, state) {
-          if (state is ContactsError) {
+  listener: (context, state) {
+          if (state is NavigateToCompletePhonePage) {
+            final contactsBloc = context.read<ContactsBloc>();
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CompletePhonePage(
+                  initialPhoneNumber: state.initialPhoneNumber,
+                  contactName: state.nameContact,
+                ),
+              ),
+            ).then((_) {
+              contactsBloc.add(ResetNavigationState());
+            });
+          } else if (state is ContactAddedSuccessfully) {
+            // Recarga los contactos al regresar
+            context.read<ContactsBloc>().add(LoadContacts());
+          } else if (state is ContactsError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('Error: ${state.message}')),
             );
@@ -89,7 +112,7 @@ class ContactPage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          context.read<ContactsBloc>().add(AddContact());
+          context.read<ContactsBloc>().add(SelectContact());
         },
         tooltip: 'Agregar nuevo contacto',
         child: const Icon(Icons.add),
