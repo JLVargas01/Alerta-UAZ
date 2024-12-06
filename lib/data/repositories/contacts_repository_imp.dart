@@ -97,7 +97,7 @@ class ContactsRepositoryImpl {
 
   Future<bool> deleteContact(String idContactList, String idContact) async {
     try {
-      return await _userService.sendIdsDeleteContact(idContactList, idContact);
+      return _userService.sendIdsDeleteContact(idContactList, idContact);
     } catch (e) {
       rethrow;
     }
