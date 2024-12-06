@@ -84,7 +84,7 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
         await _contactsRepositoryImpl.storeContact(idNewContact, event.phoneNumber, event.nameContact);
         emit(ContactAddedSuccessfully());
       } catch (e) {
-        emit(ContactsError('Error al agregar el contacto: ${e.toString()}'));
+        emit(ContactsError(e.toString()));
       }
     });
 
