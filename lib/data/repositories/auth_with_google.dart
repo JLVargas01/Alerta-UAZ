@@ -63,9 +63,14 @@ class AuthWithGoogle implements AuthRepository {
       // Limpiamos el usuario registrado localmente.
       await _storage.clean();
       _user.clean();
-      //Eliminar todos los contactos registrados localmente.
+      //Eliminar todos los contactos registrados localmente
+      //  TODO 
+      //  BORRAR TODOS LOS CONTACTOS AL CERRAR CESION
+      //  NO FUNCIONA DE ESTA MANERA
+      //  NO HACE REFERENCIA A LA MISMA DB
       final ContactosConfianza contactsDB = ContactosConfianza();
       await contactsDB.eliminarTodosContacto();
+      //fin-todo
       // Borramos token para dejar de recibir notificaciones.
       FirebaseService().deleteToken();
     } catch (e) {
