@@ -1,8 +1,8 @@
 import 'package:alerta_uaz/application/alert/alert_bloc.dart';
 import 'package:alerta_uaz/application/alert/alert_event.dart';
 import 'package:alerta_uaz/application/alert/alert_state.dart';
-import 'package:alerta_uaz/domain/model/alerts_received_model.dart';
-import 'package:alerta_uaz/domain/model/alerts_sent_model.dart';
+import 'package:alerta_uaz/domain/model/contact_alert_model.dart';
+import 'package:alerta_uaz/domain/model/my_alert_model.dart';
 import 'package:alerta_uaz/presentation/widget/load_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -79,16 +79,17 @@ class _AlertHistoryPageState extends State<AlertHistoryPage>
                 itemCount: history.length,
                 itemBuilder: (context, index) {
                   if (_tabController.index == 0) {
-                    // Caso: Alertas recibidas (AlertReceived)
-                    final alert = history[index] as AlertReceived;
+                    // Caso: Alertas recibidas (ContactAlert)
+                    final alert = history[index] as ContactAlert;
                     return ListTile(
                       leading: const Icon(Icons.notifications_active),
-                      title: Text(alert.nameUser),
-                      subtitle: Text(alert.dateReceived as String),
+                      title: Text(alert.username),
+                      subtitle: Text(
+                          "Latitud; ${alert.latitude} longitude: ${alert.longitude}"),
                     );
                   } else {
-                    // Caso: Alertas enviadas (AlertSent)
-                    final alert = history[index] as AlertSent;
+                    // Caso: Alertas enviadas (MyAlert)
+                    final alert = history[index] as MyAlert;
                     return ListTile(
                       leading: const Icon(Icons.outbox),
                       title: Text(
