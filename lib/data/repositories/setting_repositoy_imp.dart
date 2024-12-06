@@ -1,5 +1,5 @@
+import 'package:alerta_uaz/core/device/shake_detector.dart';
 import 'package:alerta_uaz/data/data_sources/local/setting_storage.dart';
-import 'package:alerta_uaz/data/data_sources/remote/shake_detector_service.dart';
 import 'package:alerta_uaz/domain/model/setting_model.dart';
 import 'package:alerta_uaz/domain/repositories/setting_repository.dart';
 
