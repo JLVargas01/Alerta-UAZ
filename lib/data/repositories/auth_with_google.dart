@@ -1,5 +1,5 @@
-import 'package:alerta_uaz/data/data_sources/local/contacts_db.dart';
 import 'package:alerta_uaz/data/data_sources/local/storage.dart';
+import 'package:alerta_uaz/data/data_sources/remote/database_service.dart';
 import 'package:alerta_uaz/data/data_sources/remote/firebase_service.dart';
 import 'package:alerta_uaz/data/data_sources/remote/user_api.dart';
 import 'package:alerta_uaz/domain/model/user_model.dart';
@@ -63,14 +63,9 @@ class AuthWithGoogle implements AuthRepository {
       // Limpiamos el usuario registrado localmente.
       await _storage.clean();
       _user.clean();
-      //Eliminar todos los contactos registrados localmente
-      //  TODO 
-      //  BORRAR TODOS LOS CONTACTOS AL CERRAR CESION
-      //  NO FUNCIONA DE ESTA MANERA
-      //  NO HACE REFERENCIA A LA MISMA DB
-      final ContactosConfianza contactsDB = ContactosConfianza();
-      await contactsDB.eliminarTodosContacto();
-      //fin-todo
+      // Eliminar la base de datos
+      final dbService = DatabaseService.instance;
+      await dbService.deleteDatabaseFile();
       // Borramos token para dejar de recibir notificaciones.
       FirebaseService().deleteToken();
     } catch (e) {
