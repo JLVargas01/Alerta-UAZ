@@ -25,7 +25,7 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
         emit(AlertLoading(message: 'Enviando notificación a contactos....'));
         String room = event.room;
         try {
-          await _alertRepositoryImp.sendAlert(room);
+          await _alertRepositoryImp.sendAlertActivated(room);
           emit(AlertLoaded(message: 'La alerta fue envíada exitosamente.'));
         } catch (e) {
           emit(AlertError(message: e.toString(), title: 'notificación'));
@@ -33,12 +33,32 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
       },
     );
 
-    on<RegisterAlert>(
+    on<RegisterMyAlert>(
       (event, emit) async {
         emit(AlertLoading(message: 'Registrando alerta...'));
         try {
-          await _alertRepositoryImp.registerAlert();
-          add(LoadAlertHistory()); // Actualizamos las listas de alerta.
+          // AGREGA ALERTA DEL USUARIO EMISOR.
+          final data = await _alertRepositoryImp.registerAlert();
+          // Se envía una notificación que la alerta a finalizado.
+          // Esta notificación sirve como base para tener un registro de las
+          // alertas de los contactos.
+          await _alertRepositoryImp.sendAlertDesactivated(data);
+          add(LoadAlertHistory()); // Se vuelve a cargar el historial.
+        } catch (e) {
+          emit(AlertError(message: e.toString(), title: 'alerta'));
+        }
+      },
+    );
+
+    on<RegisterContactAlert>(
+      (event, emit) async {
+        emit(AlertLoading());
+        try {
+          // AGREGAR ALERTA DEL CONTACTO.
+          await _alertRepositoryImp
+              .registerContactAlert(event.contactAlertData);
+
+          add(LoadAlertHistory()); // Se vuelve a cargar el historial.
         } catch (e) {
           emit(AlertError(message: e.toString(), title: 'alerta'));
         }

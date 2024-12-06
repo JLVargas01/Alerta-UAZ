@@ -1,5 +1,5 @@
-import 'package:alerta_uaz/domain/model/alerts_received_model.dart';
-import 'package:alerta_uaz/domain/model/alerts_sent_model.dart';
+import 'package:alerta_uaz/domain/model/contact_alert_model.dart';
+import 'package:alerta_uaz/domain/model/my_alert_model.dart';
 
 abstract class AlertState {
   final String? message;
@@ -16,8 +16,9 @@ class AlertLoading extends AlertState {
 }
 
 class AlertLoaded extends AlertState {
-  final List<AlertSent>? myAlertHistory;
-  final List<AlertReceived>? contactAlertHistory;
+  final List<MyAlert>? myAlertHistory;
+  final List<ContactAlert>? contactAlertHistory;
+
   AlertLoaded({super.message, this.myAlertHistory, this.contactAlertHistory});
 }
 
