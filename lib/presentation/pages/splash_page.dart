@@ -27,10 +27,10 @@ class _SplashPageState extends State<SplashPage> {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is Authenticated) {
-          // context.read<NotificationBloc>().add(EnabledNotification());
+          context.read<NotificationBloc>().add(EnabledNotification());
           context.read<AlertBloc>().add(EnabledAlert());
 
-          Navigator.of(context).pushReplacementNamed("/main");
+          Navigator.of(context).pushReplacementNamed("/home");
         } else if (state is Unauthenticated) {
           Navigator.of(context).pushReplacementNamed("/login");
         } else if (state is AuthError) {

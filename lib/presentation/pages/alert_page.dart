@@ -79,7 +79,7 @@ class _AlertPageState extends State<AlertPage> {
                             if (exit == true) {
                               WidgetsBinding.instance.addPostFrameCallback((_) {
                                 Navigator.of(context)
-                                    .pushReplacementNamed('/main');
+                                    .pushReplacementNamed('/home');
                               });
                             }
                           },
@@ -112,7 +112,7 @@ class _AlertPageState extends State<AlertPage> {
           TextButton(
             onPressed: () => {
               context.read<LocationBloc>().add(StopSendingLocation()),
-              context.read<AlertBloc>().add(RegisterAlert()),
+              context.read<AlertBloc>().add(RegisterMyAlert()),
               context.read<AlertBloc>().add(ShakeAlert(false)),
               Navigator.pop(context, true)
             },

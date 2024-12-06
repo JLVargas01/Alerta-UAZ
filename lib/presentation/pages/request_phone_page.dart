@@ -1,3 +1,4 @@
+import 'package:alerta_uaz/presentation/widget/load_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:alerta_uaz/application/alert/alert_bloc.dart';
@@ -13,7 +14,7 @@ class RequestPhonePage extends StatefulWidget {
   const RequestPhonePage({super.key});
 
   @override
-  _RequestPhonePageState createState() => _RequestPhonePageState();
+  State<RequestPhonePage> createState() => _RequestPhonePageState();
 }
 
 class _RequestPhonePageState extends State<RequestPhonePage> {
@@ -38,10 +39,11 @@ class _RequestPhonePageState extends State<RequestPhonePage> {
         listener: (context, state) {
           if (state is Authenticated) {
             // Activa las funciones para usuarios autenticados
-            // context.read<NotificationBloc>().add(EnabledNotification());
+            context.read<NotificationBloc>().add(EnabledNotification());
             context.read<AlertBloc>().add(EnabledAlert());
 
-            Navigator.of(context).pushReplacementNamed('/main');
+            Navigator.of(context).pushNamedAndRemoveUntil(
+                '/home', (Route<dynamic> route) => false);
           }
           if (state is AuthError) {
             showDialog(
@@ -62,7 +64,7 @@ class _RequestPhonePageState extends State<RequestPhonePage> {
         child: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
             if (state is AuthLoading) {
-              return const Center(child: CircularProgressIndicator());
+              return const LoadWidget();
             } else {
               return Padding(
                 padding: const EdgeInsets.all(16.0),

@@ -7,6 +7,7 @@ import 'package:alerta_uaz/application/authentication/auth_state.dart';
 
 import 'package:alerta_uaz/application/notification/notification_bloc.dart';
 import 'package:alerta_uaz/application/notification/notification_event.dart';
+import 'package:alerta_uaz/presentation/widget/load_widget.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,13 +23,11 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Perfil'),
-      ),
+      appBar: AppBar(title: const Text('Perfil')),
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is Unauthenticated) {
-            // context.read<NotificationBloc>().add(DisabledNotification());
+            context.read<NotificationBloc>().add(DisabledNotification());
             context.read<AlertBloc>().add(DisabledAlert());
 
             Navigator.of(context).pushReplacementNamed('/login');
@@ -71,17 +70,19 @@ class _ProfilePageState extends State<ProfilePage> {
                     const SizedBox(height: 24),
                     ElevatedButton(
                       onPressed: () {
-                        context.read<AuthBloc>().add(LogOut());
+                        context.read<AuthBloc>().add(SignOut());
                       },
                       child: const Text('Cerrar sesión'),
                     ),
                   ],
                 ),
               );
-            } else {
-              return const Center(
-                child: CircularProgressIndicator(),
+            } else if (state is Unauthenticated) {
+              return const LoadWidget(
+                message: 'Cerrando sesión...',
               );
+            } else {
+              return const LoadWidget();
             }
           },
         ),

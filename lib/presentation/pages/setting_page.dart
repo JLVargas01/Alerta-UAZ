@@ -108,12 +108,6 @@ class _SettingPageState extends State<SettingPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              // ElevatedButton(
-              //   onPressed: () {
-              //     Navigator.pushNamed(context, "/shake");
-              //   },
-              //   child: const Text('Probar'),
-              // ),
               ElevatedButton(
                   onPressed: _hasChanges
                       ? () {
