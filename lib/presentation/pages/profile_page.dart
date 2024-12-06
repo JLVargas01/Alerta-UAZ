@@ -5,9 +5,6 @@ import 'package:alerta_uaz/application/authentication/auth_bloc.dart';
 import 'package:alerta_uaz/application/authentication/auth_event.dart';
 import 'package:alerta_uaz/application/authentication/auth_state.dart';
 
-import 'package:alerta_uaz/application/notification/notification_bloc.dart';
-import 'package:alerta_uaz/application/notification/notification_event.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
