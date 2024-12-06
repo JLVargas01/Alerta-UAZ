@@ -99,7 +99,7 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
     on<RemoveContact>((event, emit) async {
       emit(ContactsLoading());
       try {
-        _contactsRepositoryImpl.purgeContact(event.idConfianza);
+        await _contactsRepositoryImpl.purgeContact(event.idConfianza);
         emit(ContactsLoaded(await _contactsRepositoryImpl.getAllContacts()));
       } catch (e) {
         emit(ContactsError(e.toString()));
