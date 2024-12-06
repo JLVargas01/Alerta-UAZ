@@ -1,30 +1,26 @@
-import 'package:alerta_uaz/data/data_sources/remote/database_service.dart';
+import 'package:alerta_uaz/core/utils/sqlite_helper.dart';
 import 'package:alerta_uaz/domain/model/cont-confianza_model.dart';
 import 'package:sqflite/sqflite.dart';
 
 class ContactosConfianza {
-
   final tableName = 'contactos_confianza';
 
   //Crear la tabla para los contactos de confianza
   Future<void> createTable(Database database) async {
-    await database.execute(
-      """CREATE TABLE IF NOT EXISTS $tableName (
+    await database.execute("""CREATE TABLE IF NOT EXISTS $tableName (
         "id_confianza"  TEXT NOT NULL,
         "alias" TEXT NOT NULL,
         "telephone" TEXT NOT NULL,
         "relacion" TEXT,
         PRIMARY KEY("id_confianza")
-      );"""
-    );
+      );""");
   }
 
   //Insertar nuevo contacto
   Future<void> insertContacto(ContactoConfianza contacto) async {
     try {
-    // Obtener referencia a la base de datos
-      final db = await DatabaseService().getDatabase();
-
+      // Obtener referencia a la base de datos
+      final db = await SQLiteHelper().getDatabase();
       await db.insert(
         tableName,
         contacto.toMap(),
@@ -38,21 +34,24 @@ class ContactosConfianza {
   // Obtener todos los contactos en la base de datos
   Future<List<ContactoConfianza>> contactos() async {
     try {
-    // Obtener referencia a la base de datos
-      final db = await DatabaseService().getDatabase();
-
-    // Query a todos los contactos de confianza.
+      // Obtener referencia a la base de datos
+      final db = await SQLiteHelper().getDatabase();
+      // Query a todos los contactos de confianza.
       final List<Map<String, Object?>> contactoMap = await db.query(tableName);
 
-    // Convertir la lista a objetos ContactoConfianza
+      // Convertir la lista a objetos ContactoConfianza
       return [
         for (final {
-        'id_confianza': id_confianza as String,
-        'telephone': telephone as String,
-        'alias': alias as String,
-        'relacion': relacion as String,
-        } in contactoMap)
-          ContactoConfianza(id_confianza: id_confianza, alias: alias, telephone: telephone, relacion: relacion),
+              'id_confianza': id_confianza as String,
+              'telephone': telephone as String,
+              'alias': alias as String,
+              'relacion': relacion as String,
+            } in contactoMap)
+          ContactoConfianza(
+              id_confianza: id_confianza,
+              alias: alias,
+              telephone: telephone,
+              relacion: relacion),
       ];
     } catch (e) {
       rethrow;
@@ -61,9 +60,8 @@ class ContactosConfianza {
 
   Future<void> eliminarContacto(String id) async {
     try {
-      final db = await DatabaseService().getDatabase();
-
-    // Eliminar el contacto
+      final db = await SQLiteHelper().getDatabase();
+      // Eliminar el contacto
       await db.delete(
         tableName,
         where: 'id_confianza = ?',
@@ -76,7 +74,7 @@ class ContactosConfianza {
 
   Future<bool> existContact(String telephone) async {
     try {
-      final db = await DatabaseService().getDatabase();
+      final db = await SQLiteHelper().getDatabase();
       var retorno = await db.query(
         tableName,
         where: 'telephone = ?',
