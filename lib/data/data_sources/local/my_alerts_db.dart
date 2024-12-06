@@ -1,9 +1,9 @@
-import 'package:alerta_uaz/data/data_sources/remote/database_service.dart';
-import 'package:alerta_uaz/domain/model/alerts_sent_model.dart';
+import 'package:alerta_uaz/core/utils/sqlite_helper.dart';
+import 'package:alerta_uaz/domain/model/my_alert_model.dart';
 import 'package:sqflite/sqflite.dart';
 
-class AlertsSent {
-  final tableName = 'alertas_enviadas';
+class MyAlertsDB {
+  final tableName = 'MyAlerts';
 
   //Crear la tabla para las alertas mandadas a otros usuarios
   Future<void> createTable(Database database) async {
@@ -16,10 +16,10 @@ class AlertsSent {
   }
 
   //Insertar nuevo registro de alerta enviada
-  Future<void> registerAlert(AlertSent alert) async {
+  Future<void> registerAlert(MyAlert alert) async {
     try {
       // Obtener referencia a la base de datos
-      final db = await DatabaseService().getDatabase();
+      final db = await SQLiteHelper().getDatabase();
 
       await db.insert(
         tableName,
@@ -31,17 +31,22 @@ class AlertsSent {
     }
   }
 
-  // Obtener todas las alertas enviadas
-  Future<List<AlertSent>> getAlerts(String userId) async {
+  // Obtener todas las alertas enviadas del usuario.
+  Future<List<MyAlert>> getAlerts(String userId) async {
     try {
       // Obtener referencia a la base de datos
-      final db = await DatabaseService().getDatabase();
+      final db = await SQLiteHelper().getDatabase();
 
       // Query a todas las alertas generadas y enviadas
-      final List<Map<String, Object?>> alertasEnviadasMap =
+      final alerts =
           await db.query(tableName, where: 'userId = ?', whereArgs: [userId]);
 
-      return alertasEnviadasMap.map((map) => AlertSent.fromMap(map)).toList();
+      return alerts
+          .map((alert) => MyAlert(
+              alert['userId'].toString(),
+              double.parse(alert['latitude'].toString()),
+              double.parse(alert['latitude'].toString())))
+          .toList();
     } catch (e) {
       rethrow;
     }
