@@ -1,4 +1,4 @@
-import 'package:alerta_uaz/domain/model/notification_model.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 abstract class NotificationEvent {}
 
@@ -6,8 +6,8 @@ class EnabledNotification extends NotificationEvent {}
 
 class DisabledNotification extends NotificationEvent {}
 
-class ReceivedNotification extends NotificationEvent {
-  NotificationMessage message;
+class ReceiveNotification extends NotificationEvent {
+  RemoteMessage message;
 
-  ReceivedNotification(this.message);
+  ReceiveNotification(this.message);
 }
