@@ -5,6 +5,7 @@ import 'package:sqflite/sqflite.dart';
 class ContactosConfianza {
 
   final tableName = 'contactos_confianza';
+  final dbService = DatabaseService.instance;
 
   //Crear la tabla para los contactos de confianza
   Future<void> createTable(Database database) async {
@@ -23,7 +24,7 @@ class ContactosConfianza {
   Future<void> insertContacto(ContactoConfianza contacto) async {
     try {
     // Obtener referencia a la base de datos
-      final db = await DatabaseService().getDatabase();
+      final db = await dbService.getDatabase();
 
       await db.insert(
         tableName,
@@ -39,7 +40,7 @@ class ContactosConfianza {
   Future<List<ContactoConfianza>> contactos() async {
     try {
     // Obtener referencia a la base de datos
-      final db = await DatabaseService().getDatabase();
+      final db = await dbService.getDatabase();
 
     // Query a todos los contactos de confianza.
       final List<Map<String, Object?>> contactoMap = await db.query(tableName);
@@ -61,7 +62,7 @@ class ContactosConfianza {
 
   Future<void> eliminarContacto(String id) async {
     try {
-      final db = await DatabaseService().getDatabase();
+      final db = await dbService.getDatabase();
 
     // Eliminar el contacto
       await db.delete(
@@ -74,9 +75,20 @@ class ContactosConfianza {
     }
   }
 
+  Future<void> eliminarTodosContacto() async {
+    try {
+      // Obtener la instancia de la base de datos
+      final db = await dbService.getDatabase();
+      // Eliminar todos los registros de la tabla
+       await db.delete(tableName);
+    } catch (e) {
+      throw Exception('Error al intentar eliminar todos los contactos');  
+    }
+  }
+
   Future<bool> existContact(String telephone) async {
     try {
-      final db = await DatabaseService().getDatabase();
+      final db = await dbService.getDatabase();
       var retorno = await db.query(
         tableName,
         where: 'telephone = ?',

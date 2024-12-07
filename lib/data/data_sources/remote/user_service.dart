@@ -64,7 +64,7 @@ class UserService {
     }
   }
 
-  Future<String?> sendDataNewContact(
+  Future<String> sendDataNewContact(
       String name, String phone, String idContactsList) async {
     String endpoint = ApiConfig.createContact;
     Uri uri = Uri.parse('$_baseUrl$endpoint');
@@ -80,11 +80,11 @@ class UserService {
 
       if (response.statusCode == 201) {
         final responseData = jsonDecode(response.body);
-        return responseData['id_contact'] as String?;
+        return responseData['id_contact'];
       } else if (response.statusCode == 404) {
         return '';
       } else {
-        return null;
+        throw Exception('Error al crear el contacto, por favor intente más tarde');
       }
     } catch (e) {
       throw Exception('Error al crear contacto: $e');

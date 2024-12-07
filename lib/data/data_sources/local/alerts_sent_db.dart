@@ -3,7 +3,9 @@ import 'package:alerta_uaz/domain/model/alerts_sent_model.dart';
 import 'package:sqflite/sqflite.dart';
 
 class AlertsSent {
+
   final tableName = 'alertas_enviadas';
+  final dbService = DatabaseService.instance;
 
   //Crear la tabla para las alertas mandadas a otros usuarios
   Future<void> createTable(Database database) async {
@@ -19,7 +21,7 @@ class AlertsSent {
   Future<void> registerAlert(AlertSent alert) async {
     try {
       // Obtener referencia a la base de datos
-      final db = await DatabaseService().getDatabase();
+      final db = await dbService.getDatabase();
 
       await db.insert(
         tableName,
@@ -35,7 +37,7 @@ class AlertsSent {
   Future<List<AlertSent>> getAlerts(String userId) async {
     try {
       // Obtener referencia a la base de datos
-      final db = await DatabaseService().getDatabase();
+      final db = await dbService.getDatabase();
 
       // Query a todas las alertas generadas y enviadas
       final List<Map<String, Object?>> alertasEnviadasMap =

@@ -5,6 +5,7 @@ import 'package:sqflite/sqflite.dart';
 class AlertsReceived {
 
   final tableName = 'alertas_recibidas';
+  final dbService = DatabaseService.instance;
 
   //Crear la tabla para las alertas recibidas de otros usuarios
   Future<void> createTable(Database database) async {
@@ -24,7 +25,7 @@ class AlertsReceived {
   Future<void> insertRecordAlertReceived(AlertReceived alert) async {
     try {
     // Obtener referencia a la base de datos
-      final db = await DatabaseService().getDatabase();
+      final db = await dbService.getDatabase();
 
       await db.insert(
         tableName,
@@ -40,7 +41,7 @@ class AlertsReceived {
   Future<List<AlertReceived>> getAlertsReceived() async {
     try {
     // Obtener referencia a la base de datos
-      final db = await DatabaseService().getDatabase();
+      final db = await dbService.getDatabase();
 
     // Query a todas las alertas generadas y enviadas
       final List<Map<String, Object?>> alertasEnviadasMap = await db.query(tableName);
