@@ -1,25 +1,28 @@
-import 'package:alerta_uaz/data/data_sources/local/contacts_db.dart';
-import 'package:alerta_uaz/data/data_sources/local/user_storange.dart';
-import 'package:alerta_uaz/data/data_sources/remote/user_service.dart';
-import 'package:alerta_uaz/domain/model/cont-confianza_model.dart';
+import 'package:alerta_uaz/data/data_sources/local/contact_db.dart';
+import 'package:alerta_uaz/data/data_sources/remote/contact_api.dart';
+import 'package:alerta_uaz/domain/model/my_contact_model.dart';
+import 'package:alerta_uaz/domain/model/user_model.dart';
 import 'package:flutter_native_contact_picker/flutter_native_contact_picker.dart';
 import 'package:flutter_native_contact_picker/model/contact.dart';
 
 class ContactsRepositoryImpl {
-  final UserService _userService;
-  final ContactosConfianza contactsDB = ContactosConfianza();
+  final ContactApi _contactApi;
 
-  ContactsRepositoryImpl(this._userService);
+  final _contactDB = ContactDB();
+  final _user = User();
 
-  Future<List<ContactoConfianza>> getAllContacts() async {
+  ContactsRepositoryImpl(this._contactApi);
+
+  Future<List<MyContact>> loadContacts() async {
     try {
-      return await contactsDB.contactos();
+      final list = await _contactDB.getContacts(_user.id!);
+      return list;
     } catch (e) {
       rethrow;
     }
   }
 
-  Future<Contact> selecNativeContact() async {
+  Future<Contact> selectNativeContact() async {
     try {
       final FlutterNativeContactPicker contactPicker =
           FlutterNativeContactPicker();
@@ -28,19 +31,7 @@ class ContactsRepositoryImpl {
       if (contact == null) {
         throw 'Error al seleccionar el contacto';
       }
-      return contact;
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<String> getIdContactsList() async {
-    try {
-      String? idLista = await UserStorage.getIdListContaData();
-      if (idLista == null) {
-        throw 'Error al autenticar al usuario';
-      }
-      return idLista;
+      return await validateContact(contact);
     } catch (e) {
       rethrow;
     }
@@ -48,18 +39,18 @@ class ContactsRepositoryImpl {
 
   Future<Contact> validateContact(Contact contact) async {
     try {
-      String? numeroTelefonico = contact.phoneNumbers?.single;
-      String? nombre = contact.fullName;
+      String? phone = contact.phoneNumbers?.single;
+      String? name = contact.fullName;
 
       // Verificar si el número telefónico y el nombre son válidos
-      if (nombre == null ||
-          numeroTelefonico == null ||
-          numeroTelefonico.isEmpty) {
+      if (name == null || phone == null || phone.isEmpty) {
         throw ('Los datos del contacto son inválidos');
       }
 
       //Verificar si el contacto ya esta almacenado
-      if (await contactsDB.existContact(numeroTelefonico)) {
+      final isExists = await _contactDB.contactExists(phone);
+      print('~~~~~~~~~~~EL CONTACTO EXISTE? $isExists');
+      if (isExists == true) {
         throw 'El contacto ya esta agregado';
       }
       return contact;
@@ -69,62 +60,44 @@ class ContactsRepositoryImpl {
   }
 
   Future<String?> createContact(
-      String phoneNewContact, String nameNewContact) async {
+      String newContactPhone, String newContactName) async {
     try {
-      String idListContacts = await getIdContactsList();
-      return await _userService.sendDataNewContact(
-          nameNewContact, phoneNewContact, idListContacts);
+      final contactListId = _user.idContactList!;
+      return await _contactApi.sendDataNewContact(
+          newContactName, newContactPhone, contactListId);
     } catch (e) {
       rethrow;
     }
   }
 
-  Future<void> storeContact(String idNewContact, String phoneNewContact,
-      String nameNewContact) async {
+  Future<void> saveContact(
+      String? newContactId, String newPhone, String newContactName) async {
     try {
-      if (idNewContact.isEmpty) {
+      if (newContactId == null) {
         throw ('El contacto no está registrado en el sistema');
       }
 
       // Crea un nuevo contacto
-      ContactoConfianza nuevoContacto = ContactoConfianza(
-        id_confianza: idNewContact,
-        alias: nameNewContact,
-        telephone: phoneNewContact,
+      MyContact newContact = MyContact(
+        uid: _user.id!,
+        contactId: newContactId,
+        alias: newContactName,
+        phone: newPhone,
       );
       // Inserta en la base de datos
-      await contactsDB.insertContacto(nuevoContacto);
+      await _contactDB.insertContact(newContact);
     } catch (e) {
       rethrow;
     }
   }
 
-  Future<bool> deleteContact(String idContactList, String idContact) async {
+  Future<bool> deleteContact(String contactId) async {
     try {
-      return _userService.sendIdsDeleteContact(idContactList, idContact);
+      final contactListId = _user.idContactList!;
+      await _contactDB.deleteContact(contactId);
+      return _contactApi.sendIdsDeleteContact(contactListId, contactId);
     } catch (e) {
       rethrow;
     }
   }
-
-  Future<void> purgeContact(String idContactConf) async {
-    try {
-      String? idListContacts = await UserStorage.getIdListContaData();
-      if (idListContacts == null) {
-        throw 'Error con la lista de contactos';
-      }
-      deleteContact(idListContacts, idContactConf);
-      await contactsDB.eliminarContacto(idContactConf);
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  // Future<void> purgeAllContact() async {
-  //   try {
-  //     await contactsDB.eliminarTodosContacto();
-  //   } catch (e) {
-  //     rethrow;
-  //   }
-  // }
 }
