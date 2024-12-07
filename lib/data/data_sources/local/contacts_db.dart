@@ -4,6 +4,7 @@ import 'package:sqflite/sqflite.dart';
 
 class ContactosConfianza {
   final tableName = 'contactos_confianza';
+  // final dbService = DatabaseService.instance;
 
   //Crear la tabla para los contactos de confianza
   Future<void> createTable(Database database) async {
@@ -19,8 +20,14 @@ class ContactosConfianza {
   //Insertar nuevo contacto
   Future<void> insertContacto(ContactoConfianza contacto) async {
     try {
+// <<<<<<< HEAD
       // Obtener referencia a la base de datos
       final db = await SQLiteHelper().getDatabase();
+// =======
+//     // Obtener referencia a la base de datos
+//       final db = await dbService.getDatabase();
+
+// >>>>>>> development
       await db.insert(
         tableName,
         contacto.toMap(),
@@ -34,9 +41,16 @@ class ContactosConfianza {
   // Obtener todos los contactos en la base de datos
   Future<List<ContactoConfianza>> contactos() async {
     try {
+// <<<<<<< HEAD
       // Obtener referencia a la base de datos
       final db = await SQLiteHelper().getDatabase();
       // Query a todos los contactos de confianza.
+// =======
+//     // Obtener referencia a la base de datos
+//       final db = await dbService.getDatabase();
+
+//     // Query a todos los contactos de confianza.
+// >>>>>>> development
       final List<Map<String, Object?>> contactoMap = await db.query(tableName);
 
       // Convertir la lista a objetos ContactoConfianza
@@ -60,8 +74,14 @@ class ContactosConfianza {
 
   Future<void> eliminarContacto(String id) async {
     try {
+// <<<<<<< HEAD
       final db = await SQLiteHelper().getDatabase();
       // Eliminar el contacto
+// =======
+//       final db = await dbService.getDatabase();
+
+//     // Eliminar el contacto
+// >>>>>>> development
       await db.delete(
         tableName,
         where: 'id_confianza = ?',
@@ -72,9 +92,24 @@ class ContactosConfianza {
     }
   }
 
+  // Future<void> eliminarTodosContacto() async {
+  //   try {
+  //     // Obtener la instancia de la base de datos
+  //     final db = await dbService.getDatabase();
+  //     // Eliminar todos los registros de la tabla
+  //      await db.delete(tableName);
+  //   } catch (e) {
+  //     throw Exception('Error al intentar eliminar todos los contactos');
+  //   }
+  // }
+
   Future<bool> existContact(String telephone) async {
     try {
+// <<<<<<< HEAD
       final db = await SQLiteHelper().getDatabase();
+// =======
+//       final db = await dbService.getDatabase();
+// >>>>>>> development
       var retorno = await db.query(
         tableName,
         where: 'telephone = ?',

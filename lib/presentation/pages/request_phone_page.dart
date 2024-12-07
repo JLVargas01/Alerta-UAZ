@@ -1,3 +1,5 @@
+import 'package:alerta_uaz/application/notification/notification_bloc.dart';
+import 'package:alerta_uaz/application/notification/notification_event.dart';
 import 'package:alerta_uaz/presentation/widget/load_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,8 +8,6 @@ import 'package:alerta_uaz/application/alert/alert_event.dart';
 import 'package:alerta_uaz/application/authentication/auth_event.dart';
 import 'package:alerta_uaz/application/authentication/auth_state.dart';
 import 'package:alerta_uaz/application/authentication/auth_bloc.dart';
-import 'package:alerta_uaz/application/notification/notification_bloc.dart';
-import 'package:alerta_uaz/application/notification/notification_event.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
 class RequestPhonePage extends StatefulWidget {
