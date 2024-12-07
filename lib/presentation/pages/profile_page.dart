@@ -4,13 +4,6 @@ import 'package:alerta_uaz/application/alert/alert_event.dart';
 import 'package:alerta_uaz/application/authentication/auth_bloc.dart';
 import 'package:alerta_uaz/application/authentication/auth_event.dart';
 import 'package:alerta_uaz/application/authentication/auth_state.dart';
-import 'package:alerta_uaz/application/location/location_bloc.dart';
-import 'package:alerta_uaz/application/location/location_event.dart';
-
-import 'package:alerta_uaz/application/notification/notification_bloc.dart';
-import 'package:alerta_uaz/application/notification/notification_event.dart';
-import 'package:alerta_uaz/application/shake/shake_bloc.dart';
-import 'package:alerta_uaz/application/shake/shake_event.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -32,10 +25,9 @@ class _ProfilePageState extends State<ProfilePage> {
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is Unauthenticated) {
-            context.read<NotificationBloc>().add(DisabledNotification());
+            // context.read<NotificationBloc>().add(DisabledNotification());
             context.read<AlertBloc>().add(DisabledAlert());
-            context.read<LocationBloc>().add(DisabledLocation());
-            context.read<ShakeBloc>().add(DisabledShake());
+
             Navigator.of(context).pushReplacementNamed('/login');
           } else if (state is AuthError) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -76,7 +68,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     const SizedBox(height: 24),
                     ElevatedButton(
                       onPressed: () {
-                        context.read<AuthBloc>().add(SignOut());
+                        context.read<AuthBloc>().add(LogOut());
                       },
                       child: const Text('Cerrar sesión'),
                     ),

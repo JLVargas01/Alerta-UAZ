@@ -3,12 +3,8 @@ import 'package:alerta_uaz/application/alert/alert_event.dart';
 import 'package:alerta_uaz/application/authentication/auth_bloc.dart';
 import 'package:alerta_uaz/application/authentication/auth_event.dart';
 import 'package:alerta_uaz/application/authentication/auth_state.dart';
-import 'package:alerta_uaz/application/location/location_bloc.dart';
-import 'package:alerta_uaz/application/location/location_event.dart';
 import 'package:alerta_uaz/application/notification/notification_bloc.dart';
 import 'package:alerta_uaz/application/notification/notification_event.dart';
-import 'package:alerta_uaz/application/shake/shake_bloc.dart';
-import 'package:alerta_uaz/application/shake/shake_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -31,10 +27,8 @@ class _SplashPageState extends State<SplashPage> {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is Authenticated) {
-          context.read<NotificationBloc>().add(EnabledNotification());
-          context.read<AlertBloc>().add(EnabledAlert(state.user));
-          context.read<LocationBloc>().add(EnabledLocation(state.user));
-          context.read<ShakeBloc>().add(EnabledShake());
+          // context.read<NotificationBloc>().add(EnabledNotification());
+          context.read<AlertBloc>().add(EnabledAlert());
 
           Navigator.of(context).pushReplacementNamed("/main");
         } else if (state is Unauthenticated) {

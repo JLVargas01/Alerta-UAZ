@@ -19,7 +19,7 @@ class User {
   // Método para serializar a JSON
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      '_id': id,
       'name': name,
       'email': email,
       'phone': phone,
@@ -32,14 +32,14 @@ class User {
 
   // Método para actualizar los datos desde un JSON
   void fromJson(Map<String, dynamic> json) {
-    id = json['id'] ?? id;
-    name = json['name'] ?? name;
-    email = json['email'] ?? email;
-    phone = json['phone'] ?? phone;
-    avatar = json['avatar'] ?? avatar;
-    token = json['token'] ?? token;
-    idContactList = json['id_contact_list'] ?? idContactList;
-    idAlertList = json['id_alert_list'] ?? idAlertList;
+    id = json['_id'].toString();
+    name = json['name'].toString();
+    email = json['email'].toString();
+    phone = json['phone'].toString();
+    avatar = json['avatar'].toString();
+    token = json['token'].toString();
+    idContactList = json['id_contact_list'].toString();
+    idAlertList = json['id_alert_list'].toString();
   }
 
   void clean() {

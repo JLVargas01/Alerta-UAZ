@@ -5,12 +5,6 @@ import 'package:alerta_uaz/application/alert/alert_event.dart';
 import 'package:alerta_uaz/application/authentication/auth_event.dart';
 import 'package:alerta_uaz/application/authentication/auth_state.dart';
 import 'package:alerta_uaz/application/authentication/auth_bloc.dart';
-import 'package:alerta_uaz/application/location/location_bloc.dart';
-import 'package:alerta_uaz/application/location/location_event.dart';
-import 'package:alerta_uaz/application/notification/notification_bloc.dart';
-import 'package:alerta_uaz/application/notification/notification_event.dart';
-import 'package:alerta_uaz/application/shake/shake_bloc.dart';
-import 'package:alerta_uaz/application/shake/shake_event.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
 class RequestPhonePage extends StatefulWidget {
@@ -30,18 +24,37 @@ class _RequestPhonePageState extends State<RequestPhonePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Solicitar Número de Teléfono"),
+        leading: IconButton(
+          onPressed: () {
+            context.read<AuthBloc>().add(CancelAuth());
+            Navigator.of(context).pop();
+          },
+          icon: const Icon(Icons.arrow_back),
+        ),
       ),
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is Authenticated) {
             // Activa las funciones para usuarios autenticados
-            context.read<NotificationBloc>().add(EnabledNotification());
-            context.read<AlertBloc>().add(EnabledAlert(state.user));
-            context.read<LocationBloc>().add(EnabledLocation(state.user));
-            context.read<ShakeBloc>().add(EnabledShake());
+            // context.read<NotificationBloc>().add(EnabledNotification());
+            context.read<AlertBloc>().add(EnabledAlert());
+
             Navigator.of(context).pushReplacementNamed('/main');
-            } if (state is AuthError) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message)));
+          }
+          if (state is AuthError) {
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text('Error al autenticar'),
+                content: Text(state.message),
+                actions: [
+                  TextButton(
+                    onPressed: () => {Navigator.pop(context)},
+                    child: const Text('Cerrar'),
+                  ),
+                ],
+              ),
+            );
           }
         },
         child: BlocBuilder<AuthBloc, AuthState>(
@@ -74,7 +87,8 @@ class _RequestPhonePageState extends State<RequestPhonePage> {
                       selectorTextStyle: const TextStyle(color: Colors.black),
                       textFieldController: _controller,
                       formatInput: true,
-                      keyboardType: const TextInputType.numberWithOptions(signed: true, decimal: true),
+                      keyboardType: const TextInputType.numberWithOptions(
+                          signed: true, decimal: true),
                       inputBorder: const OutlineInputBorder(),
                       hintText: "Ingresa tu número",
                     ),
@@ -90,13 +104,16 @@ class _RequestPhonePageState extends State<RequestPhonePage> {
                     ElevatedButton(
                       onPressed: () {
                         if (_phoneNumber != null && _isPhoneValid) {
-                          context.read<AuthBloc>().add(ProvidePhoneNumber(_phoneNumber!.phoneNumber!));
+                          context.read<AuthBloc>().add(
+                              ProvidePhoneNumber(_phoneNumber!.phoneNumber!));
                         } else {
                           setState(() {
                             _isPhoneValid = false;
                           });
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Por favor, ingresa un número válido")),
+                            const SnackBar(
+                                content: Text(
+                                    "Por favor, ingresa un número válido")),
                           );
                         }
                       },

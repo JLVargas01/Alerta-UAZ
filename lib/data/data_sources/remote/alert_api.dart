@@ -5,7 +5,7 @@ import 'package:alerta_uaz/core/utils/http_helper.dart';
 import 'package:http/http.dart' as http;
 
 class AlertApi {
-  // base url = http://localhost:3002/api/alert
+  // Dafault: base url = http://localhost:3002/api/alert
   final _baseUrl = ApiConfig.getBaseUrl(ApiConfig.portAlert, 'alert');
 
   Future<void> addAlert(String alertId, Map<String, dynamic> data) async {
@@ -15,11 +15,34 @@ class AlertApi {
     try {
       http.Response response = await HttpHelper.post(uri, data);
 
-      data = json.decode(response.body);
-
-      if (response.statusCode != 201) throw data['message'];
+      if (response.statusCode == 404) {
+        throw 'Error al registrar la alerta: La lista de alertas no existe.';
+      } else if (response.statusCode >= 500) {
+        throw HttpHelper.errorInServer;
+      }
     } catch (e) {
-      throw e.toString();
+      rethrow;
     }
+  }
+
+  Future<Map<String, dynamic>> getAlertList(String alertListId) async {
+    final endpoint = '/getList/$alertListId';
+    final uri = Uri.parse('$_baseUrl$endpoint');
+
+    try {
+      http.Response response = await HttpHelper.get(uri);
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else if (response.statusCode == 404) {
+        throw 'La lista de alertas no existe.';
+      } else if (response.statusCode >= 500) {
+        throw HttpHelper.errorInServer;
+      }
+    } catch (e) {
+      rethrow;
+    }
+
+    return {};
   }
 }

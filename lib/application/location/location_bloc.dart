@@ -1,33 +1,17 @@
 import 'package:alerta_uaz/application/location/location_event.dart';
 import 'package:alerta_uaz/application/location/location_state.dart';
 import 'package:alerta_uaz/data/repositories/location_repository_imp.dart';
-import 'package:alerta_uaz/domain/model/user_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:latlong2/latlong.dart';
 
 class LocationBloc extends Bloc<LocationEvent, LocationState> {
   final _locationRepositoryImp = LocationRepositoryImp();
 
-  User? user;
-
   LocationBloc() : super(LocationInitial()) {
-    on<EnabledLocation>(
-      (event, emit) {
-        user = event.user;
-      },
-    );
-    on<DisabledLocation>(
-      (event, emit) {
-        user = null;
-      },
-    );
-
     on<StartSendingLocation>(
       (event, emit) async {
         emit(LocationLoading());
-
-        final room = '${DateTime.now()}:${user!.name}'.replaceAll(' ', '');
-        _locationRepositoryImp.startSendLocation(room, user!.name!);
+        final room = _locationRepositoryImp.startSendLocation();
         await Future.delayed(const Duration(milliseconds: 500));
         emit(LocationStarted(room));
       },
@@ -36,12 +20,14 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
     on<StopSendingLocation>(
       (event, emit) {
         _locationRepositoryImp.stopSendLocation();
+        emit(LocationInitial());
       },
     );
 
     on<StopReceivingLocation>(
       (event, emit) {
         _locationRepositoryImp.stopReceivedLocation();
+        emit(LocationInitial());
       },
     );
 
@@ -50,20 +36,16 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
         emit(LocationLoading());
 
         handler(dynamic location) {
-          add(ReceivedLocation(
+          add(ReceivingLocation(
               LatLng(location['latitude'], location['longitude'])));
         }
 
-        final room = event.room;
-        _locationRepositoryImp.startReceivedLocation(
-            room, user!.name!, handler);
+        _locationRepositoryImp.startReceivedLocation(event.room, handler);
       },
     );
 
-    on<ReceivedLocation>(
-      (event, emit) {
-        emit(LocationReceived(event.location));
-      },
+    on<ReceivingLocation>(
+      (event, emit) => emit(LocationReceived(event.location)),
     );
   }
 }

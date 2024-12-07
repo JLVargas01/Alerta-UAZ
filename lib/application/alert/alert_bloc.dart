@@ -3,37 +3,32 @@ import 'package:alerta_uaz/application/alert/alert_state.dart';
 import 'package:alerta_uaz/data/data_sources/remote/alert_api.dart';
 import 'package:alerta_uaz/data/data_sources/remote/notification_api.dart';
 import 'package:alerta_uaz/data/repositories/alert_repository_impl.dart';
-import 'package:alerta_uaz/domain/model/user_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AlertBloc extends Bloc<AlertEvent, AlertState> {
   final _alertRepositoryImp =
       AlertRepositoryImpl(NotificationApi(), AlertApi());
 
-  User? user;
-
-  AlertBloc() : super(AlertInitial()) {
+  AlertBloc() : super(AlertDeactivated()) {
     on<EnabledAlert>(
       (event, emit) {
-        user = event.user;
+        _alertRepositoryImp.startAlert(() {
+          add(ShakeAlert(true));
+        });
       },
     );
 
-    on<DisabledAlert>(
-      (event, emit) {
-        user = null;
-      },
-    );
+    on<DisabledAlert>((event, emit) => _alertRepositoryImp.stopAlert());
 
     on<SendAlert>(
       (event, emit) async {
         emit(AlertLoading(message: 'Enviando notificación a contactos....'));
         String room = event.room;
         try {
-          await _alertRepositoryImp.sendAlert(room, user!);
-          emit(AlertSent(message: 'La alerta fue envíada exitosamente.'));
+          await _alertRepositoryImp.sendAlert(room);
+          emit(AlertLoaded(message: 'La alerta fue envíada exitosamente.'));
         } catch (e) {
-          emit(AlertError(message: e.toString()));
+          emit(AlertError(message: e.toString(), title: 'notificación'));
         }
       },
     );
@@ -43,9 +38,39 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
         emit(AlertLoading(message: 'Registrando alerta...'));
         try {
           await _alertRepositoryImp.registerAlert();
-          emit(AlertRegistered(message: 'Alerta registrada exitosamente.'));
+          add(LoadAlertHistory()); // Actualizamos las listas de alerta.
         } catch (e) {
-          emit(AlertError(message: e.toString()));
+          emit(AlertError(message: e.toString(), title: 'alerta'));
+        }
+      },
+    );
+
+    on<ShakeAlert>(
+      (event, emit) {
+        if (event.isActivated) {
+          _alertRepositoryImp.pauseAlert();
+          emit(AlertActivated());
+        } else {
+          _alertRepositoryImp.resumeAlert();
+          emit(AlertDeactivated());
+        }
+      },
+    );
+
+    on<LoadAlertHistory>(
+      (event, emit) async {
+        emit(AlertLoading());
+
+        try {
+          final myAlertHistory = await _alertRepositoryImp.loadMyAlertHistory();
+          final contactAlertHistory =
+              await _alertRepositoryImp.loadContactsAlertHistory();
+
+          emit(AlertLoaded(
+              myAlertHistory: myAlertHistory,
+              contactAlertHistory: contactAlertHistory));
+        } catch (e) {
+          emit(AlertError(message: e.toString(), title: 'historial'));
         }
       },
     );
