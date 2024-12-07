@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:socket_io_client/socket_io_client.dart' as io;
 
 void main() {
   String protocol = 'http';
@@ -8,10 +8,11 @@ void main() {
 
   final String baseUrl = '$protocol://$hostname:$port';
 
+  // ignore: avoid_print
   print('Inicializando socket...');
 
   // Configuración del cliente del socket
-  IO.Socket socket = IO.io(baseUrl, <String, dynamic>{
+  io.Socket socket = io.io(baseUrl, <String, dynamic>{
     'transports': ['websocket'],
     'autoConnect': false,
     'reconnection': true,
@@ -19,11 +20,15 @@ void main() {
   });
 
   // Eventos para monitorear el estado de la conexión
+  // ignore: avoid_print
   socket.onConnect((_) => print('Cliente conectado'));
+  // ignore: avoid_print
   socket.onConnectError((data) => print("Error de conexión: $data"));
+  // ignore: avoid_print
   socket.onDisconnect((_) => print("Socket desconectado"));
 
   // creando sala
+  // ignore: avoid_print
   print('Creando sala');
   socket.emit('createRoom', {'room': 'abcd', 'user': 'Holiwiscach'});
 
@@ -70,11 +75,13 @@ void main() {
     if (index < coordenadas.length) {
       socket.emit('sendingCoordinates',
           {'room': 'abcd', 'coordinates': coordenadas[index]});
+      // ignore: avoid_print
       print("Coordenada enviada: ${coordenadas[index]}");
       index++;
     } else {
       timer.cancel();
       socket.disconnect();
+      // ignore: avoid_print
       print('Socket desconectado');
     }
   });
