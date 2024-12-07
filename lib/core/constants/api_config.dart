@@ -12,12 +12,6 @@ class ApiConfig {
   static final String portNotification =
       dotenv.env['PORT_NOTIFICATION'] ?? '3003';
 
-  // endpoints
-  // Usuario
-  static final String createContact =
-      dotenv.env['USER_CREATE_CONTACT'] ?? '/api/contact/createContact';
-  static final String deleteContact = dotenv.env['USER_DELETE_CONTACT'] ?? '';
-
   static const headerKey = "********************************************";
 
   /// Genera la URL base para un servicio específico.
