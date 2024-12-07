@@ -1,6 +1,6 @@
 import 'package:alerta_uaz/application/alert/alert_bloc.dart';
 import 'package:alerta_uaz/application/authentication/auth_bloc.dart';
-import 'package:alerta_uaz/application/contact-list_bloc.dart';
+import 'package:alerta_uaz/application/contact/contact_bloc.dart';
 import 'package:alerta_uaz/application/location/location_bloc.dart';
 import 'package:alerta_uaz/application/notification/notification_bloc.dart';
 import 'package:alerta_uaz/application/setting/setting_bloc.dart';
@@ -25,7 +25,7 @@ Future<void> main() async {
     MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => AuthBloc()),
-        BlocProvider(create: (context) => ContactsBloc()..add(LoadContacts())),
+        BlocProvider(create: (context) => ContactsBloc()),
         BlocProvider(create: (context) => NotificationBloc()),
         BlocProvider(create: (context) => AlertBloc()),
         BlocProvider(create: (context) => LocationBloc()),
