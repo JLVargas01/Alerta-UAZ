@@ -21,7 +21,7 @@ class AlertRepositoryImpl {
 
   /// Función que registra la alerta del emisor de manera local y
   /// en el servidor.
-  Future<Map<String, dynamic>> registerAlert() async {
+  Future<Map<String, dynamic>?> registerAlert() async {
     try {
       final locationData = await Location().getLocation();
 
@@ -40,7 +40,7 @@ class AlertRepositoryImpl {
       // Se registra la alerta en local.
       data['userId'] = _user.id;
       final newAlert = MyAlert.fromMap(data);
-      await _myAlertsDB.registerAlert(newAlert);
+      _myAlertsDB.registerAlert(newAlert);
       return data;
     } catch (e) {
       throw 'Ocurrió un error al registrar la alerta del usuario: ${e.toString()}';
@@ -90,9 +90,15 @@ class AlertRepositoryImpl {
   Future<void> sendAlertDesactivated(Map<String, dynamic> data) async {
     String contactListId = _user.idContactList!;
 
-    data['username'] = _user.name;
-    data['avatar'] = _user.avatar;
-    data['type'] = 'ALERT_DESACTIVATED';
+    // Se realiza otra data para evitar fallos al enviar notificación.
+    final newData = {
+      'coordinates_latitude': data['coordinates']['latitude'].toString(),
+      'coordinates_longitude': data['coordinates']['longitude'].toString(),
+      'media': data['media'],
+      'username': _user.name,
+      'avatar': _user.avatar,
+      'type': 'ALERT_DESACTIVATED'
+    };
 
     Map<String, Object> message = {
       'notification': {
@@ -100,7 +106,7 @@ class AlertRepositoryImpl {
         'body':
             '${_user.name} ha desactivado la alerta. Puedes ver cuál fue su última ubicación.'
       },
-      'data': data,
+      'data': newData,
     };
 
     try {
