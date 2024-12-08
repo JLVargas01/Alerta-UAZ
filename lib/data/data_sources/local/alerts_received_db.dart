@@ -15,7 +15,7 @@ class AlertsReceived {
         "idAlerta" TEXT NOT NULL,
         "aliasContact" TEXT NOT NULL,
         "nameUser" TEXT NOT NULL,
-        "dateReceived" DATE NOT NULL,
+        "dateReceived" TEXT NOT NULL,
         PRIMARY KEY("idAlertReceived")
       );"""
     );
@@ -53,7 +53,7 @@ class AlertsReceived {
         'idAlerta': idAlerta as String,
         'aliasContact': aliasContact as String,
         'nameUser': nameUser as String,
-        'dateReceived': dateReceived as DateTime,
+        'dateReceived': dateReceived as String,
         } in alertasEnviadasMap)
           AlertReceived(idAlertReceived: idAlertReceived, aliasContact: aliasContact, nameUser: nameUser, dateReceived: dateReceived, idAlerta: idAlerta),
       ];
