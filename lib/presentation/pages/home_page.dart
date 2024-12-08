@@ -61,7 +61,7 @@ class HomePage extends StatelessWidget {
                 final type = state.message.data['type'];
                 if (type == 'ALERT_ACTIVATED') {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
-                    Navigator.of(context).pushReplacementNamed('/map',
+                    Navigator.of(context).pushNamed('/map',
                         arguments: state.message.data['room']);
                   });
                 }
