@@ -34,14 +34,13 @@ class AlertsSent {
   }
 
   // Obtener todas las alertas enviadas
-  Future<List<AlertSent>> getAlerts(String userId) async {
+  Future<List<AlertSent>> getAlerts() async {
     try {
       // Obtener referencia a la base de datos
       final db = await dbService.getDatabase();
 
       // Query a todas las alertas generadas y enviadas
-      final List<Map<String, Object?>> alertasEnviadasMap =
-          await db.query(tableName, where: 'userId = ?', whereArgs: [userId]);
+      final List<Map<String, Object?>> alertasEnviadasMap = await db.query(tableName);
 
       return alertasEnviadasMap.map((map) => AlertSent.fromMap(map)).toList();
     } catch (e) {
