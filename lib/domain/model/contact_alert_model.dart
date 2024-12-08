@@ -23,8 +23,12 @@ class ContactAlert {
   }
 
   factory ContactAlert.fromMap(Map<String, dynamic> map) {
-    return ContactAlert(map['userId'], map['username'],
-        map['coordinates']['latitude'], map['coordinates']['longitude']);
+    return ContactAlert(
+      map['userId'].toString(),
+      map['username'].toString(),
+      double.parse(map['coordinates_latitude'].toString()),
+      double.parse(map['coordinates_longitude'].toString()),
+    );
   }
 
   @override
