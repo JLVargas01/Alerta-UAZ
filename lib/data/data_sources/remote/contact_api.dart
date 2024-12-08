@@ -5,6 +5,27 @@ import 'package:alerta_uaz/core/utils/http_helper.dart';
 class ContactApi {
   final String _baseUrl = ApiConfig.getBaseUrl(ApiConfig.portUser, 'contact');
 
+  Future<List<dynamic>?> getContactList(String contactListId) async {
+    String endpoint = '/list/byId/$contactListId';
+    Uri uri = Uri.parse('$_baseUrl$endpoint');
+
+    try {
+      final response = await HttpHelper.get(uri);
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        return data['contactList'];
+      } else if (response.statusCode == 404) {
+        return null;
+      } else {
+        throw data['message'];
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   /// Función que crea un nuevo contacto desde el servidor.
   Future<String?> sendDataNewContact(
       String name, String phone, String contactListId) async {

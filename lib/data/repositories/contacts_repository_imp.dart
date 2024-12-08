@@ -13,10 +13,37 @@ class ContactsRepositoryImpl {
 
   ContactsRepositoryImpl(this._contactApi);
 
-  Future<List<MyContact>> loadContacts() async {
+  Future<List<MyContact>> loadContactsLocal() async {
     try {
       final list = await _contactDB.getContacts(_user.id!);
       return list;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<MyContact>> loadContactsServer() async {
+    final contactListId = _user.idContactList!;
+    List<MyContact> newList = [];
+    try {
+      final list = await _contactApi.getContactList(contactListId);
+
+      if (list != null) {
+        for (Map<String, dynamic> contactData in list) {
+          final contact = MyContact(
+              uid: _user.id!,
+              contactId: contactData['contactId'],
+              alias: contactData['alias'],
+              phone:
+                  '${contactData['phone']['countryCode']}${contactData['phone']['nacionalNumber']}');
+
+          await _contactDB.insertContact(contact);
+        }
+
+        newList = await _contactDB.getContacts(_user.id!);
+      }
+
+      return newList;
     } catch (e) {
       rethrow;
     }
