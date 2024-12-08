@@ -63,27 +63,23 @@ class AlertRepositoryImpl {
     await _notificationApi.sendAlert(contactListId, message);
   }
 
-  Future<List<AlertSent>?> loadMyAlertHistory() async {
-    // Primero verificamos si hay un historial de alerta en local
-    final myAlertsDB = AlertsSent();
-    final alertHistory = await myAlertsDB.getAlerts(_user.id!);
-
-    // Si hay algo, lo retornamos
-    if (alertHistory.isNotEmpty) return alertHistory;
-
-    // Sino... entonces consultamos al servidor
-    // TODO: Hacer una función que almacene todo el historial de alerta (en caso de haber registro) de manera local.
-
-    // En caso de no tener ningún registro entonces retornamos null.
-    return null;
+  Future<List<AlertSent>> loadMyAlertHistory() async {
+    try {
+    // OBtenemos el  historial de alerta enviadas
+      AlertsSent myAlertsDB = AlertsSent();
+      return await myAlertsDB.getAlerts();
+    } catch(e) {
+        throw 'Error con mi lista de alertas enviadas';
+    }
   }
 
-  Future<List<AlertReceived>?> loadContactsAlertHistory() async {
-    // final contactsAlertsDB = AlertsReceived();
-    // final contactAlertHistory = await contactsAlertsDB.getAlertsReceived();
-
-    // return contactAlertHistory;
-    return null;
+  Future<List<AlertReceived>> loadContactsAlertHistory() async {
+    try {
+    AlertsReceived contactsAlertsDB = AlertsReceived();
+    return await contactsAlertsDB.getAlertsReceived();
+    } catch(e) {
+        throw 'Error con mi lista de alertas recividas';
+    }
   }
 
   ///
@@ -103,5 +99,35 @@ class AlertRepositoryImpl {
 
   void resumeAlert() {
     _shake.resumeListening();
+  }
+
+  //  PARA DEBUG
+  // BORRAR CUANDO NO SE NECESITEN
+  Future<void> insertAlertsDebug() async {
+    AlertSent newAlertSent = AlertSent(
+      userId: _user.id!,
+      latitude: 00,
+      longitude: 00
+    );
+    await _myAlertHistory.registerAlert(newAlertSent);
+
+    AlertReceived newAlertRecived = AlertReceived(
+        idAlertReceived: '00000',
+        idAlerta: '00000',
+        aliasContact: 'ALIAS',
+        nameUser: 'USER', 
+        dateReceived: DateTime. now().toIso8601String(),
+    );
+    AlertReceived newAlertRecived2 = AlertReceived(
+        idAlertReceived: '11111',
+        idAlerta: '11111',
+        aliasContact: 'ALIAS2',
+        nameUser: 'USER2', 
+        dateReceived: DateTime.now().toIso8601String()
+    );
+    final myAlertRecived = AlertsReceived();
+    await myAlertRecived.insertRecordAlertReceived(newAlertRecived);
+    await myAlertRecived.insertRecordAlertReceived(newAlertRecived2);
+
   }
 }
