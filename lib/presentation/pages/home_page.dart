@@ -18,9 +18,7 @@ class HomePage extends StatelessWidget {
         BlocListener<AlertBloc, AlertState>(
           listener: (context, state) {
             if (state is AlertActivated) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                Navigator.of(context).pushReplacementNamed('/alert');
-              });
+              Navigator.of(context).pushNamed('/alert');
             } else if (state is AlertError) {
               showDialog(
                 context: context,
@@ -41,8 +39,8 @@ class HomePage extends StatelessWidget {
         BlocListener<NotificationBloc, NotificationState>(
           listener: (context, state) async {
             if (state is NotificationReceived) {
-              final type = state.message.data['type'];
-              final action = await showDialog<bool?>(
+              String? type = state.message.data['type']?.toString().trim();
+              bool? action = await showDialog<bool?>(
                 context: context,
                 builder: (context) => AlertDialog(
                   title: Text(state.message.notification!.title!),
@@ -57,18 +55,17 @@ class HomePage extends StatelessWidget {
               );
 
               // Solo entrara en caso de ser un ALERT_ACTIVATED
-              if (action == true && type == 'ALERT_ACTIVATED') {
-                final type = state.message.data['type'];
-                if (type == 'ALERT_ACTIVATED') {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    Navigator.of(context).pushNamed('/map',
-                        arguments: state.message.data['room']);
-                  });
-                }
-              } else if (type == 'ALERT_DESACTIVATED') {
+              if (action == true && type != null && type == "ALERT_ACTIVATED") {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Navigator.of(context)
+                      .pushNamed('/map', arguments: state.message.data['room']);
+                });
+              } else if (type != null && type == 'ALERT_DESACTIVATED') {
                 final data = state.message.data;
                 // ignore: use_build_context_synchronously
                 context.read<AlertBloc>().add(RegisterContactAlert(data));
+                // ignore: use_build_context_synchronously
+                context.read<AlertBloc>().add(LoadAlertHistory());
               }
             }
           },
