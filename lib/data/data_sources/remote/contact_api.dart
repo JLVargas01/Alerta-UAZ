@@ -33,6 +33,27 @@ class ContactApi {
     }
   }
 
+  Future<Map<String, dynamic>?> getContactByPhone(
+      String contactListId, String phone) async {
+    String endpoint = '/byPhone/$contactListId/$phone';
+    Uri uri = Uri.parse('$_baseUrl$endpoint');
+
+    try {
+      final response = await HttpHelper.get(uri);
+
+      final data = json.decode(response.body);
+      if (response.statusCode == 200) {
+        return data;
+      } else if (response.statusCode == 404) {
+        return null;
+      } else {
+        throw 'Hubo un error en el servidor: ${data['message']}';
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<bool> sendIdsDeleteContact(
       String contactListId, String contactId) async {
     String endpoint = '/delete/$contactListId/$contactId';
