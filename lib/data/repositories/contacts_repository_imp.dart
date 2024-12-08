@@ -47,24 +47,35 @@ class ContactsRepositoryImpl {
         throw ('Los datos del contacto son inválidos');
       }
 
-      //Verificar si el contacto ya esta almacenado
-      final isExists = await _contactDB.contactExists(phone);
-      print('~~~~~~~~~~~EL CONTACTO EXISTE? $isExists');
-      if (isExists == true) {
-        throw 'El contacto ya esta agregado';
-      }
       return contact;
     } catch (e) {
       rethrow;
     }
   }
 
-  Future<String?> createContact(
+  Future<String> createContact(
       String newContactPhone, String newContactName) async {
     try {
       final contactListId = _user.idContactList!;
-      return await _contactApi.sendDataNewContact(
-          newContactName, newContactPhone, contactListId);
+
+      /// Antes de agregar se verifica que primero si ya había sido agregado
+      /// por el usuario.
+      final isContactAdded =
+          await _contactApi.getContactByPhone(contactListId, newContactPhone);
+
+      // En caso de que no exista... se agrega.
+      if (isContactAdded == null) {
+        final contactId = await _contactApi.sendDataNewContact(
+            newContactName, newContactPhone, contactListId);
+
+        if (contactId != null) {
+          return contactId;
+        } else {
+          throw 'Algo salió mal al intentar agregar el usuario.';
+        }
+      } else {
+        throw 'El contacto ya existe.';
+      }
     } catch (e) {
       rethrow;
     }
