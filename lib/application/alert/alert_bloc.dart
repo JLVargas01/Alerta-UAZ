@@ -39,11 +39,11 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
         try {
           // AGREGA ALERTA DEL USUARIO EMISOR.
           final data = await _alertRepositoryImp.registerAlert();
-          // Se envía una notificación que la alerta a finalizado.
-          // Esta notificación sirve como base para tener un registro de las
-          // alertas de los contactos.
-          await _alertRepositoryImp.sendAlertDesactivated(data);
-          add(LoadAlertHistory()); // Se vuelve a cargar el historial.
+
+          // Si se registro la alerta, podemos enviar notificación a los contactos.
+          if (data != null) {
+            await _alertRepositoryImp.sendAlertDesactivated(data);
+          }
         } catch (e) {
           emit(AlertError(message: e.toString(), title: 'alerta'));
         }
@@ -57,8 +57,6 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
           // AGREGAR ALERTA DEL CONTACTO.
           await _alertRepositoryImp
               .registerContactAlert(event.contactAlertData);
-
-          add(LoadAlertHistory()); // Se vuelve a cargar el historial.
         } catch (e) {
           emit(AlertError(message: e.toString(), title: 'alerta'));
         }
