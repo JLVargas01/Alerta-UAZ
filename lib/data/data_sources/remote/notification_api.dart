@@ -10,8 +10,8 @@ class NotificationApi {
       ApiConfig.getBaseUrl(ApiConfig.portNotification, 'notification');
 
   Future<void> sendNotification(
-      String contactsId, Map<String, Object> message) async {
-    String? endpoint = '/send/$contactsId';
+      String contactListId, Map<String, Object> message) async {
+    String? endpoint = '/send/$contactListId';
 
     final uri = Uri.parse('$_baseUrl$endpoint');
 
