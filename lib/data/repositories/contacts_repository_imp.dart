@@ -102,11 +102,11 @@ class ContactsRepositoryImpl {
     }
   }
 
-  Future<bool> deleteContact(String contactId) async {
+  Future<void> deleteContact(String contactId) async {
     try {
       final contactListId = _user.idContactList!;
+      await _contactApi.sendIdsDeleteContact(contactListId, contactId);
       await _contactDB.deleteContact(contactId);
-      return _contactApi.sendIdsDeleteContact(contactListId, contactId);
     } catch (e) {
       rethrow;
     }

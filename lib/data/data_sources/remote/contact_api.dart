@@ -54,7 +54,7 @@ class ContactApi {
     }
   }
 
-  Future<bool> sendIdsDeleteContact(
+  Future<void> sendIdsDeleteContact(
       String contactListId, String contactId) async {
     String endpoint = '/delete/$contactListId/$contactId';
     Uri uri = Uri.parse('$_baseUrl$endpoint');
@@ -62,14 +62,12 @@ class ContactApi {
     try {
       final response = await HttpHelper.delete(uri);
 
-      if (response.statusCode == 200) {
-        return true;
-      } else {
+      if (response.statusCode != 200) {
         final errorResponse = jsonDecode(response.body);
-        throw Exception('Error: ${errorResponse['error']}');
+        throw errorResponse['error'];
       }
     } catch (e) {
-      throw Exception('Error al eliminar contacto: $e');
+      rethrow;
     }
   }
 }
