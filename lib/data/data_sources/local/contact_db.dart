@@ -69,11 +69,6 @@ class ContactDB {
     }
   }
 
-  /// TODO: Buscar la manera de agregar al argumento el código del país.
-  /// Ya que al filtrar no encuentra coincidencias. Ejemplo del error:
-  /// String phone = 492 102 8987
-  /// QUERY - +524921028987 = 492 102 8987 / Como es diferente devuelve una lista vacía.
-  /// Qué causa este error: Agregar más de una vez al contacto tanto en local como en el servidor.
   Future<bool> contactExists(String phone) async {
     try {
       final db = await SQLiteHelper().getDatabase();
