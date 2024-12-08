@@ -10,7 +10,7 @@ class AlertReceived {
   final String idAlerta;
   String aliasContact;
   String nameUser;
-  DateTime dateReceived;
+  String dateReceived;
   //Media mediaRecivida
 
   AlertReceived({
@@ -24,6 +24,7 @@ class AlertReceived {
   Map<String, Object?> toMap() {
     return {
       'idAlertReceived': idAlertReceived,
+      'idAlerta': idAlerta,
       'aliasContact': aliasContact,
       'nameUser': nameUser,
       'dateReceived': dateReceived
