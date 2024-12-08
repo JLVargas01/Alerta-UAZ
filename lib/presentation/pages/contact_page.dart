@@ -26,9 +26,8 @@ class _ContactPageState extends State<ContactPage> {
         title: const Text('Contactos'),
       ),
       body: BlocListener<ContactsBloc, ContactsState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           if (state is NavigateToCompletePhonePage) {
-            final contactsBloc = context.read<ContactsBloc>();
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -37,9 +36,7 @@ class _ContactPageState extends State<ContactPage> {
                   contactName: state.nameContact,
                 ),
               ),
-            ).then((_) {
-              contactsBloc.add(LoadContactList());
-            });
+            );
           } else if (state is ContactAddedSuccessfully) {
             // Recarga los contactos al regresar
             context.read<ContactsBloc>().add(LoadContactList());
@@ -118,7 +115,6 @@ class _ContactPageState extends State<ContactPage> {
                       },
                     );
             } else {
-              context.read<ContactsBloc>().add(LoadContactList());
               return const Center(child: CircularProgressIndicator());
             }
           },

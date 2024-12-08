@@ -2,6 +2,7 @@ import 'package:alerta_uaz/application/contact/contact_event.dart';
 import 'package:alerta_uaz/application/contact/contact_state.dart';
 import 'package:alerta_uaz/data/data_sources/remote/contact_api.dart';
 import 'package:alerta_uaz/data/repositories/contacts_repository_imp.dart';
+import 'package:alerta_uaz/domain/model/my_contact_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_native_contact_picker/model/contact.dart';
 
@@ -14,13 +15,15 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
       emit(ContactsLoading());
       try {
         // Busca si hay contactos en local
-        final listLocal = await _contactsRepositoryImpl.loadContactsLocal();
-        if (listLocal.isNotEmpty) emit(ContactsLoaded(listLocal));
+        List<MyContact> list =
+            await _contactsRepositoryImpl.loadContactsLocal();
 
-        // Sino hay contactos en local, buscar en el servidor
-        final listServer = await _contactsRepositoryImpl.loadContactsServer();
-        // Mostrara los datos obtenidos, en caso de no obtener nada... igual dara una lista vacía.
-        emit(ContactsLoaded(listServer));
+        if (list.isEmpty) {
+          // Sino hay contactos en local, buscar en el servidor
+          list = await _contactsRepositoryImpl.loadContactsServer();
+        }
+
+        emit(ContactsLoaded(list));
       } catch (e) {
         emit(ContactsError(e.toString()));
       }
@@ -45,16 +48,20 @@ class ContactsBloc extends Bloc<ContactsEvent, ContactsState> {
     on<AddContact>((event, emit) async {
       emit(ContactsLoading());
       try {
-        final newContactId = await _contactsRepositoryImpl.createContact(
+        final contactId = await _contactsRepositoryImpl.createContact(
           event.phoneNumber,
           event.nameContact,
         );
 
-        await _contactsRepositoryImpl.saveContact(
-            newContactId, event.phoneNumber, event.nameContact);
-        emit(ContactAddedSuccessfully());
+        if (contactId != null && contactId.isNotEmpty) {
+          await _contactsRepositoryImpl.saveContact(
+              contactId, event.phoneNumber, event.nameContact);
+        }
       } catch (e) {
         emit(ContactsError(e.toString()));
+      } finally {
+        await Future.delayed(const Duration(milliseconds: 500));
+        emit(ContactAddedSuccessfully());
       }
     });
 

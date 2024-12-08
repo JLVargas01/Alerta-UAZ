@@ -38,9 +38,8 @@ class ContactsRepositoryImpl {
                   '${contactData['phone']['countryCode']}${contactData['phone']['nacionalNumber']}');
 
           await _contactDB.insertContact(contact);
+          newList.add(contact);
         }
-
-        newList = await _contactDB.getContacts(_user.id!);
       }
 
       return newList;
@@ -80,7 +79,7 @@ class ContactsRepositoryImpl {
     }
   }
 
-  Future<String> createContact(
+  Future<String?> createContact(
       String newContactPhone, String newContactName) async {
     try {
       final contactListId = _user.idContactList!;
@@ -90,19 +89,15 @@ class ContactsRepositoryImpl {
       final isContactAdded =
           await _contactApi.getContactByPhone(contactListId, newContactPhone);
 
-      // En caso de que no exista... se agrega.
-      if (isContactAdded == null) {
-        final contactId = await _contactApi.sendDataNewContact(
-            newContactName, newContactPhone, contactListId);
+      // Si existe... deja de ejecutar
+      if (isContactAdded != null) throw 'El contacto ya existe.';
 
-        if (contactId != null) {
-          return contactId;
-        } else {
-          throw 'Algo salió mal al intentar agregar el usuario.';
-        }
-      } else {
-        throw 'El contacto ya existe.';
-      }
+      final contactId = await _contactApi.sendDataNewContact(
+          newContactName, newContactPhone, contactListId);
+
+      if (contactId == null) throw 'No se pudo agregar el contacto.';
+
+      return contactId;
     } catch (e) {
       rethrow;
     }
