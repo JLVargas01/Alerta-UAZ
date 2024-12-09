@@ -18,12 +18,12 @@ class AlertsSent {
   }
 
   //Insertar nuevo registro de alerta enviada
-  Future<void> registerAlert(AlertSent alert) async {
+  Future<int > registerAlert(AlertSent alert) async {
     try {
       // Obtener referencia a la base de datos
       final db = await dbService.getDatabase();
 
-      await db.insert(
+      return await db.insert(
         tableName,
         alert.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
