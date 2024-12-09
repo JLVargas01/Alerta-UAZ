@@ -54,6 +54,7 @@ dependencies:
   location: ^6.0.2
   intl_phone_number_input: ^0.7.4
   flutter_map_animations: ^0.6.0
+  intl: ^0.20.0
 
 dev_dependencies:
   flutter_test:
