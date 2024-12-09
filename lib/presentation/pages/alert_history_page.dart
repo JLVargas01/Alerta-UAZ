@@ -3,7 +3,6 @@ import 'package:alerta_uaz/application/alert/alert_event.dart';
 import 'package:alerta_uaz/application/alert/alert_state.dart';
 import 'package:alerta_uaz/domain/model/alerts_received_model.dart';
 import 'package:alerta_uaz/domain/model/alerts_sent_model.dart';
-import 'package:alerta_uaz/presentation/widget/load_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -39,73 +38,116 @@ class _AlertHistoryPageState extends State<AlertHistoryPage>
         title: const Text('Historial de Alertas'),
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [Tab(text: 'Recibidas'), Tab(text: 'Enviadas')],
+          tabs: const [
+            Tab(text: 'Recibidas'),
+            Tab(text: 'Enviadas'),
+          ],
         ),
       ),
       body: BlocListener<AlertBloc, AlertState>(
         listener: (context, state) {
           if (state is AlertError) {
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: Text('Error en ${state.title}'),
-                content: Text(state.message!),
-                actions: [
-                  TextButton(
-                    onPressed: () => {Navigator.pop(context)},
-                    child: const Text('Cerrar'),
-                  ),
-                ],
-              ),
-            );
+            _showErrorDialog(context, state.title, state.message!);
           }
         },
         child: BlocBuilder<AlertBloc, AlertState>(
           builder: (context, state) {
-            if (state is AlertLoaded) {
-              // Seleccionar las alertas según la pestaña activa
-              final history = _tabController.index == 0
-                  ? state.contactAlertHistory
-                  : state.myAlertHistory;
-
-              // Si no hay ninguna alerta obtenida mostramos no disponible.
-              if (history == null) {
-                return const Center(
-                  child: Text('No hay alertas registradas.'),
-                );
-              }
-
-              return ListView.builder(
-                itemCount: history.length,
-                itemBuilder: (context, index) {
-                  if (_tabController.index == 0) {
-                    // Caso: Alertas recibidas (AlertReceived)
-                    final alert = history[index] as AlertReceived;
-                    return ListTile(
-                      leading: const Icon(Icons.notifications_active),
-                      title: Text(alert.nameUser),
-                      subtitle: Text(alert.dateReceived as String),
-                    );
-                  } else {
-                    // Caso: Alertas enviadas (AlertSent)
-                    final alert = history[index] as AlertSent;
-                    return ListTile(
-                      leading: const Icon(Icons.outbox),
-                      title: Text(
-                          "Latitud; ${alert.latitude} longitude: ${alert.longitude}"),
-                    );
-                  }
-                },
+            if (state is AlertLoading) {
+              return const Center(
+                child: CircularProgressIndicator(),
               );
-            } else if (state is AlertLoading) {
-              return LoadWidget(message: state.message);
-            } else if (state is AlertError) {
-              return const Center(child: Text('Error al cargar el historial.'));
-            } else {
-              return const SizedBox.shrink();
             }
+            if (state is AlertError) {
+              return Center(
+                child: Text('Error: ${state.message}'),
+              );
+            }
+            if (state is AlertLoaded) {
+              return _buildAlertList(state);
+            }
+            return const SizedBox.shrink();
           },
         ),
+      ),
+    );
+  }
+
+  Widget _buildAlertList(AlertLoaded state) {
+    final isReceivedTab = _tabController.index == 0;
+    final history = isReceivedTab
+        ? state.contactAlertHistory
+        : state.myAlertHistory;
+
+    if (history.isEmpty) {
+      return const Center(
+        child: Text(
+          'No hay alertas registradas.',
+          style: TextStyle(fontSize: 16),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(8.0),
+      itemCount: history.length,
+      itemBuilder: (context, index) {
+        final alert = history[index];
+        if (isReceivedTab && alert is AlertReceived) {
+          return _buildReceivedAlertCard(alert);
+        } else if (!isReceivedTab && alert is AlertSent) {
+          return _buildSentAlertCard(alert);
+        }
+        return const SizedBox.shrink();
+      },
+    );
+  }
+
+  Widget _buildReceivedAlertCard(AlertReceived alert) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 3),
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+      child: ListTile(
+        leading: const Icon(Icons.notifications_active, color: Colors.black),
+        title: Text(
+          alert.nameUser,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+        ),
+        subtitle: Text('Fecha: ${alert.dateReceived}'),
+      ),
+    );
+  }
+
+  Widget _buildSentAlertCard(AlertSent alert) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 3),
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+      child: ListTile(
+        leading: const Icon(Icons.outbox, color: Colors.black),
+        title: const Text(
+          "Ubicación y Fecha",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+        ),
+        subtitle: Text(
+          "Latitud: ${alert.latitude}\nLongitud: ${alert.longitude}\nFecha: ${alert.dateSended}"
+        )
+      ),
+    );
+  }
+
+  void _showErrorDialog(BuildContext context, String title, String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Error en $title'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cerrar'),
+          ),
+        ],
       ),
     );
   }

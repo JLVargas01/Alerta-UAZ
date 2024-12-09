@@ -11,19 +11,19 @@ class AlertsSent {
   Future<void> createTable(Database database) async {
     await database.execute("""CREATE TABLE IF NOT EXISTS $tableName (
         "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-        "userId" TEXT NOT NULL,
+        "dateSended" TEXT NOT NULL,
         "latitude" REAL NOT NULL,
         "longitude" REAL NOT NULL
       );""");
   }
 
   //Insertar nuevo registro de alerta enviada
-  Future<void> registerAlert(AlertSent alert) async {
+  Future<int > registerAlert(AlertSent alert) async {
     try {
       // Obtener referencia a la base de datos
       final db = await dbService.getDatabase();
 
-      await db.insert(
+      return await db.insert(
         tableName,
         alert.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
@@ -34,14 +34,13 @@ class AlertsSent {
   }
 
   // Obtener todas las alertas enviadas
-  Future<List<AlertSent>> getAlerts(String userId) async {
+  Future<List<AlertSent>> getAlerts() async {
     try {
       // Obtener referencia a la base de datos
       final db = await dbService.getDatabase();
 
       // Query a todas las alertas generadas y enviadas
-      final List<Map<String, Object?>> alertasEnviadasMap =
-          await db.query(tableName, where: 'userId = ?', whereArgs: [userId]);
+      final List<Map<String, Object?>> alertasEnviadasMap = await db.query(tableName);
 
       return alertasEnviadasMap.map((map) => AlertSent.fromMap(map)).toList();
     } catch (e) {
