@@ -80,36 +80,59 @@ class _AlertHistoryPageState extends State<AlertHistoryPage>
 
     if (history.isEmpty) {
       return const Center(
-        child: Text('No hay alertas registradas.'),
+        child: Text(
+          'No hay alertas registradas.',
+          style: TextStyle(fontSize: 16),
+        ),
       );
     }
 
     return ListView.builder(
+      padding: const EdgeInsets.all(8.0),
       itemCount: history.length,
       itemBuilder: (context, index) {
         final alert = history[index];
         if (isReceivedTab && alert is AlertReceived) {
-          return _buildReceivedAlertTile(alert);
+          return _buildReceivedAlertCard(alert);
         } else if (!isReceivedTab && alert is AlertSent) {
-          return _buildSentAlertTile(alert);
+          return _buildSentAlertCard(alert);
         }
         return const SizedBox.shrink();
       },
     );
   }
 
-  Widget _buildReceivedAlertTile(AlertReceived alert) {
-    return ListTile(
-      leading: const Icon(Icons.notifications_active),
-      title: Text(alert.nameUser),
-      subtitle: Text(alert.dateReceived),
+  Widget _buildReceivedAlertCard(AlertReceived alert) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 3),
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+      child: ListTile(
+        leading: const Icon(Icons.notifications_active, color: Colors.black),
+        title: Text(
+          alert.nameUser,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+        ),
+        subtitle: Text('Fecha: ${alert.dateReceived}'),
+      ),
     );
   }
 
-  Widget _buildSentAlertTile(AlertSent alert) {
-    return ListTile(
-      leading: const Icon(Icons.outbox),
-      title: Text("Latitud: ${alert.latitude}, Longitud: ${alert.longitude}"),
+  Widget _buildSentAlertCard(AlertSent alert) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 3),
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+      child: ListTile(
+        leading: const Icon(Icons.outbox, color: Colors.black),
+        title: const Text(
+          "Ubicación y Fecha",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+        ),
+        subtitle: Text(
+          "Latitud: ${alert.latitude}\nLongitud: ${alert.longitude}\nFecha: ${alert.dateSended}"
+        )
+      ),
     );
   }
 
