@@ -18,30 +18,48 @@ class AlertRepositoryImpl {
   AlertRepositoryImpl(this._notificationApi, this._alertApi);
 
   Future<void> registerAlert() async {
-    final String alertId = _user.idAlertList!;
+    try {
+      final String? idAlertList = _user.idAlertList;
+      if(idAlertList == null) {
+        throw 'Error al autenticar al usuario: idAlertList no existe';
+      }
 
-    // última ubicación a registrar.
-    final locationData = await Location().getLocation();
+      // última ubicación a registrar.
+      LocationData locationData = await Location().getLocation();
 
-    Map<String, dynamic> data = {
-      'coordinates': {
-        'latitude': locationData.latitude,
-        'longitude': locationData.longitude
-      },
-      'media':
-          'https://i.pinimg.com/736x/80/72/f9/8072f92472418239a3ff1a3d07e96bdd.jpg'
-    };
+      // Si los valores son nulos, se asignan ceros
+      // para que la aplicacion almenos emita la alarma
+      // y evitar excepciones
+      double latitud = locationData.latitude ?? 0.0;
+      double longitud = locationData.longitude ?? 0.0;
 
-    // Al final se registra la alerta en el servidor.
-    await _alertApi.addAlert(alertId, data);
+      Map<String, dynamic> data = {
+        'coordinates': {
+          'latitude': latitud,
+          'longitude': longitud
+        },
+        'media':
+            //  ¿Y esta imagen que o que -_-?
+            'https://i.pinimg.com/736x/80/72/f9/8072f92472418239a3ff1a3d07e96bdd.jpg'
+      };
 
-    // También se registra de manera local.
-    final newAlert = AlertSent(
-        userId: _user.id!,
-        latitude: locationData.latitude!,
-        longitude: locationData.longitude!);
+      // Se registra la alerta en el servidor.
+      String dateRecorded = await _alertApi.addAlert(idAlertList, data);
+      if(dateRecorded.isEmpty) {
+        //Si la fecha no existe, se registra la del dispositivo
+        dateRecorded = DateTime.now().toIso8601String();
+      }
 
-    await _myAlertHistory.registerAlert(newAlert);
+      //El guarda el registro de los datos de la alerta
+      AlertSent newAlert = AlertSent(
+        latitude: latitud, 
+        longitude: longitud,
+        dateSended: dateRecorded
+      );
+      await _myAlertHistory.registerAlert(newAlert);
+    } catch(e) {
+      rethrow;
+    }
   }
 
   Future<void> sendAlert(String room) async {
@@ -105,9 +123,9 @@ class AlertRepositoryImpl {
   // BORRAR CUANDO NO SE NECESITEN
   Future<void> insertAlertsDebug() async {
     AlertSent newAlertSent = AlertSent(
-      userId: _user.id!,
       latitude: 00,
-      longitude: 00
+      longitude: 00, 
+      dateSended: DateTime.now().toIso8601String(), 
     );
     await _myAlertHistory.registerAlert(newAlertSent);
 
