@@ -11,7 +11,7 @@ class AlertsSent {
   Future<void> createTable(Database database) async {
     await database.execute("""CREATE TABLE IF NOT EXISTS $tableName (
         "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-        "userId" TEXT NOT NULL,
+        "dateSended" TEXT NOT NULL,
         "latitude" REAL NOT NULL,
         "longitude" REAL NOT NULL
       );""");
