@@ -1,40 +1,37 @@
 //
 //  Modelo para almacenar las alertas enviadas por el usuario
-//  Esta pensado para funcionar con sqlite
+//  Pensado para funcionar con SQLite
 //  - JL
 //
 
 class AlertSent {
-  String userId;
-  double latitude;
-  double longitude;
-  //final String idAlertSent;
-  //DateTime dateSended;
-  //Media mediaEnviada
+  final double latitude;
+  final double longitude;
+  final String dateSended;
 
-  AlertSent(
-      {required this.userId, required this.latitude, required this.longitude});
+  AlertSent({
+    required this.latitude,
+    required this.longitude,
+    required this.dateSended
+  });
 
   Map<String, Object?> toMap() {
     return {
-      //'idAlertSent': idAlertSent,
-      //'dateSended': dateSended'
-      'userId': userId,
+      'dateSended': dateSended,
       'latitude': latitude,
-      'longitude': longitude
+      'longitude': longitude,
     };
   }
 
   factory AlertSent.fromMap(Map<String, Object?> map) {
     return AlertSent(
-        userId: map['userId'].toString(),
+        dateSended: map['dateSended'].toString(),
         latitude: double.parse(map['latitude'].toString()),
         longitude: double.parse(map['longitude'].toString()));
   }
 
   @override
   String toString() {
-    //return '{id: $idAlertSent, dateSended: $dateSended }';
-    return '{latitude: $latitude, longitude: $longitude }';
+    return '{latitude: $latitude, longitude: $longitude, dateSended: $dateSended }';
   }
 }
