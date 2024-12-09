@@ -6,6 +6,7 @@ import 'package:alerta_uaz/data/data_sources/remote/shake_detector_service.dart'
 import 'package:alerta_uaz/domain/model/alerts_received_model.dart';
 import 'package:alerta_uaz/domain/model/alerts_sent_model.dart';
 import 'package:alerta_uaz/domain/model/user_model.dart';
+import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 
 class AlertRepositoryImpl {
@@ -21,7 +22,7 @@ class AlertRepositoryImpl {
     try {
       final String? idAlertList = _user.idAlertList;
       if(idAlertList == null) {
-        throw 'Error al autenticar al usuario: idAlertList no existe';
+        throw 'Error al autenticar al usuario: Lista de alertas no existe';
       }
 
       // última ubicación a registrar.
@@ -44,17 +45,21 @@ class AlertRepositoryImpl {
       };
 
       // Se registra la alerta en el servidor.
-      String dateRecorded = await _alertApi.addAlert(idAlertList, data);
-      if(dateRecorded.isEmpty) {
+      String dateRecordedText = await _alertApi.addAlert(idAlertList, data);
+      DateTime dateRecordedDate =  DateTime.parse(dateRecordedText);
+      if(dateRecordedText.isEmpty) {
         //Si la fecha no existe, se registra la del dispositivo
-        dateRecorded = DateTime.now().toIso8601String();
+        dateRecordedDate = DateTime.now();
       }
+
+      // Formater al fecha
+      String formatedDate = DateFormat('dd-MM-yyyy HH:mm:ss').format(dateRecordedDate);
 
       //El guarda el registro de los datos de la alerta
       AlertSent newAlert = AlertSent(
         latitude: latitud, 
         longitude: longitud,
-        dateSended: dateRecorded
+        dateSended: formatedDate
       );
       await _myAlertHistory.registerAlert(newAlert);
     } catch(e) {
@@ -83,6 +88,7 @@ class AlertRepositoryImpl {
 
   Future<List<AlertSent>> loadMyAlertHistory() async {
     try {
+    //await insertAlertsDebug(); PARA DEBUG
     // OBtenemos el  historial de alerta enviadas
       AlertsSent myAlertsDB = AlertsSent();
       return await myAlertsDB.getAlerts();
@@ -122,6 +128,7 @@ class AlertRepositoryImpl {
   //  PARA DEBUG
   // BORRAR CUANDO NO SE NECESITEN
   Future<void> insertAlertsDebug() async {
+    await registerAlert();
     AlertSent newAlertSent = AlertSent(
       latitude: 00,
       longitude: 00, 
