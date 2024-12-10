@@ -8,16 +8,22 @@ class AlertApi {
   // Default: base url = http://localhost:3002/api/alert
   final _baseUrl = ApiConfig.getBaseUrl(ApiConfig.portAlert, 'alert');
 
-  Future<void> addAlert(Object alertId, Map<String, dynamic> data) async {
+  Future<String> addAlert(String alertId, Map<String, dynamic> data) async {
     final endpoint = '/add/$alertId';
     final uri = Uri.parse('$_baseUrl$endpoint');
 
     try {
       http.Response response = await HttpHelper.post(uri, data);
 
-      if (response.statusCode == 404) {
-        throw 'Error al registrar la alerta: La lista de alertas no existe.';
-      } else if (response.statusCode >= 500) {
+      if (response.statusCode == 201) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        final String dateNewAlert = responseData['dateNewAlert'];
+        // Retornar la fecha de la nueva alerta
+        return dateNewAlert;
+      } else if (response.statusCode == 404) {
+        // 'Error al registrar la alerta: La lista de alertas no existe
+        return '';
+      } else {
         throw HttpHelper.errorInServer;
       }
     } catch (e) {

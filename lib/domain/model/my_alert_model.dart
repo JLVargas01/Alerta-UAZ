@@ -5,25 +5,30 @@
 //
 
 class MyAlert {
-  String userId;
+  String uid; // ID del usuario actual
   double latitude;
   double longitude;
-  //DateTime dateSended;
+  String date;
   //Media mediaEnviada
 
-  MyAlert(this.userId, this.latitude, this.longitude);
+  MyAlert({
+    required this.uid,
+    required this.latitude,
+    required this.longitude,
+    required this.date,
+  });
 
   Map<String, Object?> toMap() {
-    return {'userId': userId, 'latitude': latitude, 'longitude': longitude};
-  }
-
-  factory MyAlert.fromMap(Map<String, dynamic> map) {
-    return MyAlert(map['userId'], map['coordinates']['latitude'],
-        map['coordinates']['longitude']);
+    return {
+      'uid': uid,
+      'latitude': latitude,
+      'longitude': longitude,
+      'date': date,
+    };
   }
 
   @override
   String toString() {
-    return '{latitude: $latitude, longitude: $longitude }';
+    return '{latitude: $latitude, longitude: $longitude, date: $date }';
   }
 }

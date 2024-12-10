@@ -26,7 +26,7 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
         String room = event.room;
         try {
           await _alertRepositoryImp.sendAlertActivated(room);
-          emit(AlertLoaded(message: 'La alerta fue envíada exitosamente.'));
+          emit(AlertMessage(message: 'La alerta fue envíada exitosamente.'));
         } catch (e) {
           emit(AlertError(message: e.toString(), title: 'notificación'));
         }
@@ -80,13 +80,11 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
         emit(AlertLoading());
 
         try {
-          final myAlertHistory = await _alertRepositoryImp.loadMyAlertHistory();
-          final contactAlertHistory =
+          final myHistory = await _alertRepositoryImp.loadMyAlertHistory();
+          final contactHistory =
               await _alertRepositoryImp.loadContactsAlertHistory();
 
-          emit(AlertLoaded(
-              myAlertHistory: myAlertHistory,
-              contactAlertHistory: contactAlertHistory));
+          emit(AlertLoaded(myHistory, contactHistory));
         } catch (e) {
           emit(AlertError(message: e.toString(), title: 'historial'));
         }

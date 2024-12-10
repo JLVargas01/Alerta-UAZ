@@ -16,10 +16,14 @@ class AlertLoading extends AlertState {
 }
 
 class AlertLoaded extends AlertState {
-  final List<MyAlert>? myAlertHistory;
-  final List<ContactAlert>? contactAlertHistory;
+  final List<MyAlert> myAlertHistory;
+  final List<ContactAlert> contactAlertHistory;
 
-  AlertLoaded({super.message, this.myAlertHistory, this.contactAlertHistory});
+  AlertLoaded(this.myAlertHistory, this.contactAlertHistory);
+}
+
+class AlertMessage extends AlertState {
+  AlertMessage({super.message});
 }
 
 class AlertError extends AlertState {

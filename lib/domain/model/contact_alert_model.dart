@@ -5,34 +5,33 @@
 //
 
 class ContactAlert {
-  String userId;
-  String username;
+  String uid; // ID del usuario actual
+  String username; // USERNAME del usuario que envío la alerta.
   double latitude;
   double longitude;
+  String date;
   //Media mediaRecivida
 
-  ContactAlert(this.userId, this.username, this.latitude, this.longitude);
+  ContactAlert({
+    required this.uid,
+    required this.username,
+    required this.latitude,
+    required this.longitude,
+    required this.date,
+  });
 
   Map<String, Object?> toMap() {
     return {
-      'userId': userId,
+      'uid': uid,
       'username': username,
       'latitude': latitude,
-      'longitude': longitude
+      'longitude': longitude,
+      'date': date,
     };
-  }
-
-  factory ContactAlert.fromMap(Map<String, dynamic> map) {
-    return ContactAlert(
-      map['userId'].toString(),
-      map['username'].toString(),
-      double.parse(map['coordinates_latitude'].toString()),
-      double.parse(map['coordinates_longitude'].toString()),
-    );
   }
 
   @override
   String toString() {
-    return '{ userId: $userId, username: $username, latitude: $latitude, longitude: $longitude }';
+    return '{ username: $username, latitude: $latitude, longitude: $longitude, date: $date }';
   }
 }
