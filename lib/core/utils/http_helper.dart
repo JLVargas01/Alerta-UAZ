@@ -17,7 +17,7 @@ class HttpHelper {
   static Future<http.Response> post(Uri url, Map<String, dynamic> data) async {
     try {
       return await http.post(url,
-          headers: _defaultHeaders(), body: jsonEncode(data));
+          headers: _defaultHeaders(), body: json.encode(data));
     } catch (e) {
       rethrow;
     }
@@ -39,9 +39,9 @@ class HttpHelper {
     }
   }
 
-  static Future<http.Response> patch(Uri url, Map<String, dynamic> data) async {
+  static Future<http.Response> patch(Uri url) async {
     try {
-      return await http.patch(url, body: data);
+      return await http.patch(url);
     } catch (e) {
       rethrow;
     }

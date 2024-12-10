@@ -1,22 +1,26 @@
 import 'package:alerta_uaz/data/data_sources/local/storage.dart';
-import 'package:alerta_uaz/data/data_sources/remote/database_service.dart';
-import 'package:alerta_uaz/data/data_sources/remote/firebase_service.dart';
+// <<<<<<< HEAD
+import 'package:alerta_uaz/data/data_sources/remote/firebase_messaging.dart';
+// =======
+// import 'package:alerta_uaz/data/data_sources/remote/database_service.dart';
+// import 'package:alerta_uaz/data/data_sources/remote/firebase_service.dart';
+// >>>>>>> development
 import 'package:alerta_uaz/data/data_sources/remote/user_api.dart';
 import 'package:alerta_uaz/domain/model/user_model.dart';
 import 'package:alerta_uaz/domain/repositories/auth_repository.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthWithGoogle implements AuthRepository {
-  final _googleSignIn = GoogleSignIn();
   final UserApi _userApi;
 
   final _user = User();
   final _storage = Storage("user");
+  final _googleSignIn = GoogleSignIn();
 
   AuthWithGoogle(this._userApi);
 
   @override
-  Future<void> logIn() async {
+  Future<User?> signIn() async {
     try {
       // Obtenemos el correo seleccionado por el usuario.
       GoogleSignInAccount? userGoogle = await _googleSignIn.signIn();
@@ -25,87 +29,55 @@ class AuthWithGoogle implements AuthRepository {
         throw 'No se selecciono ningún correo.';
       }
 
-      String email = userGoogle.email;
-      // Verificamos si el usuario ya está registrado.
-      Map<String, dynamic>? data = await _userApi.getUserByEmail(email);
+      // Verificamos si ya esta registrado.
+      final user = await _userApi.getUserByEmail(userGoogle.email);
+      // No está registrado.
+      if (user == null) return null;
 
-      if (data == null) throw 'Este correo no está registrado.';
-
-      _user.fromJson(data);
-
+      _user.fromJson(user);
+      await _googleSignIn.signOut();
       // Si lo encontró, entonces también actualizamos el token
-      String? token = await FirebaseService().getToken();
+      String? newtoken = await FirebaseMessagingService.getToken();
 
-      if (token == null) {
+      if (newtoken == null) {
         throw "Error al actualizar el token. Intentelo más tarde.";
       }
 
-      data = {
-        "token": token,
-      };
+      _user.token = await _userApi.updateToken(_user.id!, newtoken);
 
-      await _userApi.updateToken(_user.id!, data);
-
-      _user.token = token;
-
-      // Guardamos en local para abrir sesión cada vez que la app se cierra
-      await _storage.save(_user.toJson());
-    } catch (error) {
-      rethrow;
-    } finally {
+      return _user;
+    } catch (e) {
       await _googleSignIn.signOut();
+      rethrow;
     }
   }
 
   @override
-  Future<void> logOut() async {
+  Future<void> signOut() async {
     try {
       // Limpiamos el usuario registrado localmente.
       await _storage.clean();
       _user.clean();
-      // Eliminar la base de datos
-      final dbService = DatabaseService.instance;
-      await dbService.deleteDatabaseFile();
+      // // Eliminar la base de datos
+      // final dbService = DatabaseService.instance;
+      // await dbService.deleteDatabaseFile();
       // Borramos token para dejar de recibir notificaciones.
-      FirebaseService().deleteToken();
+      FirebaseMessagingService.deleteToken();
     } catch (e) {
       rethrow;
     }
   }
 
-  @override
-  Future<void> signIn() async {
+  Future<User> requestPhone(String phone) async {
     try {
-      // Obtenemos el correo seleccionado por el usuario.
-      GoogleSignInAccount? userGoogle = await _googleSignIn.signIn();
+      GoogleSignInAccount userGoogle = _googleSignIn.currentUser!;
 
-      if (userGoogle == null) {
-        throw 'No se selecciono ningún correo.';
-      }
-
-      // Verificamos si no ha sido registrado anteriormente.
-      final user = await _userApi.getUserByEmail(userGoogle.email);
-
-      if (user != null) {
-        throw 'Este correo ya se encuentra registrado.';
-      }
-
-      // Se obtiene los datos base para crear el usuario.
-      _user.name = userGoogle.displayName!;
+      // Completamos el registro del usuario.
+      _user.name = userGoogle.displayName;
       _user.email = userGoogle.email;
       _user.avatar = userGoogle.photoUrl;
-    } catch (e) {
-      rethrow;
-    } finally {
-      await _googleSignIn.signOut();
-    }
-  }
-
-  Future<void> requestPhone(String phone) async {
-    try {
-      // Completamos el registro del usuario.
       _user.phone = phone;
-      _user.token = await FirebaseService().getToken();
+      _user.token = await FirebaseMessagingService.getToken();
 
       // Se preparan para poder enviarlos al servidor.
       Map<String, dynamic>? data = _user.toJson();
@@ -114,21 +86,27 @@ class AuthWithGoogle implements AuthRepository {
 
       // Ahora el usuario está registrado.
       _user.fromJson(data!);
+      await _googleSignIn.signOut();
+      return _user;
     } catch (e) {
       rethrow;
     }
   }
 
   @override
-  Future<bool> checkUserAuthentication() async {
+  Future<User?> checkUserAuthentication() async {
     final isUserAuthenticated = await _storage.load();
 
     // NO hay ningún dato guardado de manera local.
-    if (isUserAuthenticated == null) return false;
+    if (isUserAuthenticated == null) return null;
 
     // Existe, ahora se usara en todo el ciclo de vide de la aplicación.
     _user.fromJson(isUserAuthenticated);
 
-    return true;
+    return _user;
+  }
+
+  void cancelAuth() async {
+    await _googleSignIn.signOut();
   }
 }

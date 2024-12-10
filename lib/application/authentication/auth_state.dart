@@ -4,8 +4,6 @@ abstract class AuthState {}
 
 class Authenticated extends AuthState {
   final user = User();
-
-  Authenticated();
 }
 
 class Unauthenticated extends AuthState {}

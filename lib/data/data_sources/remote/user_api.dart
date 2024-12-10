@@ -37,10 +37,9 @@ class UserApi {
 
     try {
       final response = await HttpHelper.get(uri);
-      final data = json.decode(response.body);
 
       if (response.statusCode == 200) {
-        return data; // Encontró el usuario.
+        return json.decode(response.body); // Encontró el usuario.
       } else if (response.statusCode == 404) {
         return null; // El usuario no existe.
       } else {
@@ -52,16 +51,17 @@ class UserApi {
   }
 
   // Función para actualizar token del usuario.
-  Future<void> updateToken(String userId, Map<String, dynamic> data) async {
-    final endpoint = '/byId/$userId/token';
+  Future<String> updateToken(String userId, String newToken) async {
+    final endpoint = '/byId/$userId/token/$newToken';
 
     final uri = Uri.parse('$_baseUrl$endpoint');
 
     try {
-      http.Response response = await HttpHelper.patch(uri, data);
-      data = json.decode(response.body);
+      http.Response response = await HttpHelper.patch(uri);
 
-      if (response.statusCode != 200) {
+      if (response.statusCode == 200) {
+        return json.decode(response.body)['token'];
+      } else {
         throw HttpHelper.errorInServer;
       }
     } catch (error) {

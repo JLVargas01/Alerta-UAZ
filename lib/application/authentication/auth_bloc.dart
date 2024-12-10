@@ -10,9 +10,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc() : super(Unauthenticated()) {
     on<CheckUserAuthentication>((event, emit) async {
       emit(AuthLoading());
-      bool isAuthenticated = await _authGoogle.checkUserAuthentication();
+      final isAuthenticated = await _authGoogle.checkUserAuthentication();
 
-      if (isAuthenticated) {
+      if (isAuthenticated != null) {
         emit(Authenticated());
       } else {
         emit(Unauthenticated());
@@ -22,8 +22,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<SignIn>((event, emit) async {
       emit(AuthLoading());
       try {
-        await _authGoogle.signIn();
-        emit(AuthNeedsPhoneNumber());
+// <<<<<<< HEAD
+        final isAuthenticated = await _authGoogle.signIn();
+
+        // Existe registro del usuario, se autentica
+        if (isAuthenticated != null) {
+          emit(Authenticated());
+        } else {
+          // El usuario no esta registrado, realizar formulario para nuevo registro.
+          emit(AuthNeedsPhoneNumber());
+        }
+// =======
+//         await _authGoogle.signIn();
+//         emit(AuthNeedsPhoneNumber());
+// >>>>>>> development
       } catch (e) {
         emit(AuthError(e.toString()));
         await Future.delayed(const Duration(milliseconds: 500));
@@ -31,24 +43,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       }
     });
 
-    on<LogIn>(
-      (event, emit) async {
-        emit(AuthLoading());
-        try {
-          await _authGoogle.logIn();
-          emit(Authenticated());
-        } catch (e) {
-          emit(AuthError(e.toString()));
-          await Future.delayed(const Duration(milliseconds: 500));
-          emit(Unauthenticated());
-        }
-      },
-    );
-
-    on<LogOut>((event, emit) async {
+    on<SignOut>((event, emit) async {
       try {
         emit(AuthLoading());
-        await _authGoogle.logOut();
+        await _authGoogle.signOut();
         emit(Unauthenticated());
       } catch (e) {
         AuthError(e.toString());
@@ -62,13 +60,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(Authenticated());
       } catch (e) {
         emit(AuthError(e.toString()));
-        await Future.delayed(const Duration(milliseconds: 500));
-        emit(Unauthenticated());
       }
     });
 
     on<CancelAuth>(
       (event, emit) {
+        _authGoogle.cancelAuth();
         emit(Unauthenticated());
       },
     );

@@ -1,4 +1,5 @@
-import 'package:alerta_uaz/application/contact-list_bloc.dart';
+import 'package:alerta_uaz/application/contact/contact_bloc.dart';
+import 'package:alerta_uaz/application/contact/contact_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
@@ -35,19 +36,22 @@ class _CompletePhonePageState extends State<CompletePhonePage> {
           .then((phoneNumber) {
         setState(() {
           _initialPhoneNumber = phoneNumber;
-          _phoneController.text = phoneNumber.phoneNumber ?? widget.initialPhoneNumber;
+          _phoneController.text =
+              phoneNumber.phoneNumber ?? widget.initialPhoneNumber;
         });
       }).catchError((error) {
         debugPrint('Error al obtener información del número: $error');
         // En caso de error, inicializa con el número proporcionado.
         setState(() {
-          _initialPhoneNumber = PhoneNumber(phoneNumber: widget.initialPhoneNumber, isoCode: 'MX');
+          _initialPhoneNumber = PhoneNumber(
+              phoneNumber: widget.initialPhoneNumber, isoCode: 'MX');
         });
       });
     } else {
       // Si no tiene prefijo, inicializamos con un valor predeterminado.
       setState(() {
-        _initialPhoneNumber = PhoneNumber(phoneNumber: widget.initialPhoneNumber, isoCode: 'MX');
+        _initialPhoneNumber =
+            PhoneNumber(phoneNumber: widget.initialPhoneNumber, isoCode: 'MX');
         _phoneController.text = widget.initialPhoneNumber;
       });
     }
@@ -56,13 +60,14 @@ class _CompletePhonePageState extends State<CompletePhonePage> {
   void _submitNumber() {
     if (_validatedPhoneNumber != null) {
       context.read<ContactsBloc>().add(AddContact(
-        _validatedPhoneNumber!,
-        widget.contactName,
-      ));
+            _validatedPhoneNumber!,
+            widget.contactName,
+          ));
       Navigator.of(context).pop(); // Cierra la página después de confirmar.
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor, valida el número correctamente.')),
+        const SnackBar(
+            content: Text('Por favor, valida el número correctamente.')),
       );
     }
   }
@@ -87,8 +92,9 @@ class _CompletePhonePageState extends State<CompletePhonePage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-              'Validar número para: ${widget.contactName}',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    'Validar número para: ${widget.contactName}',
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 20),
                   InternationalPhoneNumberInput(

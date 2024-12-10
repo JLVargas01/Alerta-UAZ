@@ -27,13 +27,14 @@ class _AlertPageState extends State<AlertPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Alerta'),
+        automaticallyImplyLeading: false,
       ),
       body: MultiBlocListener(
           listeners: [
             BlocListener<LocationBloc, LocationState>(
               listener: (context, state) {
                 if (state is LocationStarted) {
-                  // Una vez creado el cuarto, se comparte a los usuairos receptores
+                  // Una vez creado el cuarto, se manda la alerta a los contactos
                   context.read<AlertBloc>().add(SendAlert(state.room));
                 }
               },
@@ -78,8 +79,7 @@ class _AlertPageState extends State<AlertPage> {
                             final exit = await _stopAlert(context);
                             if (exit == true) {
                               WidgetsBinding.instance.addPostFrameCallback((_) {
-                                Navigator.of(context)
-                                    .pushReplacementNamed('/main');
+                                Navigator.of(context).pop();
                               });
                             }
                           },
@@ -112,8 +112,9 @@ class _AlertPageState extends State<AlertPage> {
           TextButton(
             onPressed: () => {
               context.read<LocationBloc>().add(StopSendingLocation()),
-              context.read<AlertBloc>().add(RegisterAlert()),
+              context.read<AlertBloc>().add(RegisterMyAlert()),
               context.read<AlertBloc>().add(ShakeAlert(false)),
+              context.read<AlertBloc>().add(LoadAlertHistory()),
               Navigator.pop(context, true)
             },
             child: const Text('Detener'),

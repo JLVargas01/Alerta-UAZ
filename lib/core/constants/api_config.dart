@@ -4,22 +4,13 @@ class ApiConfig {
   // config
   static final String protocol = dotenv.env['PROTOCOL'] ?? 'http';
   static final String hostname = dotenv.env['HOST_NAME'] ?? 'localhost';
-  static final String pref = dotenv.env['PREF'] ?? 'api';
+  static final String pref = dotenv.env['PREF'] ?? '/api';
   // ports
   static final String portUser = dotenv.env['PORT_USER'] ?? '3000';
-  static final String portSocket = dotenv.env['PORT_SOCKET'] ?? '3001';
   static final String portAlert = dotenv.env['PORT_ALERT'] ?? '3002';
+  static final String portSocket = dotenv.env['PORT_SOCKET'] ?? '3001';
   static final String portNotification =
       dotenv.env['PORT_NOTIFICATION'] ?? '3003';
-
-  // endpoints
-  // Usuario
-  static final String singIn = dotenv.env['USER_SIGN_IN'] ?? '';
-  static final String getInfoUserByEmail =
-      dotenv.env['USER_GET_USER_EMAIL'] ?? '/api/user/byEmail';
-  static final String createContact =
-      dotenv.env['USER_CREATE_CONTACT'] ?? '/api/contact/createContact';
-  static final String deleteContact = dotenv.env['USER_DELETE_CONTACT'] ?? '';
 
   static const headerKey = "********************************************";
 
@@ -31,7 +22,7 @@ class ApiConfig {
   static String getBaseUrl(String port, [String? service]) {
     final base = '$protocol://$hostname:$port';
     return service != null && service.trim().isNotEmpty
-        ? '$base/$pref/$service'
+        ? '$base$pref/$service'
         : base;
   }
 }

@@ -10,7 +10,13 @@ class SendAlert extends AlertEvent {
   SendAlert(this.room);
 }
 
-class RegisterAlert extends AlertEvent {}
+class RegisterMyAlert extends AlertEvent {}
+
+class RegisterContactAlert extends AlertEvent {
+  final Map<String, dynamic> contactAlertData;
+
+  RegisterContactAlert(this.contactAlertData);
+}
 
 class ShakeAlert extends AlertEvent {
   final bool isActivated;
