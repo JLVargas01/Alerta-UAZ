@@ -55,17 +55,22 @@ class AlertRepositoryImpl {
     LocationData locationData;
 
     // Envía constantemente la ubicación cada 5s
-    _timer = Timer.periodic(const Duration(seconds: 5), (_) async {
-      locationData = await Location().getLocation();
+    try {
+      _timer = Timer.periodic(const Duration(seconds: 5), (_) async {
+        locationData = await Location().getLocation();
 
-      _socket.emit('sendingCoordinates', {
-        'room': room,
-        'coordinates': {
-          'latitude': locationData.latitude,
-          'longitude': locationData.longitude
-        },
+        _socket.emit('sendingCoordinates', {
+          'room': room,
+          'coordinates': {
+            'latitude': locationData.latitude,
+            'longitude': locationData.longitude
+          },
+        });
       });
-    });
+    } catch (e) {
+      _timer?.cancel();
+      throw 'No se pudo obtener la localización por falta de permiso de ubicación.';
+    }
   }
 
   void stopSendLocation() {
@@ -107,42 +112,54 @@ class AlertRepositoryImpl {
   ///
 
   Future<Map<String, dynamic>> saveAlert() async {
-    final locationData = await Location().getLocation();
+    try {
+      final locationData = await Location().getLocation();
 
-    // Si los valores son nulos, se asignan ceros
-    // para que la aplicacion almenos emita la alarma
-    // y evitar excepciones
-    double latitude = locationData.latitude ?? 0.0;
-    double longitude = locationData.longitude ?? 0.0;
+      // Si los valores son nulos, se asignan ceros
+      // para que la aplicacion almenos emita la alarma
+      // y evitar excepciones
+      double latitude = locationData.latitude ?? 0.0;
+      double longitude = locationData.longitude ?? 0.0;
 
-    Map<String, dynamic> data = {
-      'date': DateTime.now().toIso8601String(),
-      'coordinates': {'latitude': latitude, 'longitude': longitude},
-      // 'media':
-      //     'https://i.pinimg.com/736x/80/72/f9/8072f92472418239a3ff1a3d07e96bdd.jpg'
-    };
+      Map<String, dynamic> data = {
+        'date': DateTime.now().toIso8601String(),
+        'coordinates': {'latitude': latitude, 'longitude': longitude},
+        // 'media':
+        //     'https://i.pinimg.com/736x/80/72/f9/8072f92472418239a3ff1a3d07e96bdd.jpg'
+      };
 
-    return data;
+      return data;
+    } catch (e) {
+      throw 'No se pudo crear los datos para registrar la alerta.';
+    }
   }
 
   void registerLocalMyAlert(Map<String, dynamic> data) async {
-    final newAlert = MyAlert(
-      uid: _user.id!,
-      latitude: data['coordinates']['latitude'],
-      longitude: data['coordinates']['longitude'],
-      date: DateFormat('dd-MM-yyyy HH:mm:ss').format(data['date']),
-    );
+    try {
+      final newAlert = MyAlert(
+        uid: _user.id!,
+        latitude: data['coordinates']['latitude'],
+        longitude: data['coordinates']['longitude'],
+        date: DateFormat('dd-MM-yyyy HH:mm:ss').format(data['date']),
+      );
 
-    await _myAlertsDB.registerAlert(newAlert);
+      await _myAlertsDB.registerAlert(newAlert);
+    } catch (e) {
+      throw 'No se pudo registrar en local la alerta.';
+    }
   }
 
   void registerServerMyAlert(Map<String, dynamic> data) async {
-    String? alertListId = _user.idAlertList;
+    try {
+      String? alertListId = _user.idAlertList;
 
-    if (alertListId == null) throw 'Lista de alerta del usuario no existe.';
+      if (alertListId == null) throw 'Lista de alerta del usuario no existe.';
 
-    // Se registra la alerta en el servidor.
-    await _alertApi.addAlert(alertListId, data);
+      // Se registra la alerta en el servidor.
+      await _alertApi.addAlert(alertListId, data);
+    } catch (e) {
+      throw 'No se pudo registrar en el servidor la alerta.';
+    }
   }
 
   Future<void> registerLocalContactAlert(Map<String, dynamic> data) async {
@@ -157,7 +174,7 @@ class AlertRepositoryImpl {
 
       await _contactAlertsDB.insertAlert(newContactAlert);
     } catch (e) {
-      throw 'Ocurrió un error al registrar la alerta del contacto: ${e.toString()}';
+      throw 'No se pudo registrar en local la alerta del contacto.';
     }
   }
 
@@ -189,7 +206,7 @@ class AlertRepositoryImpl {
     try {
       await _notificationApi.sendNotification(contactListId, message);
     } catch (e) {
-      throw 'Ocurrió un error al enviar la notificación: ${e.toString()}';
+      throw 'No se pudo enviar la notificación de alerta.';
     }
   }
 
@@ -221,7 +238,7 @@ class AlertRepositoryImpl {
     try {
       await _notificationApi.sendNotification(contactListId, message);
     } catch (e) {
-      throw 'Ocurrió un error al enviar la notificación: ${e.toString()}';
+      throw 'No se pudo enviar la notificación de alerta.';
     }
   }
 
@@ -259,7 +276,7 @@ class AlertRepositoryImpl {
 
       return history;
     } catch (e) {
-      throw 'Ocurrió un error al cargar el historial del usuario: ${e.toString()}';
+      throw 'No se pudo cargar tu historial de alertas.';
     }
   }
 
@@ -272,7 +289,7 @@ class AlertRepositoryImpl {
 
       return history;
     } catch (e) {
-      throw 'Ocurrió un error al cargar el historial de los contactos: ${e.toString()}';
+      throw 'No se pudo obtener el historial de alertas de los contactos.';
     }
   }
 
