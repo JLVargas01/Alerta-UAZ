@@ -52,47 +52,9 @@ class _AlertHistoryPageState extends State<AlertHistoryPage>
         },
         child: BlocBuilder<AlertBloc, AlertState>(
           builder: (context, state) {
-// <<<<<<< HEAD
-//             if (state is AlertLoaded) {
-//               // Seleccionar las alertas según la pestaña activa
-//               final history = _tabController.index == 0
-//                   ? state.contactAlertHistory
-//                   : state.myAlertHistory;
-
-//               // Si no hay ninguna alerta obtenida mostramos no disponible.
-//               if (history == null) {
-//                 return const Center(
-//                   child: Text('No hay alertas registradas.'),
-//                 );
-//               }
-
-//               return ListView.builder(
-//                 itemCount: history.length,
-//                 itemBuilder: (context, index) {
-//                   if (_tabController.index == 0) {
-//                     // Caso: Alertas recibidas (ContactAlert)
-//                     final alert = history[index] as ContactAlert;
-//                     return ListTile(
-//                       leading: const Icon(Icons.notifications_active),
-//                       title: Text(alert.username),
-//                       subtitle: Text(
-//                           "Latitud; ${alert.latitude} longitude: ${alert.longitude}"),
-//                     );
-//                   } else {
-//                     // Caso: Alertas enviadas (MyAlert)
-//                     final alert = history[index] as MyAlert;
-//                     return ListTile(
-//                       leading: const Icon(Icons.outbox),
-//                       title: Text(
-//                           "Latitud; ${alert.latitude} longitude: ${alert.longitude}"),
-//                     );
-//                   }
-//                 },
-// =======
             if (state is AlertLoading) {
               return const Center(
                 child: CircularProgressIndicator(),
-// >>>>>>> development
               );
             }
             if (state is AlertError) {
@@ -100,7 +62,7 @@ class _AlertHistoryPageState extends State<AlertHistoryPage>
                 child: Text('Error: ${state.message}'),
               );
             }
-            if (state is AlertLoaded) {
+            if (state is AlertLoadedHistory) {
               return _buildAlertList(state);
             }
             return const SizedBox.shrink();
@@ -110,7 +72,7 @@ class _AlertHistoryPageState extends State<AlertHistoryPage>
     );
   }
 
-  Widget _buildAlertList(AlertLoaded state) {
+  Widget _buildAlertList(AlertLoadedHistory state) {
     final isReceivedTab = _tabController.index == 0;
     final history =
         isReceivedTab ? state.contactAlertHistory : state.myAlertHistory;
