@@ -1,8 +1,12 @@
+import 'dart:async';
+
+import 'package:alerta_uaz/core/device/audio.dart';
 import 'package:alerta_uaz/core/device/shake_detector.dart';
 import 'package:alerta_uaz/data/data_sources/local/contact_alerts_db.dart';
 import 'package:alerta_uaz/data/data_sources/local/my_alerts_db.dart';
 import 'package:alerta_uaz/data/data_sources/remote/alert_api.dart';
 import 'package:alerta_uaz/data/data_sources/remote/notification_api.dart';
+import 'package:alerta_uaz/data/data_sources/remote/socket_service.dart';
 import 'package:alerta_uaz/domain/model/contact_alert_model.dart';
 import 'package:alerta_uaz/domain/model/my_alert_model.dart';
 import 'package:alerta_uaz/domain/model/user_model.dart';
@@ -10,68 +14,138 @@ import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 
 class AlertRepositoryImpl {
-  final NotificationApi _notificationApi;
+  Timer? _timer;
   final AlertApi _alertApi;
+  final NotificationApi _notificationApi;
+
   final _user = User();
+  final _audio = Audio();
   final _shake = ShakeDetector();
+  final _socket = SocketService();
   final _myAlertsDB = MyAlertsDB();
   final _contactAlertsDB = ContactAlertsDB();
 
   // Constructor
   AlertRepositoryImpl(this._notificationApi, this._alertApi);
 
-  /// Función que registra la alerta del emisor de manera local y
-  /// en el servidor.
-  Future<Map<String, dynamic>?> registerAlert() async {
-    try {
-      final String? idAlertList = _user.idAlertList;
-      if (idAlertList == null) {
-        throw 'Error al autenticar al usuario: Lista de alertas no existe';
-      }
+  /// Crea un cuarto dónde solo usuarios específicos podrán entrar
+  String get getRoom => '${DateTime.now()}:${_user.name}'.replaceAll(' ', '');
 
-      final locationData = await Location().getLocation();
+  void connectAlert() => _socket.connect();
 
-      // Si los valores son nulos, se asignan ceros
-      // para que la aplicacion almenos emita la alarma
-      // y evitar excepciones
-      double latitude = locationData.latitude ?? 0.0;
-      double longitude = locationData.longitude ?? 0.0;
+  void disconnectAlert() => _socket.disconnect();
 
-      Map<String, dynamic> data = {
-        'coordinates': {'latitude': latitude, 'longitude': longitude},
-        // 'media':
-        //     'https://i.pinimg.com/736x/80/72/f9/8072f92472418239a3ff1a3d07e96bdd.jpg'
-      };
-
-      // Se registra la alerta en el servidor.
-      String dateRecordedText = await _alertApi.addAlert(idAlertList, data);
-
-      DateTime dateRecordedDate = DateTime.parse(dateRecordedText);
-      if (dateRecordedText.isEmpty) {
-        //Si la fecha no existe, se registra la del dispositivo
-        dateRecordedDate = DateTime.now();
-      }
-
-      // Formater al fecha
-      String formatedDate =
-          DateFormat('dd-MM-yyyy HH:mm:ss').format(dateRecordedDate);
-
-      // Se registra la alerta en la base de datos local.
-      final newAlert = MyAlert(
-        uid: _user.id!,
-        latitude: latitude,
-        longitude: longitude,
-        date: formatedDate,
-      );
-
-      _myAlertsDB.registerAlert(newAlert);
-      return data;
-    } catch (e) {
-      throw 'Ocurrió un error al registrar la alerta del usuario: ${e.toString()}';
-    }
+  void joinRoomAlert(String room) {
+    _socket.emit('joinRoom', {'room': room, 'user': _user.name});
   }
 
-  Future<void> registerContactAlert(Map<String, dynamic> data) async {
+  ///
+  ///
+  ///----------------------------------------------# UBICACIÓN
+  ///
+  ///
+
+  void startReceivedLocation(Function(dynamic) handler) {
+    _socket.on('newCoordinates', handler);
+  }
+
+  void startSendLocation(String room) {
+    _socket.emit('createRoom', {'room': room, 'user': _user.name});
+
+    LocationData locationData;
+
+    // Envía constantemente la ubicación cada 5s
+    _timer = Timer.periodic(const Duration(seconds: 5), (_) async {
+      locationData = await Location().getLocation();
+
+      _socket.emit('sendingCoordinates', {
+        'room': room,
+        'coordinates': {
+          'latitude': locationData.latitude,
+          'longitude': locationData.longitude
+        },
+      });
+    });
+  }
+
+  void stopSendLocation() {
+    _timer!.cancel();
+  }
+
+  ///
+  ///
+  ///----------------------------------------------# AUDIO
+  ///
+  ///
+
+  void startSendAudio(String room) async {
+    await _audio.startAudioCapture();
+    final stream = _audio.streamAudio;
+
+    stream.listen((food) {
+      if (food.data != null) {
+        _socket.emit('sendingAudioCapture', {'room': room, 'data': food.data});
+      }
+    });
+  }
+
+  void startPlayAudio() async {
+    await _audio.startPlayAudioCapture();
+    _socket.on('audioCapture', (data) {
+      if (data != null) _audio.playAudioCapture(data);
+    });
+  }
+
+  void stopSendAudio() async => await _audio.stopAudioCapture();
+
+  void stopPlayAudio() async => await _audio.stopPlayAudioCapture();
+
+  ///
+  ///
+  ///----------------------------------------------# REGISTRO DE ALERTA
+  ///
+  ///
+
+  Future<Map<String, dynamic>> saveAlert() async {
+    final locationData = await Location().getLocation();
+
+    // Si los valores son nulos, se asignan ceros
+    // para que la aplicacion almenos emita la alarma
+    // y evitar excepciones
+    double latitude = locationData.latitude ?? 0.0;
+    double longitude = locationData.longitude ?? 0.0;
+
+    Map<String, dynamic> data = {
+      'date': DateTime.now().toIso8601String(),
+      'coordinates': {'latitude': latitude, 'longitude': longitude},
+      // 'media':
+      //     'https://i.pinimg.com/736x/80/72/f9/8072f92472418239a3ff1a3d07e96bdd.jpg'
+    };
+
+    return data;
+  }
+
+  void registerLocalMyAlert(Map<String, dynamic> data) async {
+    final newAlert = MyAlert(
+      uid: _user.id!,
+      latitude: data['coordinates']['latitude'],
+      longitude: data['coordinates']['longitude'],
+      date: DateFormat('dd-MM-yyyy HH:mm:ss').format(data['date']),
+    );
+
+    await _myAlertsDB.registerAlert(newAlert);
+  }
+
+  void registerServerMyAlert(Map<String, dynamic> data) async {
+    String? alertListId = _user.idAlertList;
+
+    if (alertListId == null) throw 'Lista de alerta del usuario no existe.';
+
+    // Se registra la alerta en el servidor.
+    await _alertApi.addAlert(alertListId, data);
+  }
+
+  Future<void> registerLocalContactAlert(Map<String, dynamic> data) async {
     try {
       final newContactAlert = ContactAlert(
         uid: _user.id!,
@@ -87,10 +161,16 @@ class AlertRepositoryImpl {
     }
   }
 
+  ///
+  ///
+  ///----------------------------------------------# ENVÍO DE NOTIFICACIONES
+  ///
+  ///
+
   /// Función que enviara una notificación de alerta a los contactos del usuario.
   /// Estructura especifica para que los contactos se enteren y obtengan
   /// datos del emisor.
-  Future<void> sendAlertActivated(String room) async {
+  void sendAlertActivated(String room) async {
     String contactListId = _user.idContactList!;
 
     Map<String, Object> message = {
@@ -145,6 +225,12 @@ class AlertRepositoryImpl {
     }
   }
 
+  ///
+  ///
+  ///----------------------------------------------# historial de alertas
+  ///
+  ///
+
   /// Función que busca si hay registro de alertas del usuario. Primero busca
   /// de manera local, en caso de no tener registro buscara en el servidor,
   /// en caso de que tampoco haya registro entonces retornara null.
@@ -158,8 +244,6 @@ class AlertRepositoryImpl {
       if (alertsRegistered.isNotEmpty) {
         // Almacenara uno por uno las alertas obtenidas del servidor.
         for (Map<String, dynamic> alert in alertsRegistered) {
-          DateTime date = DateTime.parse(alert['date'].toString());
-          alert['date'] = DateFormat('dd-MM-yyyy HH:mm:ss').format(date);
           final alertCast = MyAlert(
             uid: _user.id!,
             latitude: double.parse(alert['coordinates']['latitude'].toString()),
