@@ -32,6 +32,8 @@ class Audio {
 
   /// Detiene la captura y retorna la fuente del archivo donde se grabo el audio.
   Future<String?> stopAudioCapture() async {
+    if (!await Permission.microphone.isGranted) return null;
+
     return await _recorder.stopRecorder();
   }
 }
