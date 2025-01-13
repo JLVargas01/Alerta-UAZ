@@ -9,14 +9,14 @@ class MyAlert {
   double latitude;
   double longitude;
   String date;
-  String audio;
+  String? audio;
 
   MyAlert({
     required this.uid,
     required this.latitude,
     required this.longitude,
     required this.date,
-    required this.audio,
+    this.audio,
   });
 
   Map<String, Object?> toMap() {
@@ -31,6 +31,11 @@ class MyAlert {
 
   @override
   String toString() {
-    return '{latitude: $latitude, longitude: $longitude, date: $date, audio: $audio }';
+    return '{\n'
+        '\tlatitude: $latitude\n'
+        '\tlongitude: $longitude\n'
+        '\tdate: $date\n'
+        '\taudio: $audio\n'
+        '}';
   }
 }
