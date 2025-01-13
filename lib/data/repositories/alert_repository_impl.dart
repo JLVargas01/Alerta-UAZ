@@ -39,12 +39,6 @@ class AlertRepositoryImpl {
     _socket.emit('joinRoom', {'room': room, 'user': _user.name});
   }
 
-  ///
-  ///
-  ///----------------------------------------------# UBICACIÓN
-  ///
-  ///
-
   void startReceivedLocation(Function(dynamic) handler) {
     _socket.on('newCoordinates', handler);
   }
@@ -77,39 +71,19 @@ class AlertRepositoryImpl {
     _timer!.cancel();
   }
 
-  ///
-  ///
-  ///----------------------------------------------# AUDIO
-  ///
-  ///
-
-  void startSendAudio(String room) async {
-    await _audio.startAudioCapture();
-    final stream = _audio.streamAudio;
-
-    stream.listen((food) {
-      if (food.data != null) {
-        _socket.emit('sendingAudioCapture', {'room': room, 'data': food.data});
-      }
-    });
+  void startAudioCapture() async {
+    final fileName =
+        'ALERTA_${_user.name}_${DateTime.now()}'.replaceAll(' ', '');
+    await _audio.startAudioCapture(fileName);
   }
 
-  void startPlayAudio() async {
-    await _audio.startPlayAudioCapture();
-    _socket.on('audioCapture', (data) {
-      if (data != null) _audio.playAudioCapture(data);
-    });
+  Future<String> stopSendAudio() async {
+    final audioPath = await _audio.stopAudioCapture();
+
+    if (audioPath == null) throw 'No se pudo obtener el path del audio.';
+
+    return audioPath;
   }
-
-  void stopSendAudio() async => await _audio.stopAudioCapture();
-
-  void stopPlayAudio() async => await _audio.stopPlayAudioCapture();
-
-  ///
-  ///
-  ///----------------------------------------------# REGISTRO DE ALERTA
-  ///
-  ///
 
   Future<Map<String, dynamic>> saveAlert() async {
     try {
