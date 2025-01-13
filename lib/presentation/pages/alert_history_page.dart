@@ -128,8 +128,10 @@ class _AlertHistoryPageState extends State<AlertHistoryPage>
             "Ubicación y Fecha",
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
           ),
-          subtitle: Text(
-              "Latitud: ${alert.latitude}\nLongitud: ${alert.longitude}\nFecha: ${alert.date}")),
+          subtitle: Text("Latitud: ${alert.latitude}\n"
+              "Longitud: ${alert.longitude}\n"
+              "Fecha: ${alert.date}\n"
+              "Audio: ${alert.audio?.split('/').last ?? 'No se grabo audio.'}")),
     );
   }
 
