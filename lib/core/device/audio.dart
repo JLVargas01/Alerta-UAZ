@@ -1,50 +1,37 @@
 import 'dart:async';
 
 import 'package:flutter_sound/flutter_sound.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class Audio {
-  // Captura audio desde el microfono del dispositivo
   final FlutterSoundRecorder _recorder = FlutterSoundRecorder();
-  // Reproduce datos (chunks) de un audio
-  final FlutterSoundPlayer _player = FlutterSoundPlayer();
-  // Stream para recibir y enviar los datos (chunks)
-  late StreamController<FoodData> _audioStreamController;
 
-  Stream<FoodData> get streamAudio => _audioStreamController.stream;
+  /// Captura y guarda los datos del audio en un archivo.
+  Future<void> startAudioCapture(String fileName) async {
+    PermissionStatus microphoneStatus = await Permission.microphone.status;
 
-  //--------------------- CAPTURA DE AUDIO
+    // Si aún no se conseden los permisos para la captura de audio, preguntamos.
+    if (!microphoneStatus.isGranted) {
+      microphoneStatus = await Permission.microphone.request();
 
-  /// Inicializa la captura de audio, teniendo acceso al
-  /// microfono del dispositivo y capturando los chunks desde el StreamController
-  Future<void> startAudioCapture() async {
-    _audioStreamController = StreamController<FoodData>();
+      // Si el usuario no quiere dar permisos, simplemente no grabamos el audio.
+      if (!microphoneStatus.isGranted) return;
+    }
+
+    final directory = await getExternalStorageDirectory();
+    final audioPath = '${directory!.path}/$fileName.wav';
+
     await _recorder.openRecorder();
 
     await _recorder.startRecorder(
-      toStream: _audioStreamController.sink,
-      codec: Codec.pcm16, // Codificación de 16 bits
+      toFile: audioPath,
+      codec: Codec.pcm16WAV, // Codificación de 16 bits WAV
     );
   }
 
-  /// Detiene la captura del audio, dejando de tener acceso temporal
-  /// al microfono del dispositivo y cerrando temporalmente el StreamController
-  Future<void> stopAudioCapture() async {
-    await _recorder.stopRecorder();
-    await _audioStreamController.close();
-  }
-
-  //--------------------- REPRODUCIÓN DE AUDIO
-
-  Future<void> startPlayAudioCapture() async {
-    await _player.openPlayer();
-    await _player.startPlayerFromStream();
-  }
-
-  Future<void> playAudioCapture(dynamic data) async {
-    if (_player.isOpen()) await _player.feedFromStream(data);
-  }
-
-  Future<void> stopPlayAudioCapture() async {
-    await _player.stopPlayer();
+  /// Detiene la captura y retorna la fuente del archivo donde se grabo el audio.
+  Future<String?> stopAudioCapture() async {
+    return await _recorder.stopRecorder();
   }
 }
