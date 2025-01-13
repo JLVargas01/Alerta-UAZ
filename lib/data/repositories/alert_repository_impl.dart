@@ -96,7 +96,7 @@ class AlertRepositoryImpl {
       double longitude = locationData.longitude ?? 0.0;
 
       Map<String, dynamic> data = {
-        'date': DateTime.now().toIso8601String(),
+        'date': DateTime.now(),
         'coordinates': {'latitude': latitude, 'longitude': longitude},
         // 'media':
         //     'https://i.pinimg.com/736x/80/72/f9/8072f92472418239a3ff1a3d07e96bdd.jpg'
@@ -128,6 +128,10 @@ class AlertRepositoryImpl {
       String? alertListId = _user.idAlertList;
 
       if (alertListId == null) throw 'Lista de alerta del usuario no existe.';
+
+      // Cambiamos el formato de la fecha para poder almacenarlo de forma
+      // correcta en el servidor.
+      data['date'] = (data['date'] as DateTime).toIso8601String();
 
       // Se registra la alerta en el servidor.
       await _alertApi.addAlert(alertListId, data);
