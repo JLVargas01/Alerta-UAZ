@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:path_provider/path_provider.dart';
@@ -6,6 +7,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 class Audio {
   final FlutterSoundRecorder _recorder = FlutterSoundRecorder();
+  String? _path;
 
   /// Captura y guarda los datos del audio en un archivo.
   Future<void> startAudioCapture(String fileName) async {
@@ -20,12 +22,19 @@ class Audio {
     }
 
     final directory = await getExternalStorageDirectory();
-    final audioPath = '${directory!.path}/$fileName.wav';
+
+    final audioDirectory = Directory('${directory!.path}/Audio');
+
+    if (!await audioDirectory.exists()) {
+      await audioDirectory.create(recursive: true);
+    }
+
+    _path = '${audioDirectory.path}/$fileName.wav';
 
     await _recorder.openRecorder();
 
     await _recorder.startRecorder(
-      toFile: audioPath,
+      toFile: _path,
       codec: Codec.pcm16WAV, // Codificación de 16 bits WAV
     );
   }
@@ -34,6 +43,8 @@ class Audio {
   Future<String?> stopAudioCapture() async {
     if (!await Permission.microphone.isGranted) return null;
 
-    return await _recorder.stopRecorder();
+    await _recorder.stopRecorder();
+
+    return _path;
   }
 }
