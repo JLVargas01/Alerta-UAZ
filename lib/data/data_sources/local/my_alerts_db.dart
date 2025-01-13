@@ -19,7 +19,7 @@ class MyAlertsDB {
         $_latitude REAL NOT NULL,
         $_longitude REAL NOT NULL,
         $_date TEXT NOT NULL,
-        $_audio TEXT NOT NULL
+        $_audio TEXT NULL
       );""");
   }
 
@@ -55,7 +55,7 @@ class MyAlertsDB {
                 latitude: double.parse(alert['latitude'].toString()),
                 longitude: double.parse(alert['longitude'].toString()),
                 date: alert['date'].toString(),
-                audio: alert['audio'].toString(),
+                audio: alert['audio']?.toString(),
               ))
           .toList();
     } catch (e) {
