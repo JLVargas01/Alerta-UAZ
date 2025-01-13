@@ -55,7 +55,7 @@ class MyAlertsDB {
                 latitude: double.parse(alert['latitude'].toString()),
                 longitude: double.parse(alert['longitude'].toString()),
                 date: alert['date'].toString(),
-                audioPath: alert['audio'].toString(),
+                audio: alert['audio'].toString(),
               ))
           .toList();
     } catch (e) {
