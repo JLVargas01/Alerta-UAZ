@@ -63,7 +63,7 @@ class AlertRepositoryImpl {
       });
     } catch (e) {
       _timer?.cancel();
-      throw 'No se pudo obtener la localización por falta de permiso de ubicación.';
+      throw 'No se puede enviar datos de localización: ${e.toString()}';
     }
   }
 
@@ -72,17 +72,23 @@ class AlertRepositoryImpl {
   }
 
   void startAudioCapture() async {
-    final fileName =
-        'ALERTA_${_user.name}_${DateTime.now()}'.replaceAll(' ', '');
-    await _audio.startAudioCapture(fileName);
+    try {
+      final date = DateFormat('dd-MM-yyyy').format(DateTime.now());
+      final fileName = 'ALERTA_$date'.replaceAll(' ', '');
+      await _audio.startAudioCapture(fileName);
+    } catch (e) {
+      throw 'No se pudo iniciar la captura de audio: ${e.toString()}';
+    }
   }
 
-  Future<String> stopSendAudio() async {
-    final audioPath = await _audio.stopAudioCapture();
-
-    if (audioPath == null) throw 'No se pudo obtener el path del audio.';
-
-    return audioPath;
+  /// Detiene la grabación y retorna una fuente donde se almacenara el audio.
+  /// (SIEMPRE Y CUANDO SE HAYAN OTORGADO PERMISOS DE GRABACIÓN)
+  Future<String?> stopAudioCapture() async {
+    try {
+      return await _audio.stopAudioCapture();
+    } catch (e) {
+      throw 'No se pudo detener la captura de alerta: ${e.toString()}';
+    }
   }
 
   Future<Map<String, dynamic>> saveAlert() async {
@@ -97,18 +103,19 @@ class AlertRepositoryImpl {
 
       Map<String, dynamic> data = {
         'date': DateTime.now(),
-        'coordinates': {'latitude': latitude, 'longitude': longitude},
-        // 'media':
-        //     'https://i.pinimg.com/736x/80/72/f9/8072f92472418239a3ff1a3d07e96bdd.jpg'
+        'coordinates': {
+          'latitude': latitude,
+          'longitude': longitude,
+        }
       };
 
       return data;
     } catch (e) {
-      throw 'No se pudo crear los datos para registrar la alerta.';
+      throw 'No se pudo crear los datos para registrar la alerta: ${e.toString()}';
     }
   }
 
-  void registerLocalMyAlert(Map<String, dynamic> data, String audio) async {
+  void registerLocalMyAlert(Map<String, dynamic> data, String? audio) async {
     try {
       final newAlert = MyAlert(
         uid: _user.id!,
@@ -120,7 +127,7 @@ class AlertRepositoryImpl {
 
       await _myAlertsDB.registerAlert(newAlert);
     } catch (e) {
-      throw 'No se pudo registrar en local la alerta.';
+      throw 'No se pudo registrar en local la alerta: ${e.toString()}';
     }
   }
 
@@ -137,7 +144,7 @@ class AlertRepositoryImpl {
       // Se registra la alerta en el servidor.
       await _alertApi.addAlert(alertListId, data);
     } catch (e) {
-      throw 'No se pudo registrar en el servidor la alerta.';
+      throw 'No se pudo registrar en el servidor la alerta: ${e.toString()}';
     }
   }
 
@@ -153,15 +160,9 @@ class AlertRepositoryImpl {
 
       await _contactAlertsDB.insertAlert(newContactAlert);
     } catch (e) {
-      throw 'No se pudo registrar en local la alerta del contacto.';
+      throw 'No se pudo registrar en local la alerta del contacto: ${e.toString()}';
     }
   }
-
-  ///
-  ///
-  ///----------------------------------------------# ENVÍO DE NOTIFICACIONES
-  ///
-  ///
 
   /// Función que enviara una notificación de alerta a los contactos del usuario.
   /// Estructura especifica para que los contactos se enteren y obtengan
@@ -185,7 +186,7 @@ class AlertRepositoryImpl {
     try {
       await _notificationApi.sendNotification(contactListId, message);
     } catch (e) {
-      throw 'No se pudo enviar la notificación de alerta.';
+      throw 'No se pudo enviar la notificación de alerta: ${e.toString()}';
     }
   }
 
@@ -217,15 +218,9 @@ class AlertRepositoryImpl {
     try {
       await _notificationApi.sendNotification(contactListId, message);
     } catch (e) {
-      throw 'No se pudo enviar la notificación de alerta.';
+      throw 'No se pudo enviar la notificación de alerta: ${e.toString()}';
     }
   }
-
-  ///
-  ///
-  ///----------------------------------------------# historial de alertas
-  ///
-  ///
 
   /// Función que busca si hay registro de alertas del usuario. Primero busca
   /// de manera local, en caso de no tener registro buscara en el servidor,
@@ -256,7 +251,7 @@ class AlertRepositoryImpl {
 
       return history;
     } catch (e) {
-      throw 'No se pudo cargar tu historial de alertas.';
+      throw 'No se pudo cargar tu historial de alertas: ${e.toString()}';
     }
   }
 
@@ -269,7 +264,7 @@ class AlertRepositoryImpl {
 
       return history;
     } catch (e) {
-      throw 'No se pudo obtener el historial de alertas de los contactos.';
+      throw 'No se pudo obtener el historial de alertas de los contactos: ${e.toString()}';
     }
   }
 
