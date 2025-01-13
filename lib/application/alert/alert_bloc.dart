@@ -27,13 +27,11 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
       try {
         _alertRepositoryImp.sendAlertActivated(room);
         _alertRepositoryImp.startSendLocation(room);
-        _alertRepositoryImp.startSendAudio(room);
+        _alertRepositoryImp.startAudioCapture();
         emit(AlertLoaded(message: 'La alerta ha iniciado exitosamente.'));
       } catch (e) {
         emit(
-          AlertError(
-              message: 'Error al inicializar la alerta: ${e.toString()}',
-              title: 'Iniciar Alerta'),
+          AlertError(message: e.toString(), title: 'Iniciar Alerta'),
         );
       }
     });
@@ -44,12 +42,12 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
         try {
           _alertRepositoryImp.disconnectAlert();
           _alertRepositoryImp.stopSendLocation();
-          _alertRepositoryImp.stopSendAudio();
+          final audio = await _alertRepositoryImp.stopAudioCapture();
 
           // Se obtiene los datos necesarios para registrar la alerta
           Map<String, dynamic> data = await _alertRepositoryImp.saveAlert();
-          _alertRepositoryImp.registerServerMyAlert(data);
-          _alertRepositoryImp.registerLocalMyAlert(data);
+          // _alertRepositoryImp.registerServerMyAlert(data);
+          _alertRepositoryImp.registerLocalMyAlert(data, audio);
 
           /// Se les notifica a los contactos que la alerta ha finalizado y
           /// se les enviará los últimos datos del usuario emisor
@@ -57,9 +55,7 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
           emit(AlertLoaded(message: 'Alerta desactivada exitosamente.'));
         } catch (e) {
           emit(
-            AlertError(
-                message: 'Error al desactivar la alerta: ${e.toString()}',
-                title: 'Desactivar alerta'),
+            AlertError(message: e.toString(), title: 'Desactivar alerta'),
           );
         }
       },
@@ -78,12 +74,9 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
           _alertRepositoryImp.connectAlert();
           _alertRepositoryImp.joinRoomAlert(room);
           _alertRepositoryImp.startReceivedLocation(receivedLocationHanlder);
-          _alertRepositoryImp.startPlayAudio();
           emit(AlertLoaded(message: 'Conexión exitosa.'));
         } catch (e) {
-          emit(AlertError(
-              message: 'Error en alerta activada: ${e.toString()}',
-              title: 'Contacto Alerta'));
+          emit(AlertError(message: e.toString(), title: 'Contacto Alerta'));
         }
       },
     );
@@ -93,12 +86,10 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
         emit(AlertLoading(message: 'Realizando desconexión...'));
         try {
           _alertRepositoryImp.disconnectAlert();
-          _alertRepositoryImp.stopPlayAudio();
+          // _alertRepositoryImp.stopPlayAudio();
           emit(AlertLoaded(message: 'Desconexión exitosa.'));
         } catch (e) {
-          emit(AlertError(
-              message: 'Error en alerta desactivada: ${e.toString()}',
-              title: 'Contacto Alerta'));
+          emit(AlertError(message: e.toString(), title: 'Contacto Alerta'));
         }
       },
     );
@@ -143,9 +134,7 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
 
           emit(AlertLoadedHistory(myHistory, contactHistory));
         } catch (e) {
-          emit(AlertError(
-              message: 'Error al cargar el historial: ${e.toString()}',
-              title: 'Historial'));
+          emit(AlertError(message: e.toString(), title: 'Historial'));
         }
       },
     );
