@@ -108,13 +108,14 @@ class AlertRepositoryImpl {
     }
   }
 
-  void registerLocalMyAlert(Map<String, dynamic> data) async {
+  void registerLocalMyAlert(Map<String, dynamic> data, String audio) async {
     try {
       final newAlert = MyAlert(
         uid: _user.id!,
         latitude: data['coordinates']['latitude'],
         longitude: data['coordinates']['longitude'],
         date: DateFormat('dd-MM-yyyy HH:mm:ss').format(data['date']),
+        audio: audio,
       );
 
       await _myAlertsDB.registerAlert(newAlert);
@@ -234,23 +235,24 @@ class AlertRepositoryImpl {
       final history = await _myAlertsDB.getAlerts(_user.id!);
       if (history.isNotEmpty) return history;
 
-      final alertsRegistered = await _alertApi.getAlertList(_user.idAlertList!);
+      // COMENTADO TEMPORALMENTE
+      // final alertsRegistered = await _alertApi.getAlertList(_user.idAlertList!);
 
-      if (alertsRegistered.isNotEmpty) {
-        // Almacenara uno por uno las alertas obtenidas del servidor.
-        for (Map<String, dynamic> alert in alertsRegistered) {
-          final alertCast = MyAlert(
-            uid: _user.id!,
-            latitude: double.parse(alert['coordinates']['latitude'].toString()),
-            longitude:
-                double.parse(alert['coordinates']['longitude'].toString()),
-            date: alert['date'].toString(),
-          );
+      // if (alertsRegistered.isNotEmpty) {
+      //   // Almacenara uno por uno las alertas obtenidas del servidor.
+      //   for (Map<String, dynamic> alert in alertsRegistered) {
+      //     final alertCast = MyAlert(
+      //       uid: _user.id!,
+      //       latitude: double.parse(alert['coordinates']['latitude'].toString()),
+      //       longitude:
+      //           double.parse(alert['coordinates']['longitude'].toString()),
+      //       date: alert['date'].toString(),
+      //     );
 
-          await _myAlertsDB.registerAlert(alertCast);
-          history.add(alertCast);
-        }
-      }
+      //     await _myAlertsDB.registerAlert(alertCast);
+      //     history.add(alertCast);
+      //   }
+      // }
 
       return history;
     } catch (e) {
