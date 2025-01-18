@@ -73,16 +73,26 @@ class AlertRepositoryImpl {
 
   void startAudioCapture() async {
     try {
-      final date = DateFormat('dd-MM-yyyy').format(DateTime.now());
-      final fileName = 'ALERTA_$date'.replaceAll(' ', '');
+      DateTime now = DateTime.now();
+
+      // Formato: yyyyMMddHHmmssSSS (sin espacios ni símbolos)
+      final date = "${now.year}"
+          "${now.month.toString().padLeft(2, '0')}"
+          "${now.day.toString().padLeft(2, '0')}"
+          "${now.hour.toString().padLeft(2, '0')}"
+          "${now.minute.toString().padLeft(2, '0')}"
+          "${now.second.toString().padLeft(2, '0')}"
+          "${now.millisecond.toString().padLeft(3, '0')}";
+
+      final username = _user.name!.toUpperCase().replaceAll(' ', '_');
+
+      final fileName = 'ALERTA_${username}_$date';
       await _audio.startAudioCapture(fileName);
     } catch (e) {
       throw 'No se pudo iniciar la captura de audio: ${e.toString()}';
     }
   }
 
-  /// Detiene la grabación y retorna una fuente donde se almacenara el audio.
-  /// (SIEMPRE Y CUANDO SE HAYAN OTORGADO PERMISOS DE GRABACIÓN)
   Future<String?> stopAudioCapture() async {
     try {
       return await _audio.stopAudioCapture();
