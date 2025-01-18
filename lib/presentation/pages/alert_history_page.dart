@@ -3,6 +3,8 @@ import 'package:alerta_uaz/application/alert/alert_event.dart';
 import 'package:alerta_uaz/application/alert/alert_state.dart';
 import 'package:alerta_uaz/domain/model/contact_alert_model.dart';
 import 'package:alerta_uaz/domain/model/my_alert_model.dart';
+import 'package:alerta_uaz/domain/model/user_model.dart';
+import 'package:alerta_uaz/presentation/pages/alert_details_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -63,7 +65,7 @@ class _AlertHistoryPageState extends State<AlertHistoryPage>
               );
             }
             if (state is AlertLoadedHistory) {
-              return _buildAlertList(state);
+              return _buildAlertList(context, state);
             }
             return const SizedBox.shrink();
           },
@@ -72,7 +74,7 @@ class _AlertHistoryPageState extends State<AlertHistoryPage>
     );
   }
 
-  Widget _buildAlertList(AlertLoadedHistory state) {
+  Widget _buildAlertList(BuildContext context, AlertLoadedHistory state) {
     final isReceivedTab = _tabController.index == 0;
     final history =
         isReceivedTab ? state.contactAlertHistory : state.myAlertHistory;
@@ -86,18 +88,25 @@ class _AlertHistoryPageState extends State<AlertHistoryPage>
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(8.0),
-      itemCount: history.length,
-      itemBuilder: (context, index) {
-        final alert = history[index];
-        if (isReceivedTab && alert is ContactAlert) {
-          return _buildReceivedAlertCard(alert);
-        } else if (!isReceivedTab && alert is MyAlert) {
-          return _buildSentAlertCard(alert);
-        }
-        return const SizedBox.shrink();
-      },
+    return Container(
+      padding: const EdgeInsets.all(10),
+      child: Column(
+        children: [
+          ListView.builder(
+            shrinkWrap: true,
+            itemCount: history.length,
+            itemBuilder: (context, index) {
+              final alert = history[index];
+              if (isReceivedTab && alert is ContactAlert) {
+                return _buildReceivedAlertCard(alert);
+              } else if (!isReceivedTab && alert is MyAlert) {
+                return _buildSentAlertCard(context, alert);
+              }
+              return const SizedBox.shrink();
+            },
+          )
+        ],
+      ),
     );
   }
 
@@ -117,22 +126,49 @@ class _AlertHistoryPageState extends State<AlertHistoryPage>
     );
   }
 
-  Widget _buildSentAlertCard(MyAlert alert) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 3),
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-      child: ListTile(
-          leading: const Icon(Icons.outbox, color: Colors.black),
-          title: const Text(
-            "Ubicación y Fecha",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-          ),
-          subtitle: Text("Latitud: ${alert.latitude}\n"
-              "Longitud: ${alert.longitude}\n"
-              "Fecha: ${alert.date}\n"
-              "Audio: ${alert.audio?.split('/').last ?? 'No se grabo audio.'}")),
+  Widget _buildSentAlertCard(BuildContext context, MyAlert alert) {
+    return ListTile(
+      title: Text(alert.uid),
+      subtitle: Text('Fecha: ${alert.date}'),
+      leading: CircleAvatar(
+        backgroundImage:
+            User().avatar != null ? NetworkImage(User().avatar!) : null,
+        child:
+            User().avatar == null ? const Icon(Icons.person, size: 90) : null,
+      ),
+      onTap: () {
+        Map<String, dynamic> data = {
+          'username': User().name,
+          'avatar': User().avatar,
+          'coordinates': {
+            'latitude': alert.latitude,
+            'longitude': alert.longitude,
+          },
+          'date': alert.date,
+          'audio': alert.audio
+        };
+
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => AlertDetailsPage(
+                  alert: data,
+                )));
+      },
     );
+    // return Card(
+    //   margin: const EdgeInsets.symmetric(vertical: 3),
+    //   elevation: 4,
+    //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+    //   child: ListTile(
+    //       leading: const Icon(Icons.outbox, color: Colors.black),
+    //       title: const Text(
+    //         "Ubicación y Fecha",
+    //         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+    //       ),
+    //       subtitle: Text("Latitud: ${alert.latitude}\n"
+    //           "Longitud: ${alert.longitude}\n"
+    //           "Fecha: ${alert.date}\n"
+    //           "Audio: ${alert.audio?.split('/').last ?? 'No se grabo audio.'}")),
+    // );
   }
 
   void _showErrorDialog(BuildContext context, String title, String message) {
