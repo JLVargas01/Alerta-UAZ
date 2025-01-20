@@ -9,10 +9,12 @@ class ContactAlertsDB {
   final _uid = 'uid'; // Columna que representa el usuario actual.
   // Columna que representa el nombre de usuario quien envío la alerta.
   final _username = 'username';
+  final _avatar = 'avatar';
   // Columna almacenado coordenada.
   final _latitude = 'latitude';
   final _longitude = 'longitude';
   final _date = 'date'; // Columna que representa la fecha de la alerta enviada.
+  final _audio = 'audio';
 
   //Crear la tabla para las alertas recibidas de otros usuarios
   Future<void> createTable(Database database) async {
@@ -20,14 +22,16 @@ class ContactAlertsDB {
         "id" INTEGER PRIMARY KEY AUTOINCREMENT,
         $_uid TEXT NOT NULL,
         $_username TEXT NOT NULL,
+        $_avatar TEXT NULL,
         $_latitude REAL NOT NULL,
         $_longitude REAL NOT NULL,
-        $_date TEXT NOT NULL
+        $_date TEXT NOT NULL,
+        $_audio TEXT NULL
       );""");
   }
 
   //Insertar nuevo registro de alerta recibidas
-  Future<void> insertAlert(ContactAlert alert) async {
+  Future<void> registerAlert(ContactAlert alert) async {
     try {
       // Obtener referencia a la base de datos
       final db = await SQLiteHelper().getDatabase();
@@ -56,9 +60,11 @@ class ContactAlertsDB {
           .map((alert) => ContactAlert(
                 uid: alert['uid'].toString(),
                 username: alert['username'].toString(),
+                avatar: alert['avatar']?.toString(),
                 latitude: double.parse(alert['latitude'].toString()),
                 longitude: double.parse(alert['longitude'].toString()),
                 date: alert['date'].toString(),
+                audio: alert['audio']?.toString(),
               ))
           .toList();
     } catch (e) {
