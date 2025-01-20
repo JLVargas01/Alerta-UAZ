@@ -53,6 +53,20 @@ class ReceivingLocationContactAlert extends AlertEvent {
   ReceivingLocationContactAlert(this.location);
 }
 
+/// Descarga un archivo existente del servidor.
+class DownloadAudioAlert extends AlertEvent {
+  final String filename;
+
+  DownloadAudioAlert(this.filename);
+}
+
+/// Verifica si el archivo existe localmente.
+class CheckAudioAlert extends AlertEvent {
+  final String? filename;
+
+  CheckAudioAlert(this.filename);
+}
+
 class ShakeAlert extends AlertEvent {
   final bool isActivated;
 
