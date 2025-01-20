@@ -42,12 +42,13 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
         try {
           _alertRepositoryImp.disconnectAlert();
           _alertRepositoryImp.stopSendLocation();
-          final audio = await _alertRepositoryImp.stopAudioCapture();
+
+          final path = await _alertRepositoryImp.stopAudioCapture();
 
           // Se obtiene los datos necesarios para registrar la alerta
-          Map<String, dynamic> data = await _alertRepositoryImp.saveAlert();
-          // _alertRepositoryImp.registerServerMyAlert(data);
-          _alertRepositoryImp.registerLocalMyAlert(data, audio);
+          Map<String, dynamic> data = await _alertRepositoryImp.saveAlert(path);
+          _alertRepositoryImp.registerLocalMyAlert(data);
+          _alertRepositoryImp.registerServerMyAlert(data, path);
 
           /// Se les notifica a los contactos que la alerta ha finalizado y
           /// se les enviará los últimos datos del usuario emisor
@@ -135,6 +136,48 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
           emit(AlertLoadedHistory(myHistory, contactHistory));
         } catch (e) {
           emit(AlertError(message: e.toString(), title: 'Historial'));
+        }
+      },
+    );
+
+    on<CheckAudioAlert>((event, emit) async {
+      emit(AlertLoading());
+      try {
+        String? filename = event.filename;
+
+        if (filename == null) {
+          emit(AlertAudioNotExists(
+              message: 'No se realizo grabación de audio para esta alerta'));
+        } else {
+          final file = await _alertRepositoryImp.checkAudio(filename);
+
+          if (file != null) {
+            emit(AlertAudioDownloaded(file));
+          } else {
+            emit(AlertAudioExists());
+          }
+        }
+      } catch (e) {
+        emit(AlertError(message: e.toString(), title: 'Audio'));
+      }
+    });
+
+    on<DownloadAudioAlert>(
+      (event, emit) async {
+        emit(AlertLoading());
+        try {
+          final filename = event.filename;
+          final audio = await _alertRepositoryImp.downloadAudio(filename);
+
+          if (audio != null) {
+            emit(AlertAudioDownloaded(audio));
+          } else {
+            // El audio ha sido borrado del servidor.
+            emit(AlertAudioNotExists(
+                message: 'El audio ya no está disponible.'));
+          }
+        } catch (e) {
+          emit(AlertError(message: e.toString(), title: 'Descargar'));
         }
       },
     );
