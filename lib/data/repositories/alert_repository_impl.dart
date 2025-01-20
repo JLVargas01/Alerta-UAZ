@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:alerta_uaz/core/device/audio.dart';
 import 'package:alerta_uaz/core/device/shake_detector.dart';
@@ -12,6 +13,7 @@ import 'package:alerta_uaz/domain/model/my_alert_model.dart';
 import 'package:alerta_uaz/domain/model/user_model.dart';
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
+import 'package:path/path.dart';
 
 class AlertRepositoryImpl {
   Timer? _timer;
@@ -38,6 +40,10 @@ class AlertRepositoryImpl {
   void joinRoomAlert(String room) {
     _socket.emit('joinRoom', {'room': room, 'user': _user.name});
   }
+
+  //
+  // Ubicación /////////////////////////////////////////////////////////////////
+  //
 
   void startReceivedLocation(Function(dynamic) handler) {
     _socket.on('newCoordinates', handler);
@@ -71,6 +77,10 @@ class AlertRepositoryImpl {
     _timer!.cancel();
   }
 
+  //
+  // Audio /////////////////////////////////////////////////////////////////////
+  //
+
   void startAudioCapture() async {
     try {
       DateTime now = DateTime.now();
@@ -86,8 +96,8 @@ class AlertRepositoryImpl {
 
       final username = _user.name!.toUpperCase().replaceAll(' ', '_');
 
-      final fileName = 'ALERTA_${username}_$date';
-      await _audio.startAudioCapture(fileName);
+      final filename = 'ALERTA_${username}_$date';
+      await _audio.startAudioCapture(filename);
     } catch (e) {
       throw 'No se pudo iniciar la captura de audio: ${e.toString()}';
     }
@@ -101,7 +111,22 @@ class AlertRepositoryImpl {
     }
   }
 
-  Future<Map<String, dynamic>> saveAlert() async {
+  Future<File?> downloadAudio(String filename) async {
+    final path = await _audio.getAudioPath();
+    final bytes = await _alertApi.downloadAudio(filename);
+
+    File audio = File('$path/$filename');
+
+    return bytes != null ? await audio.writeAsBytes(bytes) : null;
+  }
+
+  Future<File?> checkAudio(String filename) => _audio.checkAudio(filename);
+
+  //
+  // Registro //////////////////////////////////////////////////////////////////
+  //
+
+  Future<Map<String, dynamic>> saveAlert(String? path) async {
     try {
       final locationData = await Location().getLocation();
 
@@ -116,7 +141,8 @@ class AlertRepositoryImpl {
         'coordinates': {
           'latitude': latitude,
           'longitude': longitude,
-        }
+        },
+        'media': path != null ? basename(path) : null,
       };
 
       return data;
@@ -125,14 +151,14 @@ class AlertRepositoryImpl {
     }
   }
 
-  void registerLocalMyAlert(Map<String, dynamic> data, String? audio) async {
+  void registerLocalMyAlert(Map<String, dynamic> data) async {
     try {
       final newAlert = MyAlert(
         uid: _user.id!,
         latitude: data['coordinates']['latitude'],
         longitude: data['coordinates']['longitude'],
-        date: DateFormat('dd-MM-yyyy HH:mm:ss').format(data['date']),
-        audio: audio,
+        date: DateFormat('dd/MM/yyyy - HH:mm:ss').format(data['date']),
+        audio: data['media'],
       );
 
       await _myAlertsDB.registerAlert(newAlert);
@@ -141,7 +167,7 @@ class AlertRepositoryImpl {
     }
   }
 
-  void registerServerMyAlert(Map<String, dynamic> data) async {
+  void registerServerMyAlert(Map<String, dynamic> data, String? path) async {
     try {
       String? alertListId = _user.idAlertList;
 
@@ -149,10 +175,13 @@ class AlertRepositoryImpl {
 
       // Cambiamos el formato de la fecha para poder almacenarlo de forma
       // correcta en el servidor.
-      data['date'] = (data['date'] as DateTime).toIso8601String();
+      // data['date'] = (data['date'] as DateTime).toIso8601String();
 
       // Se registra la alerta en el servidor.
       await _alertApi.addAlert(alertListId, data);
+      // Registramos el audio también en el servidor
+      // print('Registrando audio...');
+      if (path != null) await _alertApi.uploadAudio(path);
     } catch (e) {
       throw 'No se pudo registrar en el servidor la alerta: ${e.toString()}';
     }
@@ -173,6 +202,10 @@ class AlertRepositoryImpl {
       throw 'No se pudo registrar en local la alerta del contacto: ${e.toString()}';
     }
   }
+
+  //
+  // Notificación //////////////////////////////////////////////////////////////
+  //
 
   /// Función que enviara una notificación de alerta a los contactos del usuario.
   /// Estructura especifica para que los contactos se enteren y obtengan
@@ -196,6 +229,7 @@ class AlertRepositoryImpl {
     try {
       await _notificationApi.sendNotification(contactListId, message);
     } catch (e) {
+      _audio.stopAudioCapture();
       throw 'No se pudo enviar la notificación de alerta: ${e.toString()}';
     }
   }
@@ -203,7 +237,7 @@ class AlertRepositoryImpl {
   /// Función que envía notificación a contactos de que el usuario a
   /// desactivado la alerta, dejando de emitir datos y enviando cuál
   /// fue la última ubicación del hecho.
-  Future<void> sendAlertDesactivated(Map<String, dynamic> data) async {
+  void sendAlertDesactivated(Map<String, dynamic> data) async {
     String contactListId = _user.idContactList!;
 
     // Se realiza otra data para evitar fallos al enviar notificación.
@@ -211,7 +245,7 @@ class AlertRepositoryImpl {
       'username': _user.name,
       'coordinates_latitude': data['coordinates']['latitude'].toString(),
       'coordinates_longitude': data['coordinates']['longitude'].toString(),
-      'date': DateFormat('dd-MM-yyyy HH:mm:ss').format(DateTime.now()),
+      'date': DateFormat('dd/MM/yyyy - HH:mm:ss').format(data['date']),
       // 'avatar': _user.avatar,
       'type': 'ALERT_DESACTIVATED'
     };
@@ -232,32 +266,35 @@ class AlertRepositoryImpl {
     }
   }
 
-  /// Función que busca si hay registro de alertas del usuario. Primero busca
-  /// de manera local, en caso de no tener registro buscara en el servidor,
-  /// en caso de que tampoco haya registro entonces retornara null.
+  //
+  // Historial /////////////////////////////////////////////////////////////////
+  //
+
+  /// Retorna una lista de alertas emitidas, si no hay ningun registro en local
+  /// verifica si hay registros en el servidor.
   Future<List<MyAlert>> loadMyAlertHistory() async {
     try {
       final history = await _myAlertsDB.getAlerts(_user.id!);
       if (history.isNotEmpty) return history;
 
-      // COMENTADO TEMPORALMENTE
-      // final alertsRegistered = await _alertApi.getAlertList(_user.idAlertList!);
+      final alertsRegistered = await _alertApi.getAlertList(_user.idAlertList!);
 
-      // if (alertsRegistered.isNotEmpty) {
-      //   // Almacenara uno por uno las alertas obtenidas del servidor.
-      //   for (Map<String, dynamic> alert in alertsRegistered) {
-      //     final alertCast = MyAlert(
-      //       uid: _user.id!,
-      //       latitude: double.parse(alert['coordinates']['latitude'].toString()),
-      //       longitude:
-      //           double.parse(alert['coordinates']['longitude'].toString()),
-      //       date: alert['date'].toString(),
-      //     );
+      // Almacenara uno por uno las alertas obtenidas del servidor.
+      for (Map<String, dynamic> alert in alertsRegistered) {
+        alert['date'] = DateTime.parse(alert['date'].toString());
 
-      //     await _myAlertsDB.registerAlert(alertCast);
-      //     history.add(alertCast);
-      //   }
-      // }
+        final getAlert = MyAlert(
+          uid: _user.id!,
+          latitude: double.parse(alert['coordinates']['latitude'].toString()),
+          longitude: double.parse(alert['coordinates']['longitude'].toString()),
+          date: DateFormat('dd/MM/yyyy - HH:mm:ss').format(alert['date']),
+          audio: alert['media'],
+        );
+
+        await _myAlertsDB.registerAlert(getAlert);
+
+        history.add(getAlert);
+      }
 
       return history;
     } catch (e) {
@@ -265,9 +302,7 @@ class AlertRepositoryImpl {
     }
   }
 
-  /// Función que busca si hay registro de alertas de los contactos. Estos
-  /// solo están disponibles de manera local, por lo que si no hay registro...
-  /// entonces se retornara null.
+  /// Retorna una lista de alertas recibidas.
   Future<List<ContactAlert>> loadContactsAlertHistory() async {
     try {
       final history = await _contactAlertsDB.getAlerts(_user.id!);
@@ -278,9 +313,10 @@ class AlertRepositoryImpl {
     }
   }
 
-  ///
-  /// Funcionalidades con Shake
-  ///
+  //
+  // Shake //////////////////////////////////////////////////////////////////
+  //
+
   void startAlert(Function() handler) {
     _shake.startListening(handler);
   }
