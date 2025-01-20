@@ -89,23 +89,24 @@ class _AlertHistoryPageState extends State<AlertHistoryPage>
     }
 
     return Container(
-      padding: const EdgeInsets.all(10),
-      child: Column(
-        children: [
-          ListView.builder(
-            shrinkWrap: true,
-            itemCount: history.length,
-            itemBuilder: (context, index) {
-              final alert = history[index];
-              if (isReceivedTab && alert is ContactAlert) {
-                return _buildReceivedAlertCard(alert);
-              } else if (!isReceivedTab && alert is MyAlert) {
-                return _buildSentAlertCard(context, alert);
-              }
-              return const SizedBox.shrink();
-            },
-          )
-        ],
+      padding: const EdgeInsets.symmetric(horizontal: 15),
+      child: ListView.separated(
+        itemCount: history.length,
+        separatorBuilder: (context, index) {
+          if (history.length > 1) {
+            return const Divider();
+          }
+          return const SizedBox.shrink();
+        },
+        itemBuilder: (context, index) {
+          final alert = history[index];
+          if (isReceivedTab && alert is ContactAlert) {
+            return _buildReceivedAlertCard(alert);
+          } else if (!isReceivedTab && alert is MyAlert) {
+            return _buildSentAlertCard(context, alert);
+          }
+          return const SizedBox.shrink();
+        },
       ),
     );
   }
@@ -128,15 +129,27 @@ class _AlertHistoryPageState extends State<AlertHistoryPage>
 
   Widget _buildSentAlertCard(BuildContext context, MyAlert alert) {
     return ListTile(
-      title: Text(alert.uid),
-      subtitle: Text('Fecha: ${alert.date}'),
+      title: Text(
+        User().name!,
+        style: const TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      subtitle: Text(
+        alert.date,
+        style: const TextStyle(
+          fontSize: 12,
+          fontStyle: FontStyle.italic,
+        ),
+      ),
       leading: CircleAvatar(
         backgroundImage:
             User().avatar != null ? NetworkImage(User().avatar!) : null,
         child:
             User().avatar == null ? const Icon(Icons.person, size: 90) : null,
       ),
-      onTap: () {
+      onTap: () async {
         Map<String, dynamic> data = {
           'username': User().name,
           'avatar': User().avatar,
@@ -148,27 +161,15 @@ class _AlertHistoryPageState extends State<AlertHistoryPage>
           'audio': alert.audio
         };
 
-        Navigator.of(context).push(MaterialPageRoute(
+        Navigator.of(context).push(
+          MaterialPageRoute(
             builder: (_) => AlertDetailsPage(
-                  alert: data,
-                )));
+              alert: data,
+            ),
+          ),
+        );
       },
     );
-    // return Card(
-    //   margin: const EdgeInsets.symmetric(vertical: 3),
-    //   elevation: 4,
-    //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-    //   child: ListTile(
-    //       leading: const Icon(Icons.outbox, color: Colors.black),
-    //       title: const Text(
-    //         "Ubicación y Fecha",
-    //         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-    //       ),
-    //       subtitle: Text("Latitud: ${alert.latitude}\n"
-    //           "Longitud: ${alert.longitude}\n"
-    //           "Fecha: ${alert.date}\n"
-    //           "Audio: ${alert.audio?.split('/').last ?? 'No se grabo audio.'}")),
-    // );
   }
 
   void _showErrorDialog(BuildContext context, String title, String message) {
