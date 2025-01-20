@@ -112,18 +112,39 @@ class _AlertHistoryPageState extends State<AlertHistoryPage>
   }
 
   Widget _buildReceivedAlertCard(ContactAlert alert) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 3),
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-      child: ListTile(
-        leading: const Icon(Icons.notifications_active, color: Colors.black),
-        title: Text(
-          alert.username,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+    return ListTile(
+      title: Text(
+        alert.username,
+        style: const TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w600,
         ),
-        subtitle: Text('Fecha: ${alert.date}'),
       ),
+      subtitle: Text(
+        alert.date,
+        style: const TextStyle(
+          fontSize: 12,
+          fontStyle: FontStyle.italic,
+        ),
+      ),
+      leading: CircleAvatar(
+        backgroundImage:
+            alert.avatar != null ? NetworkImage(alert.avatar!) : null,
+        child: alert.avatar == null ? const Icon(Icons.person, size: 30) : null,
+      ),
+      onTap: () async {
+        final data = alert.toJson();
+
+        print('DATOS DE LA ALERTA DEL EMISOR: ${alert.toString()}');
+
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => AlertDetailsPage(
+              alert: data,
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -147,7 +168,7 @@ class _AlertHistoryPageState extends State<AlertHistoryPage>
         backgroundImage:
             User().avatar != null ? NetworkImage(User().avatar!) : null,
         child:
-            User().avatar == null ? const Icon(Icons.person, size: 90) : null,
+            User().avatar == null ? const Icon(Icons.person, size: 30) : null,
       ),
       onTap: () async {
         Map<String, dynamic> data = {
