@@ -87,7 +87,6 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
         emit(AlertLoading(message: 'Realizando desconexión...'));
         try {
           _alertRepositoryImp.disconnectAlert();
-          // _alertRepositoryImp.stopPlayAudio();
           emit(AlertLoaded(message: 'Desconexión exitosa.'));
         } catch (e) {
           emit(AlertError(message: e.toString(), title: 'Contacto Alerta'));
