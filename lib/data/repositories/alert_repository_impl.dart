@@ -192,12 +192,16 @@ class AlertRepositoryImpl {
       final newContactAlert = ContactAlert(
         uid: _user.id!,
         username: data['username'],
+        avatar: data['avatar']?.toString(),
         latitude: double.parse(data['coordinates_latitude']),
         longitude: double.parse(data['coordinates_longitude']),
         date: data['date'].toString(),
+        audio: data['media'],
       );
 
-      await _contactAlertsDB.insertAlert(newContactAlert);
+      print('DATOS PROCESADOS: ${newContactAlert.toString()}');
+
+      await _contactAlertsDB.registerAlert(newContactAlert);
     } catch (e) {
       throw 'No se pudo registrar en local la alerta del contacto: ${e.toString()}';
     }
@@ -240,15 +244,7 @@ class AlertRepositoryImpl {
   void sendAlertDesactivated(Map<String, dynamic> data) async {
     String contactListId = _user.idContactList!;
 
-    // Se realiza otra data para evitar fallos al enviar notificación.
-    final newData = {
-      'username': _user.name,
-      'coordinates_latitude': data['coordinates']['latitude'].toString(),
-      'coordinates_longitude': data['coordinates']['longitude'].toString(),
-      'date': DateFormat('dd/MM/yyyy - HH:mm:ss').format(data['date']),
-      // 'avatar': _user.avatar,
-      'type': 'ALERT_DESACTIVATED'
-    };
+    // Se realiza otra data para evitar fallos al enviar notificación
 
     Map<String, Object> message = {
       'notification': {
@@ -256,7 +252,15 @@ class AlertRepositoryImpl {
         'body':
             '${_user.name} ha desactivado la alerta. Puedes ver cuál fue su última ubicación.'
       },
-      'data': newData,
+      'data': {
+        'username': _user.name,
+        'avatar': _user.avatar?.toString(),
+        'coordinates_latitude': data['coordinates']['latitude'].toString(),
+        'coordinates_longitude': data['coordinates']['longitude'].toString(),
+        'date': DateFormat('dd/MM/yyyy - HH:mm:ss').format(data['date']),
+        'media': data['media']?.toString(),
+        'type': 'ALERT_DESACTIVATED'
+      },
     };
 
     try {
