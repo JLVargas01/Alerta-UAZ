@@ -7,10 +7,10 @@ import 'package:permission_handler/permission_handler.dart';
 
 class Audio {
   final FlutterSoundRecorder _recorder = FlutterSoundRecorder();
-  String? _path;
+  String? _audio;
 
-  /// Captura y guarda los datos del audio en un archivo.
-  Future<void> startAudioCapture(String fileName) async {
+  /// Captura y guarda los datos del audio en un archivo WAV.
+  Future<void> startAudioCapture(String newFile) async {
     PermissionStatus microphoneStatus = await Permission.microphone.status;
 
     // Si aún no se conseden los permisos para la captura de audio, preguntamos.
@@ -21,20 +21,14 @@ class Audio {
       if (!microphoneStatus.isGranted) return;
     }
 
-    final directory = await getExternalStorageDirectory();
+    final audioDirectory = await getAudioPath();
 
-    final audioDirectory = Directory('${directory!.path}/Audio');
-
-    if (!await audioDirectory.exists()) {
-      await audioDirectory.create(recursive: true);
-    }
-
-    _path = '${audioDirectory.path}/$fileName.wav';
+    _audio = '$audioDirectory/$newFile.wav';
 
     await _recorder.openRecorder();
 
     await _recorder.startRecorder(
-      toFile: _path,
+      toFile: _audio,
       codec: Codec.pcm16WAV, // Codificación de 16 bits WAV
     );
   }
@@ -45,6 +39,29 @@ class Audio {
 
     await _recorder.stopRecorder();
 
-    return _path;
+    return _audio;
+  }
+
+  Future<File?> checkAudio(String filename) async {
+    final audioDirectory = await getAudioPath();
+
+    final path = '$audioDirectory/$filename';
+
+    File file = File(path);
+
+    return file.existsSync() ? file : null;
+  }
+
+  /// Retorna el directorio donde se almacenan los audios
+  Future<String> getAudioPath() async {
+    final directory = await getApplicationDocumentsDirectory();
+
+    final audioDirectory = Directory('${directory.path}/audio');
+    // Creamos el directorio si no existe
+    if (!await audioDirectory.exists()) {
+      await audioDirectory.create(recursive: true);
+    }
+
+    return audioDirectory.path;
   }
 }
