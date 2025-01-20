@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:alerta_uaz/core/constants/api_config.dart';
 import 'package:http/http.dart' as http;
@@ -45,5 +46,13 @@ class HttpHelper {
     } catch (e) {
       rethrow;
     }
+  }
+
+  static Future<http.StreamedResponse> uploadFile(
+      Uri url, String type, File file) async {
+    final request = http.MultipartRequest('POST', url)
+      ..files.add(await http.MultipartFile.fromPath(type, file.path));
+
+    return await request.send();
   }
 }

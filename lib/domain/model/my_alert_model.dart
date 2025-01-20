@@ -9,13 +9,14 @@ class MyAlert {
   double latitude;
   double longitude;
   String date;
-  //Media mediaEnviada
+  String? audio;
 
   MyAlert({
     required this.uid,
     required this.latitude,
     required this.longitude,
     required this.date,
+    this.audio,
   });
 
   Map<String, Object?> toMap() {
@@ -24,11 +25,17 @@ class MyAlert {
       'latitude': latitude,
       'longitude': longitude,
       'date': date,
+      'audio': audio,
     };
   }
 
   @override
   String toString() {
-    return '{latitude: $latitude, longitude: $longitude, date: $date }';
+    return '{\n'
+        '\tlatitude: $latitude\n'
+        '\tlongitude: $longitude\n'
+        '\tdate: $date\n'
+        '\taudio: $audio\n'
+        '}';
   }
 }

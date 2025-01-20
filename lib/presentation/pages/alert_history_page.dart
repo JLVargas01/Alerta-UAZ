@@ -3,6 +3,8 @@ import 'package:alerta_uaz/application/alert/alert_event.dart';
 import 'package:alerta_uaz/application/alert/alert_state.dart';
 import 'package:alerta_uaz/domain/model/contact_alert_model.dart';
 import 'package:alerta_uaz/domain/model/my_alert_model.dart';
+import 'package:alerta_uaz/domain/model/user_model.dart';
+import 'package:alerta_uaz/presentation/pages/alert_details_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -52,47 +54,9 @@ class _AlertHistoryPageState extends State<AlertHistoryPage>
         },
         child: BlocBuilder<AlertBloc, AlertState>(
           builder: (context, state) {
-// <<<<<<< HEAD
-//             if (state is AlertLoaded) {
-//               // Seleccionar las alertas según la pestaña activa
-//               final history = _tabController.index == 0
-//                   ? state.contactAlertHistory
-//                   : state.myAlertHistory;
-
-//               // Si no hay ninguna alerta obtenida mostramos no disponible.
-//               if (history == null) {
-//                 return const Center(
-//                   child: Text('No hay alertas registradas.'),
-//                 );
-//               }
-
-//               return ListView.builder(
-//                 itemCount: history.length,
-//                 itemBuilder: (context, index) {
-//                   if (_tabController.index == 0) {
-//                     // Caso: Alertas recibidas (ContactAlert)
-//                     final alert = history[index] as ContactAlert;
-//                     return ListTile(
-//                       leading: const Icon(Icons.notifications_active),
-//                       title: Text(alert.username),
-//                       subtitle: Text(
-//                           "Latitud; ${alert.latitude} longitude: ${alert.longitude}"),
-//                     );
-//                   } else {
-//                     // Caso: Alertas enviadas (MyAlert)
-//                     final alert = history[index] as MyAlert;
-//                     return ListTile(
-//                       leading: const Icon(Icons.outbox),
-//                       title: Text(
-//                           "Latitud; ${alert.latitude} longitude: ${alert.longitude}"),
-//                     );
-//                   }
-//                 },
-// =======
             if (state is AlertLoading) {
               return const Center(
                 child: CircularProgressIndicator(),
-// >>>>>>> development
               );
             }
             if (state is AlertError) {
@@ -100,8 +64,8 @@ class _AlertHistoryPageState extends State<AlertHistoryPage>
                 child: Text('Error: ${state.message}'),
               );
             }
-            if (state is AlertLoaded) {
-              return _buildAlertList(state);
+            if (state is AlertLoadedHistory) {
+              return _buildAlertList(context, state);
             }
             return const SizedBox.shrink();
           },
@@ -110,7 +74,7 @@ class _AlertHistoryPageState extends State<AlertHistoryPage>
     );
   }
 
-  Widget _buildAlertList(AlertLoaded state) {
+  Widget _buildAlertList(BuildContext context, AlertLoadedHistory state) {
     final isReceivedTab = _tabController.index == 0;
     final history =
         isReceivedTab ? state.contactAlertHistory : state.myAlertHistory;
@@ -124,50 +88,108 @@ class _AlertHistoryPageState extends State<AlertHistoryPage>
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(8.0),
-      itemCount: history.length,
-      itemBuilder: (context, index) {
-        final alert = history[index];
-        if (isReceivedTab && alert is ContactAlert) {
-          return _buildReceivedAlertCard(alert);
-        } else if (!isReceivedTab && alert is MyAlert) {
-          return _buildSentAlertCard(alert);
-        }
-        return const SizedBox.shrink();
-      },
-    );
-  }
-
-  Widget _buildReceivedAlertCard(ContactAlert alert) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 3),
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-      child: ListTile(
-        leading: const Icon(Icons.notifications_active, color: Colors.black),
-        title: Text(
-          alert.username,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-        ),
-        subtitle: Text('Fecha: ${alert.date}'),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 15),
+      child: ListView.separated(
+        itemCount: history.length,
+        separatorBuilder: (context, index) {
+          if (history.length > 1) {
+            return const Divider();
+          }
+          return const SizedBox.shrink();
+        },
+        itemBuilder: (context, index) {
+          final alert = history[index];
+          if (isReceivedTab && alert is ContactAlert) {
+            return _buildReceivedAlertCard(alert);
+          } else if (!isReceivedTab && alert is MyAlert) {
+            return _buildSentAlertCard(context, alert);
+          }
+          return const SizedBox.shrink();
+        },
       ),
     );
   }
 
-  Widget _buildSentAlertCard(MyAlert alert) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 3),
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-      child: ListTile(
-          leading: const Icon(Icons.outbox, color: Colors.black),
-          title: const Text(
-            "Ubicación y Fecha",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+  Widget _buildReceivedAlertCard(ContactAlert alert) {
+    return ListTile(
+      title: Text(
+        alert.username,
+        style: const TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      subtitle: Text(
+        alert.date,
+        style: const TextStyle(
+          fontSize: 12,
+          fontStyle: FontStyle.italic,
+        ),
+      ),
+      leading: CircleAvatar(
+        backgroundImage:
+            alert.avatar != null ? NetworkImage(alert.avatar!) : null,
+        child: alert.avatar == null ? const Icon(Icons.person, size: 30) : null,
+      ),
+      onTap: () async {
+        final data = alert.toJson();
+
+        print('DATOS DE LA ALERTA DEL EMISOR: ${alert.toString()}');
+
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => AlertDetailsPage(
+              alert: data,
+            ),
           ),
-          subtitle: Text(
-              "Latitud: ${alert.latitude}\nLongitud: ${alert.longitude}\nFecha: ${alert.date}")),
+        );
+      },
+    );
+  }
+
+  Widget _buildSentAlertCard(BuildContext context, MyAlert alert) {
+    return ListTile(
+      title: Text(
+        User().name!,
+        style: const TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      subtitle: Text(
+        alert.date,
+        style: const TextStyle(
+          fontSize: 12,
+          fontStyle: FontStyle.italic,
+        ),
+      ),
+      leading: CircleAvatar(
+        backgroundImage:
+            User().avatar != null ? NetworkImage(User().avatar!) : null,
+        child:
+            User().avatar == null ? const Icon(Icons.person, size: 30) : null,
+      ),
+      onTap: () async {
+        Map<String, dynamic> data = {
+          'username': User().name,
+          'avatar': User().avatar,
+          'coordinates': {
+            'latitude': alert.latitude,
+            'longitude': alert.longitude,
+          },
+          'date': alert.date,
+          'audio': alert.audio
+        };
+
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => AlertDetailsPage(
+              alert: data,
+            ),
+          ),
+        );
+      },
     );
   }
 

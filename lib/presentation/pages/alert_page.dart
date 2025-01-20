@@ -1,10 +1,6 @@
 import 'package:alerta_uaz/application/alert/alert_bloc.dart';
 import 'package:alerta_uaz/application/alert/alert_event.dart';
 import 'package:alerta_uaz/application/alert/alert_state.dart';
-import 'package:alerta_uaz/application/location/location_bloc.dart';
-import 'package:alerta_uaz/application/location/location_event.dart';
-import 'package:alerta_uaz/application/location/location_state.dart';
-import 'package:alerta_uaz/presentation/widget/load_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -19,82 +15,64 @@ class _AlertPageState extends State<AlertPage> {
   @override
   void initState() {
     super.initState();
-    context.read<LocationBloc>().add(StartSendingLocation());
+    context.read<AlertBloc>().add(ActiveAlert());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Alerta'),
-        automaticallyImplyLeading: false,
-      ),
-      body: MultiBlocListener(
-          listeners: [
-            BlocListener<LocationBloc, LocationState>(
-              listener: (context, state) {
-                if (state is LocationStarted) {
-                  // Una vez creado el cuarto, se manda la alerta a los contactos
-                  context.read<AlertBloc>().add(SendAlert(state.room));
-                }
-              },
-            ),
-            BlocListener<AlertBloc, AlertState>(
-              listener: (context, state) {
-                if (state is AlertLoaded || state is AlertLoading) {
-                  if (state.message != null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(state.message!)),
-                    );
-                  }
-                } else if (state is AlertError) {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: Text('Error en ${state.title}'),
-                      content: Text(state.message!),
-                      actions: [
-                        TextButton(
-                          onPressed: () => {Navigator.pop(context)},
-                          child: const Text('Cerrar'),
-                        ),
-                      ],
+        appBar: AppBar(
+          title: const Text('Alerta'),
+          automaticallyImplyLeading: false,
+        ),
+        body: BlocConsumer<AlertBloc, AlertState>(
+          listener: (context, state) {
+            if ((state is AlertLoading || state is AlertLoaded) &&
+                state.message != null) {
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBar(content: Text(state.message!)));
+            } else if (state is AlertError) {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text('Error en ${state.title}'),
+                  content: Text(state.message!),
+                  actions: [
+                    TextButton(
+                      onPressed: () => {Navigator.pop(context)},
+                      child: const Text('Cerrar'),
                     ),
-                  );
-                }
-              },
-            )
-          ],
-          child: BlocBuilder<LocationBloc, LocationState>(
-            builder: (context, state) {
-              if (state is LocationStarted) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text('Haz Activado la alerta'),
-                      const SizedBox(height: 30),
-                      ElevatedButton(
-                          onPressed: () async {
-                            final exit = await _stopAlert(context);
-                            if (exit == true) {
-                              WidgetsBinding.instance.addPostFrameCallback((_) {
-                                Navigator.of(context).pop();
-                              });
-                            }
-                          },
-                          child: const Text('Desactivar')),
-                    ],
-                  ),
-                );
-              } else {
-                return const LoadWidget(
-                  message: 'Preparando alerta...',
-                );
-              }
-            },
-          )),
-    );
+                  ],
+                ),
+              );
+            }
+          },
+          builder: (context, state) {
+            if (state is AlertLoaded) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Haz Activado la alerta'),
+                    const SizedBox(height: 30),
+                    ElevatedButton(
+                        onPressed: () async {
+                          final exit = await _stopAlert(context);
+                          if (exit == true) {
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              Navigator.of(context).pop();
+                            });
+                          }
+                        },
+                        child: const Text('Desactivar')),
+                  ],
+                ),
+              );
+            } else {
+              return const Center(child: CircularProgressIndicator());
+            }
+          },
+        ));
   }
 
   Future<bool?> _stopAlert(BuildContext context) {
@@ -103,7 +81,7 @@ class _AlertPageState extends State<AlertPage> {
       builder: (context) => AlertDialog(
         title: const Text('Detener alerta'),
         content: const Text(
-            '¿Estás seguro de detener la alerta? Dejarás de compartir tu ubicación.'),
+            '¿Estás seguro de detener la alerta? Dejarás de compartir tu ubicación y audio.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -111,10 +89,9 @@ class _AlertPageState extends State<AlertPage> {
           ),
           TextButton(
             onPressed: () => {
-              context.read<LocationBloc>().add(StopSendingLocation()),
-              context.read<AlertBloc>().add(RegisterMyAlert()),
-              context.read<AlertBloc>().add(ShakeAlert(false)),
+              context.read<AlertBloc>().add(DesactiveAlert()),
               context.read<AlertBloc>().add(LoadAlertHistory()),
+              context.read<AlertBloc>().add(ShakeAlert(false)),
               Navigator.pop(context, true)
             },
             child: const Text('Detener'),

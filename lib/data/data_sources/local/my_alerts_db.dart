@@ -9,6 +9,7 @@ class MyAlertsDB {
   final _latitude = 'latitude'; // Columna almacenado coordenada.
   final _longitude = 'longitude'; // Columna almacenando coordenada.
   final _date = 'date'; // Columna que representa la fecha de la alerta enviada.
+  final _audio = 'audio';
 
   //Crear la tabla para las alertas mandadas a otros usuarios
   Future<void> createTable(Database database) async {
@@ -17,7 +18,8 @@ class MyAlertsDB {
         $_uid TEXT NOT NULL,
         $_latitude REAL NOT NULL,
         $_longitude REAL NOT NULL,
-        $_date TEXT NOT NULL
+        $_date TEXT NOT NULL,
+        $_audio TEXT NULL
       );""");
   }
 
@@ -53,6 +55,7 @@ class MyAlertsDB {
                 latitude: double.parse(alert['latitude'].toString()),
                 longitude: double.parse(alert['longitude'].toString()),
                 date: alert['date'].toString(),
+                audio: alert['audio']?.toString(),
               ))
           .toList();
     } catch (e) {

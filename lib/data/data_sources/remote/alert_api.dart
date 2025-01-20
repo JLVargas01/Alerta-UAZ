@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:alerta_uaz/core/constants/api_config.dart';
 import 'package:alerta_uaz/core/utils/http_helper.dart';
@@ -12,8 +14,15 @@ class AlertApi {
     final endpoint = '/add/$alertId';
     final uri = Uri.parse('$_baseUrl$endpoint');
 
+    // Se creo otro objeto para evitar errores
+    Map<String, dynamic> newAlert = {
+      'date': (data['date'] as DateTime).toIso8601String(),
+      'coordinates': data['coordinates'],
+      'media': data['media']
+    };
+
     try {
-      http.Response response = await HttpHelper.post(uri, data);
+      http.Response response = await HttpHelper.post(uri, newAlert);
 
       if (response.statusCode == 201) {
         final Map<String, dynamic> responseData = json.decode(response.body);
@@ -46,6 +55,39 @@ class AlertApi {
       }
     } catch (e) {
       rethrow;
+    }
+  }
+
+  Future<void> uploadAudio(String audioPath) async {
+    const endpoint = '/upload/audio';
+    final uri = Uri.parse('$_baseUrl$endpoint');
+
+    File audio = File(audioPath);
+
+    try {
+      final response = await HttpHelper.uploadFile(uri, 'audio', audio);
+
+      print('CÓDIGO DE ESTATUS AL ENVIAR EL AUDIO: ${response.statusCode}');
+
+      // if (response.statusCode != 200) {
+      //   throw 'No se pudo subir el archivo audio.';
+      // }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Uint8List?> downloadAudio(String filename) async {
+    final endpoint = '/download/audio/$filename';
+
+    final uri = Uri.parse('$_baseUrl$endpoint');
+
+    final response = await HttpHelper.get(uri);
+
+    if (response.statusCode == 200) {
+      return response.bodyBytes;
+    } else {
+      return null;
     }
   }
 }
