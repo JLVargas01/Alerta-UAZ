@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:alerta_uaz/domain/model/contact_alert_model.dart';
 import 'package:alerta_uaz/domain/model/my_alert_model.dart';
 
@@ -30,6 +31,18 @@ class AlertReceivedLocation extends AlertState {
   final dynamic location;
 
   AlertReceivedLocation(this.location);
+}
+
+class AlertAudioExists extends AlertState {}
+
+class AlertAudioNotExists extends AlertState {
+  AlertAudioNotExists({super.message});
+}
+
+class AlertAudioDownloaded extends AlertState {
+  final File audio;
+
+  AlertAudioDownloaded(this.audio);
 }
 
 class AlertError extends AlertState {
