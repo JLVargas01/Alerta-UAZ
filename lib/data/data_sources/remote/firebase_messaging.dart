@@ -14,8 +14,11 @@ class FirebaseMessagingService {
 
   static Future<void> initialize() async {
     await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform);
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
 
+  static Future<void> requestPermission() async {
     await messaging.requestPermission(
       alert: true,
       announcement: false,
@@ -25,6 +28,12 @@ class FirebaseMessagingService {
       provisional: false,
       sound: true,
     );
+  }
+
+  static Future<bool> statusPermission() async {
+    final status = await messaging.getNotificationSettings();
+
+    return status.authorizationStatus == AuthorizationStatus.authorized;
   }
 
   static void setUp() async {
