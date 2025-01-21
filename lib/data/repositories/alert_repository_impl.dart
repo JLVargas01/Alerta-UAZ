@@ -199,8 +199,6 @@ class AlertRepositoryImpl {
         audio: data['media'],
       );
 
-      print('DATOS PROCESADOS: ${newContactAlert.toString()}');
-
       await _contactAlertsDB.registerAlert(newContactAlert);
     } catch (e) {
       throw 'No se pudo registrar en local la alerta del contacto: ${e.toString()}';

@@ -65,13 +65,7 @@ class AlertApi {
     File audio = File(audioPath);
 
     try {
-      final response = await HttpHelper.uploadFile(uri, 'audio', audio);
-
-      print('CÓDIGO DE ESTATUS AL ENVIAR EL AUDIO: ${response.statusCode}');
-
-      // if (response.statusCode != 200) {
-      //   throw 'No se pudo subir el archivo audio.';
-      // }
+      await HttpHelper.uploadFile(uri, 'audio', audio);
     } catch (e) {
       rethrow;
     }

@@ -135,8 +135,6 @@ class _AlertHistoryPageState extends State<AlertHistoryPage>
       onTap: () async {
         final data = alert.toJson();
 
-        print('DATOS DE LA ALERTA DEL EMISOR: ${alert.toString()}');
-
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (_) => AlertDetailsPage(
