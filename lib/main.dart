@@ -17,9 +17,11 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await FirebaseMessagingService.initialize();
-  await Location().requestPermission();
+  await FirebaseMessagingService.requestPermission();
+
   await Permission.microphone.request();
 
+  await Location().requestPermission();
   // Configuración segundo plano
   Location().enableBackgroundMode();
   Location().changeNotificationOptions(
