@@ -18,6 +18,7 @@ class HomePage extends StatelessWidget {
         BlocListener<AlertBloc, AlertState>(
           listener: (context, state) {
             if (state is AlertActivated) {
+              context.read<AlertBloc>().add(ActiveAlert());
               Navigator.of(context).pushNamed('/alert');
             } else if (state is AlertError) {
               showDialog(

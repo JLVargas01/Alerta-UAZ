@@ -15,7 +15,6 @@ class _AlertPageState extends State<AlertPage> {
   @override
   void initState() {
     super.initState();
-    context.read<AlertBloc>().add(ActiveAlert());
   }
 
   @override
