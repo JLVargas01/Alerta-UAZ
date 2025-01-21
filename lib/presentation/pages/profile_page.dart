@@ -45,39 +45,43 @@ class _ProfilePageState extends State<ProfilePage> {
             if (state is Authenticated) {
               final user = state.user;
 
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Mostrar avatar si está disponible
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundImage: NetworkImage(user.avatar!),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      user.name!,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Mostrar avatar si está disponible
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundImage: NetworkImage(user.avatar!),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      user.email!,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        color: Colors.grey,
+                      const SizedBox(height: 16),
+                      Text(
+                        user.name!,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                    ),
-                    const SizedBox(height: 24),
-                    ElevatedButton(
-                      onPressed: () {
-                        context.read<AuthBloc>().add(SignOut());
-                      },
-                      child: const Text('Cerrar sesión'),
-                    ),
-                  ],
+                      const SizedBox(height: 8),
+                      Text(
+                        user.email!,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: () {
+                          context.read<AuthBloc>().add(SignOut());
+                        },
+                        child: const Text('Cerrar sesión'),
+                      ),
+                    ],
+                  ),
                 ),
               );
             } else if (state is Unauthenticated) {
