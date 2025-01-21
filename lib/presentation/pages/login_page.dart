@@ -3,12 +3,9 @@ import 'package:alerta_uaz/application/alert/alert_event.dart';
 import 'package:alerta_uaz/application/authentication/auth_bloc.dart';
 import 'package:alerta_uaz/application/authentication/auth_event.dart';
 import 'package:alerta_uaz/application/authentication/auth_state.dart';
-// <<<<<<< HEAD
 import 'package:alerta_uaz/application/notification/notification_bloc.dart';
 import 'package:alerta_uaz/application/notification/notification_event.dart';
 import 'package:alerta_uaz/presentation/widget/load_widget.dart';
-// =======
-// >>>>>>> development
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,7 +16,11 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text('Bienvenido a AlertUAZ')),
+        appBar: AppBar(
+            centerTitle: true,
+            title: const Text(
+              'Bienvenido a Alerta UAZ',
+            )),
         body: BlocListener<AuthBloc, AuthState>(
           listener: (context, state) {
             if (state is Authenticated) {
