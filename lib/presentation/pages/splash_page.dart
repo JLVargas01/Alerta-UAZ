@@ -37,24 +37,23 @@ class _SplashPageState extends State<SplashPage> {
           context.read<AuthBloc>().add(CheckUserAuthentication());
         }
       },
-      child: Container(
-        color: Colors.blue[900],
-        child: Center(
+      child: Scaffold(
+        body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(
-                'assets/images/EscudoUAZ.png',
-                fit: BoxFit.contain,
-                width: 150.0,
-                height: 150.0,
+              Text(
+                'Alerta UAZ',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.blue[800],
+                ),
               ),
               const SizedBox(
                 height: 30,
               ),
-              CircularProgressIndicator(
-                color: Colors.amberAccent[400],
-              )
+              const CircularProgressIndicator()
             ],
           ),
         ),
