@@ -134,12 +134,12 @@ class ShakeDetector {
 
   void setSettingsShake(
       String sensitivity, double minTime, double shakeAmount) {
-    if (sensitivity == 'Bajo') {
-      _shakeThresholdGravity = 2.5 * 2.7;
+    if (sensitivity == 'Alto') {
+      _shakeThresholdGravity = 0.8 * 2.7;
     } else if (sensitivity == 'Medio') {
-      _shakeThresholdGravity = 3.0 * 2.7;
+      _shakeThresholdGravity = 1.5 * 2.7;
     } else {
-      _shakeThresholdGravity = 3.5 * 2.7;
+      _shakeThresholdGravity = 2.5 * 2.7;
     }
 
     _totalTimeForShakes = (minTime.toInt()) * 1000;
