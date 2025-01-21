@@ -11,7 +11,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<CheckUserAuthentication>((event, emit) async {
       emit(AuthLoading());
       final isAuthenticated = await _authGoogle.checkUserAuthentication();
-
+      await Future.delayed(const Duration(milliseconds: 3000));
       if (isAuthenticated != null) {
         emit(Authenticated());
       } else {
@@ -22,7 +22,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<SignIn>((event, emit) async {
       emit(AuthLoading());
       try {
-// <<<<<<< HEAD
         final isAuthenticated = await _authGoogle.signIn();
 
         // Existe registro del usuario, se autentica
@@ -32,10 +31,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           // El usuario no esta registrado, realizar formulario para nuevo registro.
           emit(AuthNeedsPhoneNumber());
         }
-// =======
-//         await _authGoogle.signIn();
-//         emit(AuthNeedsPhoneNumber());
-// >>>>>>> development
       } catch (e) {
         emit(AuthError(e.toString()));
         await Future.delayed(const Duration(milliseconds: 500));
