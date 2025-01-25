@@ -4,13 +4,13 @@ import 'dart:typed_data';
 
 import 'package:alerta_uaz/core/constants/api_config.dart';
 import 'package:alerta_uaz/core/utils/http_helper.dart';
-import 'package:http/http.dart' as http;
+// import 'package:http/http.dart' as http;
 
 class AlertApi {
   // Default: base url = http://localhost:3002/api/alert
   final _baseUrl = ApiConfig.getBaseUrl(ApiConfig.portAlert, 'alert');
 
-  Future<String> addAlert(String alertId, Map<String, dynamic> data) async {
+  Future<void> addAlert(String alertId, Map<String, dynamic> data) async {
     final endpoint = '/add/$alertId';
     final uri = Uri.parse('$_baseUrl$endpoint');
 
@@ -22,20 +22,22 @@ class AlertApi {
     };
 
     try {
-      http.Response response = await HttpHelper.post(uri, newAlert);
+      final response = await HttpHelper.post(uri, newAlert);
+      HttpHelper.handleResponse(response);
+      // http.Response response =
 
-      if (response.statusCode == 201) {
-        final Map<String, dynamic> responseData = json.decode(response.body);
-        final String dateNewAlert = responseData['dateNewAlert'];
-        // Retornar la fecha de la nueva alerta
-        return dateNewAlert;
-      } else if (response.statusCode == 404) {
-        // 'Error al registrar la alerta: La lista de alertas no existe
-        return '';
-      } else {
-        throw HttpHelper.errorInServer;
-      }
-    } catch (e) {
+      // if (response.statusCode == 201) {
+      //   final Map<String, dynamic> responseData = json.decode(response.body);
+      //   final String dateNewAlert = responseData['dateNewAlert'];
+      //   // Retornar la fecha de la nueva alerta
+      //   return dateNewAlert;
+      // } else if (response.statusCode == 404) {
+      //   // 'Error al registrar la alerta: La lista de alertas no existe
+      //   return '';
+      // } else {
+      //   throw HttpHelper.errorInServer;
+      // }
+    } catch (_) {
       rethrow;
     }
   }
@@ -45,15 +47,16 @@ class AlertApi {
     final uri = Uri.parse('$_baseUrl$endpoint');
 
     try {
-      http.Response response = await HttpHelper.get(uri);
-      final data = json.decode(response.body);
+      var response = await HttpHelper.get(uri);
+      response = HttpHelper.handleResponse(response);
+      return json.decode(response.body);
 
-      if (response.statusCode == 200) {
-        return data;
-      } else {
-        throw data['message'];
-      }
-    } catch (e) {
+      // if (response.statusCode == 200) {
+      //   return data;
+      // } else {
+      //   throw data['message'];
+      // }
+    } catch (_) {
       rethrow;
     }
   }
@@ -66,7 +69,7 @@ class AlertApi {
 
     try {
       await HttpHelper.uploadFile(uri, 'audio', audio);
-    } catch (e) {
+    } catch (_) {
       rethrow;
     }
   }
