@@ -45,6 +45,8 @@ class AuthWithGoogle implements AuthRepository {
 
       _user.token = await _userApi.updateToken(_user.id!, newtoken);
 
+      await _storage.save(_user.toJson());
+
       return _user;
     } catch (e) {
       await _googleSignIn.signOut();
