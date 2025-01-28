@@ -12,7 +12,8 @@ class HttpHelper {
 
   static const String _errorConection = 'No hay conexión a internet.';
 
-  static const String _errorTimeout = 'La solicitud tardó demasiado.';
+  static const String _errorTimeout =
+      'La solicitud tardó demasiado. Por favor, intentelo más tarde.';
 
   static Map<String, String> _defaultHeaders() {
     return {
