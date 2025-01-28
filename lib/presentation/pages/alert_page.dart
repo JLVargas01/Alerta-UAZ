@@ -28,6 +28,7 @@ class _AlertPageState extends State<AlertPage> {
           listener: (context, state) {
             if ((state is AlertLoading || state is AlertLoaded) &&
                 state.message != null) {
+              ScaffoldMessenger.of(context).clearSnackBars();
               ScaffoldMessenger.of(context)
                   .showSnackBar(SnackBar(content: Text(state.message!)));
             } else if (state is AlertError) {
@@ -87,11 +88,16 @@ class _AlertPageState extends State<AlertPage> {
             child: const Text('Cancelar'),
           ),
           TextButton(
-            onPressed: () => {
-              context.read<AlertBloc>().add(DesactiveAlert()),
-              context.read<AlertBloc>().add(LoadAlertHistory()),
-              context.read<AlertBloc>().add(ShakeAlert(false)),
-              Navigator.pop(context, true)
+            onPressed: () async {
+              context.read<AlertBloc>().add(DesactiveAlert());
+              // Se realiza un time sleep de medio segundo.
+              // Para que el cambio de estados no sea tan brusco y sea detectable.
+              await Future.delayed(const Duration(milliseconds: 500));
+              if (context.mounted) {
+                context.read<AlertBloc>().add(LoadAlertHistory());
+                context.read<AlertBloc>().add(ShakeAlert(false));
+                Navigator.pop(context, true);
+              }
             },
             child: const Text('Detener'),
           ),
