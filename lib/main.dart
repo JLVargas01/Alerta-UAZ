@@ -22,14 +22,13 @@ Future<void> main() async {
   await Permission.microphone.request();
 
   await Location().requestPermission();
-  // Configuración segundo plano
-  Location().enableBackgroundMode();
-  Location().changeNotificationOptions(
-    title: 'Alerta activada',
-    subtitle:
-        'Toque la notificación para ir a la aplicación y desactivar la alerta.',
-    onTapBringToFront: true,
-  );
+  // Location().enableBackgroundMode();
+  // Location().changeNotificationOptions(
+  //   title: 'Alerta activada',
+  //   subtitle:
+  //       'Toque la notificación para ir a la aplicación y desactivar la alerta.',
+  //   onTapBringToFront: true,
+  // );
 
   await dotenv.load();
 
