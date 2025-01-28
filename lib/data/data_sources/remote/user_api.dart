@@ -18,7 +18,7 @@ class UserApi {
         data = json.decode(response.body);
         return data; // El usuario ha sido registrado.
       } else {
-        return null; // Usuario ya existe - 409.
+        return null; // Usuario ya existe - status 409.
       }
     } catch (_) {
       rethrow;
@@ -38,16 +38,8 @@ class UserApi {
         final data = json.decode(response.body);
         return data; // El usuario está registrado.
       } else {
-        return null; // El usuario no está registrado - 401.
+        return null; // El usuario no está registrado - status 401.
       }
-
-      // if (response.statusCode == 200) {
-      //   return json.decode(response.body); // Encontró el usuario.
-      // } else if (response.statusCode == 404) {
-      //   return null; // El usuario no existe.
-      // } else {
-      //   throw HttpHelper.errorInServer;
-      // }
     } catch (_) {
       rethrow;
     }
