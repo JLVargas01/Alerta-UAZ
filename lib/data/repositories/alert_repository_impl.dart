@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:alerta_uaz/core/device/audio.dart';
 import 'package:alerta_uaz/core/device/shake_detector.dart';
 import 'package:alerta_uaz/data/data_sources/local/contact_alerts_db.dart';
+import 'package:alerta_uaz/data/data_sources/local/contact_db.dart';
 import 'package:alerta_uaz/data/data_sources/local/my_alerts_db.dart';
 import 'package:alerta_uaz/data/data_sources/remote/alert_api.dart';
 import 'package:alerta_uaz/data/data_sources/remote/notification_api.dart';
@@ -173,14 +174,9 @@ class AlertRepositoryImpl {
 
       if (alertListId == null) throw 'Lista de alerta del usuario no existe.';
 
-      // Cambiamos el formato de la fecha para poder almacenarlo de forma
-      // correcta en el servidor.
-      // data['date'] = (data['date'] as DateTime).toIso8601String();
-
       // Se registra la alerta en el servidor.
       await _alertApi.addAlert(alertListId, data);
       // Registramos el audio también en el servidor
-      // print('Registrando audio...');
       if (path != null) await _alertApi.uploadAudio(path);
     } catch (e) {
       throw 'No se pudo registrar en el servidor la alerta: ${e.toString()}';
@@ -209,10 +205,13 @@ class AlertRepositoryImpl {
   // Notificación //////////////////////////////////////////////////////////////
   //
 
-  /// Función que enviara una notificación de alerta a los contactos del usuario.
-  /// Estructura especifica para que los contactos se enteren y obtengan
-  /// datos del emisor.
-  void sendAlertActivated(String room) async {
+  /// Envía notificación de alerta a los contactos del usuario.
+  /// Comparte datos a través del [room].
+  Future<String> sendAlertActivated(String room) async {
+    // Verificamos si tiene contactos para recibir la alerta.
+    var contacts = await ContactDB().getContacts(_user.id!);
+    if (contacts.isEmpty) return 'No tienes contactos que reciban la alerta.';
+
     String contactListId = _user.idContactList!;
 
     Map<String, Object> message = {
@@ -229,20 +228,31 @@ class AlertRepositoryImpl {
       }
     };
     try {
-      await _notificationApi.sendNotification(contactListId, message);
+      final data = await _notificationApi.sendNotification(
+        contactListId,
+        message,
+      );
+
+      if (data["success"] > 0 && data['failure'] == 0) {
+        return 'La alerta ha sido enviada a tus contactos.';
+      } else if (data["souccess"] > 0 && data['failure'] > 0) {
+        return 'La alerta no pudo ser recibida con algunos contactos.';
+      } else {
+        // Probablemente los contactos agregados no esten en sesión o se caducó el token.
+        return 'La alerta no fue enviada porque ningún contacto esta conectado.';
+      }
     } catch (e) {
-      _audio.stopAudioCapture();
-      throw 'No se pudo enviar la notificación de alerta: ${e.toString()}';
+      throw 'No se pudo enviar la notificación: ${e.toString()}';
     }
   }
 
-  /// Función que envía notificación a contactos de que el usuario a
-  /// desactivado la alerta, dejando de emitir datos y enviando cuál
-  /// fue la última ubicación del hecho.
+  /// Envía una notificación a los contactos donde indique
+  /// que la alerta fue desactivada.
   void sendAlertDesactivated(Map<String, dynamic> data) async {
-    String contactListId = _user.idContactList!;
+    var contacts = await ContactDB().getContacts(_user.id!);
+    if (contacts.isEmpty) return; // No hay contactos para enviar notificación.
 
-    // Se realiza otra data para evitar fallos al enviar notificación
+    String contactListId = _user.idContactList!;
 
     Map<String, Object> message = {
       'notification': {
@@ -262,9 +272,12 @@ class AlertRepositoryImpl {
     };
 
     try {
-      await _notificationApi.sendNotification(contactListId, message);
+      await _notificationApi.sendNotification(
+        contactListId,
+        message,
+      );
     } catch (e) {
-      throw 'No se pudo enviar la notificación de alerta: ${e.toString()}';
+      throw 'No se pudo enviar la notificación: ${e.toString()}';
     }
   }
 
