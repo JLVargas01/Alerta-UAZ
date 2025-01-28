@@ -22,13 +22,14 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
 
     on<ActiveAlert>((event, emit) async {
       emit(AlertLoading(message: 'Iniciando alerta...'));
+      await Future.delayed(const Duration(milliseconds: 100));
       String room = _alertRepositoryImp.getRoom;
       _alertRepositoryImp.connectAlert();
       try {
-        _alertRepositoryImp.sendAlertActivated(room);
-        _alertRepositoryImp.startSendLocation(room);
         _alertRepositoryImp.startAudioCapture();
-        emit(AlertLoaded(message: 'La alerta ha iniciado exitosamente.'));
+        _alertRepositoryImp.startSendLocation(room);
+        final message = await _alertRepositoryImp.sendAlertActivated(room);
+        emit(AlertLoaded(message: message));
       } catch (e) {
         emit(
           AlertError(message: e.toString(), title: 'Iniciar Alerta'),
@@ -38,7 +39,7 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
 
     on<DesactiveAlert>(
       (event, emit) async {
-        emit(AlertLoading(message: 'Desactivando alerta...'));
+        emit(AlertLoading(message: 'Desactivando alerta.'));
         try {
           _alertRepositoryImp.disconnectAlert();
           _alertRepositoryImp.stopSendLocation();
@@ -53,7 +54,7 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
           /// Se les notifica a los contactos que la alerta ha finalizado y
           /// se les enviará los últimos datos del usuario emisor
           _alertRepositoryImp.sendAlertDesactivated(data);
-          emit(AlertLoaded(message: 'Alerta desactivada exitosamente.'));
+          // emit(AlertLoaded(message: 'Alerta desactivada exitosamente.'));
         } catch (e) {
           emit(
             AlertError(message: e.toString(), title: 'Desactivar alerta'),
