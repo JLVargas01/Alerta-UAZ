@@ -1,7 +1,7 @@
 import 'package:alerta_uaz/presentation/pages/alert_history_page.dart';
 import 'package:alerta_uaz/presentation/pages/contact_page.dart';
 import 'package:alerta_uaz/presentation/pages/profile_page.dart';
-import 'package:alerta_uaz/presentation/pages/setting_page.dart';
+// import 'package:alerta_uaz/presentation/pages/setting_page.dart';
 import 'package:flutter/material.dart';
 
 class IndexedStackNavigation extends StatefulWidget {
@@ -18,7 +18,7 @@ class _IndexedStackNavigationState extends State<IndexedStackNavigation> {
     ProfilePage(),
     ContactPage(),
     AlertHistoryPage(),
-    SettingPage(),
+    // SettingPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -54,11 +54,11 @@ class _IndexedStackNavigationState extends State<IndexedStackNavigation> {
             icon: Icon(Icons.history_outlined),
             label: 'Historial',
           ),
-          NavigationDestination(
-            selectedIcon: Icon(Icons.settings),
-            icon: Icon(Icons.settings_outlined),
-            label: 'Configuración',
-          ),
+          // NavigationDestination(
+          //   selectedIcon: Icon(Icons.settings),
+          //   icon: Icon(Icons.settings_outlined),
+          //   label: 'Configuración',
+          // ),
         ],
       ),
     );
