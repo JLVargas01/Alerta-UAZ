@@ -2,7 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:alerta_uaz/core/device/audio.dart';
-import 'package:alerta_uaz/core/device/shake_detector.dart';
+import 'package:alerta_uaz/core/device/button_service.dart';
+// import 'package:alerta_uaz/core/device/shake_detector.dart';
 import 'package:alerta_uaz/data/data_sources/local/contact_alerts_db.dart';
 import 'package:alerta_uaz/data/data_sources/local/contact_db.dart';
 import 'package:alerta_uaz/data/data_sources/local/my_alerts_db.dart';
@@ -23,7 +24,7 @@ class AlertRepositoryImpl {
 
   final _user = User();
   final _audio = Audio();
-  final _shake = ShakeDetector();
+  final _alertActivate = ButtonService();
   final _socket = SocketService();
   final _myAlertsDB = MyAlertsDB();
   final _contactAlertsDB = ContactAlertsDB();
@@ -333,18 +334,18 @@ class AlertRepositoryImpl {
   //
 
   void startAlert(Function() handler) {
-    _shake.startListening(handler);
+    _alertActivate.startListening(handler);
   }
 
   void stopAlert() {
-    _shake.stopListening();
+    _alertActivate.stopListening();
   }
 
   void pauseAlert() {
-    _shake.pauseListening();
+    _alertActivate.pauseListening();
   }
 
   void resumeAlert() {
-    _shake.resumeListening();
+    _alertActivate.resumeListening();
   }
 }

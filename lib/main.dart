@@ -2,7 +2,6 @@ import 'package:alerta_uaz/application/alert/alert_bloc.dart';
 import 'package:alerta_uaz/application/authentication/auth_bloc.dart';
 import 'package:alerta_uaz/application/contact/contact_bloc.dart';
 import 'package:alerta_uaz/application/notification/notification_bloc.dart';
-import 'package:alerta_uaz/application/setting/setting_bloc.dart';
 import 'package:alerta_uaz/data/data_sources/remote/firebase_messaging.dart';
 
 import 'package:alerta_uaz/presentation/routes.dart';
@@ -39,7 +38,6 @@ Future<void> main() async {
         BlocProvider(create: (context) => ContactsBloc()),
         BlocProvider(create: (context) => NotificationBloc()),
         BlocProvider(create: (context) => AlertBloc()),
-        BlocProvider(create: (context) => SettingBloc()),
       ],
       child: const AppAlert(),
     ),
