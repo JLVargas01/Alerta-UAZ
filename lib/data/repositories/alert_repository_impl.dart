@@ -236,7 +236,7 @@ class AlertRepositoryImpl {
 
       if (data["success"] > 0 && data['failure'] == 0) {
         return 'La alerta ha sido enviada a tus contactos.';
-      } else if (data["souccess"] > 0 && data['failure'] > 0) {
+      } else if (data["success"] > 0 && data['failure'] > 0) {
         return 'La alerta no pudo ser recibida con algunos contactos.';
       } else {
         // Probablemente los contactos agregados no esten en sesión o se caducó el token.
