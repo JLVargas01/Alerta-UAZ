@@ -1,3 +1,14 @@
+/*
+//  Clase de acceso a datos para la tabla de alertas de contacto en SQLite.
+//  Esta clase maneja la creación, inserción y recuperación de registros
+//  en la tabla 'ContactAlert', donde se almacenan las alertas enviadas por otros
+//  usuarios.
+//  Funcionalidades principales:
+//- Crea la tabla 'ContactAlert' si no existe.
+//- Inserta nuevas alertas de contacto en la base de datos.
+//- Recupera todas las alertas recibidas para un usuario específico.
+*/
+
 import 'package:alerta_uaz/core/utils/sqlite_helper.dart';
 import 'package:alerta_uaz/domain/model/contact_alert_model.dart';
 import 'package:sqflite/sqflite.dart';
@@ -5,18 +16,15 @@ import 'package:sqflite/sqflite.dart';
 class ContactAlertsDB {
   final tableName = 'ContactAlert';
 
-  // Nombre de las columnas
-  final _uid = 'uid'; // Columna que representa el usuario actual.
-  // Columna que representa el nombre de usuario quien envío la alerta.
-  final _username = 'username';
-  final _avatar = 'avatar';
-  // Columna almacenado coordenada.
-  final _latitude = 'latitude';
-  final _longitude = 'longitude';
-  final _date = 'date'; // Columna que representa la fecha de la alerta enviada.
-  final _audio = 'audio';
+  final _uid = 'uid'; // ID del usuario actual
+  final _username = 'username'; // Nombre de usuario que envió la alerta
+  final _avatar = 'avatar'; // URL o ruta del avatar del usuario
+  final _latitude = 'latitude'; // Coordenada de latitud
+  final _longitude = 'longitude'; // Coordenada de longitud
+  final _date = 'date'; // Fecha de la alerta
+  final _audio = 'audio'; // Ruta o URL del archivo de audio (si existe)
 
-  //Crear la tabla para las alertas recibidas de otros usuarios
+  /// Crea la tabla 'ContactAlert' en la base de datos si no existe.
   Future<void> createTable(Database database) async {
     await database.execute("""CREATE TABLE IF NOT EXISTS $tableName (
         "id" INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -30,32 +38,31 @@ class ContactAlertsDB {
       );""");
   }
 
-  //Insertar nuevo registro de alerta recibidas
+  /// Inserta un nuevo registro de alerta en la base de datos.
+  ///
+  /// Si ya existe un registro con los mismos datos, lo reemplaza.
   Future<void> registerAlert(ContactAlert alert) async {
     try {
-      // Obtener referencia a la base de datos
       final db = await SQLiteHelper().getDatabase();
-
       await db.insert(
         tableName,
         alert.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
     } catch (e) {
-      rethrow;
+      rethrow; // Propaga el error en caso de fallo
     }
   }
 
-  // Obtener todas las alertas recibidas
+  /// Obtiene todas las alertas recibidas para un usuario específico.
+  ///
+  /// Retorna una lista de objetos 'ContactAlert' asociados al 'userId'.
   Future<List<ContactAlert>> getAlerts(String userId) async {
     try {
-      // Obtener referencia a la base de datos
       final db = await SQLiteHelper().getDatabase();
-      // Query a a las alertas notificadas por el contacto.
       final alerts =
           await db.query(tableName, where: 'uid = ?', whereArgs: [userId]);
 
-      // Convertir la lista a objetos AlertReceived
       return alerts
           .map((alert) => ContactAlert(
                 uid: alert['uid'].toString(),
@@ -68,7 +75,7 @@ class ContactAlertsDB {
               ))
           .toList();
     } catch (e) {
-      rethrow;
+      rethrow; // Propaga el error en caso de fallo
     }
   }
 }

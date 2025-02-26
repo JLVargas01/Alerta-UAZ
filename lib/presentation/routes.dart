@@ -1,3 +1,6 @@
+/*
+// Mapa que contiene las rutas de navegacion en la aplicacion
+*/
 import 'package:alerta_uaz/presentation/pages/alert_page.dart';
 import 'package:alerta_uaz/presentation/pages/login_page.dart';
 import 'package:alerta_uaz/presentation/pages/home_page.dart';

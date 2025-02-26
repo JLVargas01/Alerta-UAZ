@@ -1,3 +1,8 @@
+/*
+/// Pantalla para mostrar un formulario para ingresar un número telefónico
+/// y confirmar que este sea correcto
+*/
+
 import 'package:alerta_uaz/application/notification/notification_bloc.dart';
 import 'package:alerta_uaz/application/notification/notification_event.dart';
 import 'package:alerta_uaz/presentation/widget/load_widget.dart';

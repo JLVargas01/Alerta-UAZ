@@ -12,6 +12,12 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:location/location.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+/*
+//
+//  Clase principal main.
+//  Carga de variables de entorno, permisos y carga de los providers.
+//
+*/
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -21,13 +27,6 @@ Future<void> main() async {
   await Permission.microphone.request();
 
   await Location().requestPermission();
-  // Location().enableBackgroundMode();
-  // Location().changeNotificationOptions(
-  //   title: 'Alerta activada',
-  //   subtitle:
-  //       'Toque la notificación para ir a la aplicación y desactivar la alerta.',
-  //   onTapBringToFront: true,
-  // );
 
   await dotenv.load();
 
@@ -44,6 +43,12 @@ Future<void> main() async {
   );
 }
 
+/*
+//
+//  StatelessWidget inicial de la aplicacion.
+//  Carga de las rutas, la pantalla de carga de la aplicacion
+//
+*/
 class AppAlert extends StatelessWidget {
   const AppAlert({super.key});
 

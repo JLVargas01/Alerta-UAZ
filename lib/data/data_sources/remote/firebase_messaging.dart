@@ -1,3 +1,8 @@
+/*
+// Toda esta clase, por revisar
+//  $ComentarioPorRevisar
+*/
+
 import 'dart:async';
 
 import 'package:alerta_uaz/firebase_options.dart';

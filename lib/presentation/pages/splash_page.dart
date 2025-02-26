@@ -1,3 +1,7 @@
+/*
+/// Splash de carga de la applicacion
+*/
+
 import 'package:alerta_uaz/application/alert/alert_bloc.dart';
 import 'package:alerta_uaz/application/alert/alert_event.dart';
 import 'package:alerta_uaz/application/authentication/auth_bloc.dart';
