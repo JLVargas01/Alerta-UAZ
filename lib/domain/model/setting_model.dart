@@ -1,7 +1,9 @@
+/*
 /// Representa la configuración de detección de sacudidas en la aplicación.
 /// Contiene parámetros ajustables como sensibilidad, tiempo mínimo entre sacudidas y la cantidad de sacudidas necesarias.
 /// Nota: Este codigo no se utiliza
-/// $ComentarioPorRevisar
+*/
+
 class Settings {
   /// Sensibilidad de la detección de sacudidas (puede ser un valor como "baja", "media" o "alta").
   String _sensitivity;

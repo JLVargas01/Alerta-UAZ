@@ -7,8 +7,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 abstract class NotificationState {}
 
 /*
-//  Ni idea :(
-//  $ComentarioPorRevisar
+//  Estado inicial para las notificaciones
 */
 class NotificationInitial extends NotificationState {}
 

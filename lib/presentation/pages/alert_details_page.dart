@@ -1,6 +1,7 @@
 /*
 /// Pantalla para mostrar los detalles de una alerta
-/// $ComentarioPorRevisar
+/// Ubicación registrada por el emisario 'emisor', audio, fecha y hora
+/// Muestra la última ubicación registrada
 */
 
 import 'dart:async';

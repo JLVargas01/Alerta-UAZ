@@ -24,7 +24,7 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
     on<EnabledAlert>(
       (event, emit) {
         _alertRepositoryImp.startAlert(() {
-          add(ShakeAlert(true));
+          add(AlertDetector(true));
         });
       },
     );
@@ -90,8 +90,6 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
     /*
     //  Establecer conexion con el usuario que activo la alerta,
     //  unirse a la sala y comenzar a resivir las cordenadas
-    //  Muestra mensaje sobre la conexion  o en caso de error, un mensaje que lo indica
-    //  $ComentarioPorRevisar
     */
     on<ActivatedContactAlert>(
       (event, emit) {
@@ -155,10 +153,11 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
     );
 
     /*
-    //  Nota: Este metodo no se utiliza
-    //  $ComentarioPorRevisar
+    //  Cuando se recibe un evento de tipo AlertDetector, verifica si la alerta está activada 
+    //  o desactivada y ejecuta la acción correspondiente en [_alertRepositoryImp]. Luego, emite 
+    //  un nuevo estado (AlertActivated o AlertDeactivated) según el resultado.
     */
-    on<ShakeAlert>(
+    on<AlertDetector>(
       (event, emit) {
         if (event.isActivated) {
           _alertRepositoryImp.pauseAlert();
@@ -189,8 +188,9 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
     );
 
     /*
-    //  Verificar le integridad del audio?
-    //  $ComentarioPorRevisar
+    //  Verificar la existencia del audio almacenado localmente, si es negativa se revisa
+    //  en el servidor. Si no existe, me manda un estado con el mensaje con la no existencia
+    //  del audio
     */
     on<CheckAudioAlert>((event, emit) async {
       emit(AlertLoading());
@@ -216,9 +216,8 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
 
     /*
     //  Descargar audio almacenados en el servidor.
-    //  Mostrar el audio, un mensaje de no existencia si es que ya no esta dispobible
-    //  o mensaje de error.
-    //  $ComentarioPorRevisar
+    //  Muestra el audio, un mensaje de no existencia si es que ya no esta dispobible
+    //  o mensaje de no existencia
     */
     on<DownloadAudioAlert>(
       (event, emit) async {

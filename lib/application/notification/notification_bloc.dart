@@ -44,8 +44,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     );
 
     /*
-    //  Funcion para mostrar una notificacion
-    //  $ComentarioPorRevisar
+    //  Mánager la notificación recibida de otro usuario
     */
     on<ReceiveNotification>((event, emit) async {
       emit(NotificationReceived(event.message));

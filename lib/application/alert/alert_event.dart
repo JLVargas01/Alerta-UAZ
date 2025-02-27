@@ -102,14 +102,12 @@ class CheckAudioAlert extends AlertEvent {
 }
 
 /*
-// Verifica si el evento de agitacion esta activado o no
-//  Nota: Este metodo no se utiliza
-//  $ComentarioPorRevisar
+//  Evento para determinar el estado de la alerta(activada o desactivada)
 */
-class ShakeAlert extends AlertEvent {
+class AlertDetector extends AlertEvent {
   final bool isActivated;
 
-  ShakeAlert(this.isActivated);
+  AlertDetector(this.isActivated);
 }
 
 /*

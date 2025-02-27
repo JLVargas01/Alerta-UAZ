@@ -7,8 +7,7 @@ import 'package:alerta_uaz/domain/model/my_contact_model.dart';
 abstract class ContactsState {}
 
 /*
-//  Ni idea :(
-//  $ComentarioPorRevisar
+// Estado inicial para contactos
 */
 class ContactsInitial extends ContactsState {}
 
