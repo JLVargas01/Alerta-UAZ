@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:alerta_uaz/core/device/audio.dart';
 import 'package:alerta_uaz/core/device/button_service.dart';
-// import 'package:alerta_uaz/core/device/shake_detector.dart';
+import 'package:alerta_uaz/core/device/geolocator_device.dart';
 import 'package:alerta_uaz/data/data_sources/local/contact_alerts_db.dart';
 import 'package:alerta_uaz/data/data_sources/local/contact_db.dart';
 import 'package:alerta_uaz/data/data_sources/local/my_alerts_db.dart';
@@ -13,12 +13,12 @@ import 'package:alerta_uaz/data/data_sources/remote/socket_service.dart';
 import 'package:alerta_uaz/domain/model/contact_alert_model.dart';
 import 'package:alerta_uaz/domain/model/my_alert_model.dart';
 import 'package:alerta_uaz/domain/model/user_model.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
-import 'package:location/location.dart';
 import 'package:path/path.dart';
 
 class AlertRepositoryImpl {
-  Timer? _timer;
+  StreamSubscription<dynamic>? _stream;
   final AlertApi _alertApi;
   final NotificationApi _notificationApi;
 
@@ -52,31 +52,26 @@ class AlertRepositoryImpl {
   }
 
   void startSendLocation(String room) {
-    _socket.emit('createRoom', {'room': room, 'user': _user.name});
-
-    LocationData locationData;
-
-    // Envía constantemente la ubicación cada 5s
     try {
-      _timer = Timer.periodic(const Duration(seconds: 5), (_) async {
-        locationData = await Location().getLocation();
+      _socket.emit('createRoom', {'room': room, 'user': _user.name});
 
+      _stream = GeolocatorDevice.getPositionStream((position) {
         _socket.emit('sendingCoordinates', {
           'room': room,
           'coordinates': {
-            'latitude': locationData.latitude,
-            'longitude': locationData.longitude
+            'latitude': position.latitude,
+            'longitude': position.longitude
           },
         });
       });
     } catch (e) {
-      _timer?.cancel();
+      _stream!.cancel();
       throw 'No se puede enviar datos de localización: ${e.toString()}';
     }
   }
 
   void stopSendLocation() {
-    _timer!.cancel();
+    _stream!.cancel();
   }
 
   //
@@ -130,13 +125,10 @@ class AlertRepositoryImpl {
 
   Future<Map<String, dynamic>> saveAlert(String? path) async {
     try {
-      final locationData = await Location().getLocation();
+      final position = await Geolocator.getCurrentPosition();
 
-      // Si los valores son nulos, se asignan ceros
-      // para que la aplicacion almenos emita la alarma
-      // y evitar excepciones
-      double latitude = locationData.latitude ?? 0.0;
-      double longitude = locationData.longitude ?? 0.0;
+      double latitude = position.latitude;
+      double longitude = position.longitude;
 
       Map<String, dynamic> data = {
         'date': DateTime.now(),
