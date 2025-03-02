@@ -1,3 +1,7 @@
+/*
+/// Pantalla que muestra la locación (en un mapa) del contacto que activó la alarma
+*/
+
 import 'package:alerta_uaz/application/alert/alert_bloc.dart';
 import 'package:alerta_uaz/application/alert/alert_event.dart';
 import 'package:alerta_uaz/application/alert/alert_state.dart';

@@ -1,5 +1,10 @@
-import 'dart:async';
+/*
+/// Pantalla para mostrar los detalles de una alerta
+/// Ubicación registrada por el emisario 'emisor', audio, fecha y hora
+/// Muestra la última ubicación registrada
+*/
 
+import 'dart:async';
 import 'package:alerta_uaz/application/alert/alert_bloc.dart';
 import 'package:alerta_uaz/application/alert/alert_event.dart';
 import 'package:alerta_uaz/application/alert/alert_state.dart';

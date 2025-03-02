@@ -6,12 +6,13 @@ class MyAlertsDB {
   final tableName = 'MyAlerts';
   // Nombre de las columnas
   final _uid = 'uid'; // Columna que representa el usuario actual.
-  final _latitude = 'latitude'; // Columna almacenado coordenada.
-  final _longitude = 'longitude'; // Columna almacenando coordenada.
+  final _latitude = 'latitude'; // Columna almacenando coordenada latitude.
+  final _longitude = 'longitude'; // Columna almacenando coordenada longitude.
   final _date = 'date'; // Columna que representa la fecha de la alerta enviada.
-  final _audio = 'audio';
+  final _audio = 'audio'; // Columna que almacena el archivo de audio opcional.
 
-  //Crear la tabla para las alertas mandadas a otros usuarios
+  /// Crea la tabla 'MyAlerts' en la base de datos si no existe.
+  /// [database] - Instancia de la base de datos SQLite donde se creará la tabla.
   Future<void> createTable(Database database) async {
     await database.execute("""CREATE TABLE IF NOT EXISTS $tableName (
         "id" INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -23,7 +24,8 @@ class MyAlertsDB {
       );""");
   }
 
-  //Insertar nuevo registro de alerta enviada
+  /// Inserta un nuevo registro de alerta enviada en la base de datos.
+  /// [alert] - Objeto 'MyAlert' que representa la alerta a insertar.
   Future<void> registerAlert(MyAlert alert) async {
     try {
       // Obtener referencia a la base de datos
@@ -39,13 +41,15 @@ class MyAlertsDB {
     }
   }
 
-  // Obtener todas las alertas enviadas del usuario.
+  /// Obtiene la lista de alertas enviadas por un usuario específico.
+  /// [userId] - Identificador único del usuario cuyas alertas se quieren obtener.
+  /// Retorna una lista de objetos 'MyAlert'.
   Future<List<MyAlert>> getAlerts(String userId) async {
     try {
       // Obtener referencia a la base de datos
       final db = await SQLiteHelper().getDatabase();
 
-      // Query a todas las alertas generadas y enviadas
+      // Query a todas las alertas generadas y enviadas por el usuario
       final alerts =
           await db.query(tableName, where: 'uid = ?', whereArgs: [userId]);
 

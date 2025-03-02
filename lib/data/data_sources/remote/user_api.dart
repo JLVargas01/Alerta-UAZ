@@ -1,12 +1,21 @@
+/*
+/// Servicio para la gestión de usuarios a través de la API.
+/// Permite registrar usuarios, verificar su existencia por correo y actualizar su token de sesión.
+*/
+
 import 'dart:convert';
 
 import 'package:alerta_uaz/core/constants/api_config.dart';
 import 'package:alerta_uaz/core/utils/http_helper.dart';
 
 class UserApi {
+  /// URL base para la conexión con la API de usuarios.
   final String _baseUrl = ApiConfig.getBaseUrl(ApiConfig.portUser, 'user');
 
   /// Crea y registra datos del usuario en el servidor.
+  /// [data] : Mapa con la información del usuario a registrar.
+  /// Retorna un [Map] con los datos del usuario si el registro es exitoso,
+  /// o 'null' si el usuario ya existe.
   Future<Map<String, dynamic>?> create(Map<String, dynamic> data) async {
     const endpoint = '/create';
     final uri = Uri.parse('$_baseUrl$endpoint');
@@ -26,9 +35,11 @@ class UserApi {
   }
 
   /// Verifica si el correo existe en el servidor.
+  /// [email] : Dirección de correo electrónico a buscar.
+  /// Retorna un [Map] con los datos del usuario si está registrado,
+  /// o 'null' si el usuario no existe.
   Future<Map<String, dynamic>?> getUserByEmail(String email) async {
     final endpoint = '/byEmail/$email';
-
     final uri = Uri.parse('$_baseUrl$endpoint');
 
     try {
@@ -45,10 +56,12 @@ class UserApi {
     }
   }
 
-  /// Actualiza el token del usuario en caso de llegar a caducar ó cerrar sesión.
+  /// Actualiza el token del usuario en caso de expiración o cierre de sesión.
+  /// [userId] : Identificador del usuario.
+  /// [newToken] : Nuevo token a actualizar.
+  /// Retorna el nuevo token actualizado.
   Future<String> updateToken(String userId, String newToken) async {
     final endpoint = '/byId/$userId/token/$newToken';
-
     final uri = Uri.parse('$_baseUrl$endpoint');
 
     try {

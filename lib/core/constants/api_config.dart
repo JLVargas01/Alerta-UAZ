@@ -1,5 +1,13 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+/*
+//  Configuración de la API para la aplicación.
+//  Esta clase 'ApiConfig' proporciona las configuraciones necesarias para construir 
+//  las URL base de los diferentes servicios de la API. Extrae variables del entorno 
+//  utilizando 'flutter_dotenv' para definir el protocolo, el hostname y los puertos 
+//  de los distintos servicios (usuarios, alertas, notificaciones y sockets). 
+*/
+
 class ApiConfig {
   // config
   static final String protocol = dotenv.env['PROTOCOL'] ?? 'http';
@@ -15,10 +23,9 @@ class ApiConfig {
   static const headerKey = "********************************************";
 
   /// Genera la URL base para un servicio específico.
-  ///
   /// [port] es el puerto del servicio.
   /// [service] es el nombre opcional del servicio API.
-  /// Si [service] es `null` o está vacío, se devuelve solo la URL base sin la ruta del servicio.
+  /// Si [service] es 'null' o está vacío, se devuelve solo la URL base sin la ruta del servicio.
   static String getBaseUrl(String port, [String? service]) {
     final base = '$protocol://$hostname:$port';
     return service != null && service.trim().isNotEmpty

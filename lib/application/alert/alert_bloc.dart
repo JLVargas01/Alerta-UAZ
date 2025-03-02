@@ -5,21 +5,39 @@ import 'package:alerta_uaz/data/data_sources/remote/notification_api.dart';
 import 'package:alerta_uaz/data/repositories/alert_repository_impl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+/*
+//
+//  Clase para manejar las alertas
+//  _alertRepositoryImp: Variable final para realizar los distintos
+//  metodos de comunicacion hacia la API.
+//
+*/
 class AlertBloc extends Bloc<AlertEvent, AlertState> {
-  final _alertRepositoryImp =
-      AlertRepositoryImpl(NotificationApi(), AlertApi());
+
+  final _alertRepositoryImp = AlertRepositoryImpl(NotificationApi(), AlertApi());
 
   AlertBloc() : super(AlertDeactivated()) {
+
+  /*
+  //  Activar el envio de alertas.
+  */
     on<EnabledAlert>(
       (event, emit) {
         _alertRepositoryImp.startAlert(() {
-          add(ShakeAlert(true));
+          add(AlertDetector(true));
         });
       },
     );
 
+    /*
+    //  Detener el envio de alertas.
+    */
     on<DisabledAlert>((event, emit) => _alertRepositoryImp.stopAlert());
 
+    /*
+    //  Iniciar el envio de la alerta, capturar audio y enviar locacion.
+    //  Muestra mensaje de inicio de alerta o en caso de error, un mensaje que lo indica
+    */
     on<ActiveAlert>((event, emit) async {
       emit(AlertLoading(message: 'Iniciando alerta...'));
       await Future.delayed(const Duration(milliseconds: 100));
@@ -37,6 +55,12 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
       }
     });
 
+    /*
+    //  Detener el envio de la alerta ya activada, detener la captura de audio,
+    //  registrar en el dispositivo y en el servidor la alerta emitida y
+    //  notificar a los contactos "de confianza" la terminacion de la alerta.
+    //  Muestra mensaje de desactivado de alerta o en caso de error, un mensaje que lo indica
+    */
     on<DesactiveAlert>(
       (event, emit) async {
         emit(AlertLoading(message: 'Desactivando alerta.'));
@@ -63,6 +87,10 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
       },
     );
 
+    /*
+    //  Establecer conexion con el usuario que activo la alerta,
+    //  unirse a la sala y comenzar a resivir las cordenadas
+    */
     on<ActivatedContactAlert>(
       (event, emit) {
         emit(AlertLoading(message: 'Estableciendo conexión...'));
@@ -83,6 +111,10 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
       },
     );
 
+    /*
+    // Cerrar la conexion con el contacto que inicio la alerta.
+    //  Muestra mensaje sobre el estado de la conexion o en caso de error, un mensaje que lo indica
+    */
     on<DesactivatedContactAlert>(
       (event, emit) {
         emit(AlertLoading(message: 'Realizando desconexión...'));
@@ -95,6 +127,10 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
       },
     );
 
+    /*
+    //  Registrar localmente la informacion resibida por el usuario que activo la alerta.
+    //  Muestra mensaje del proceso sobre el registro de la alerta o  en caso de error, un mensaje que lo indica
+    */
     on<RegisterContactAlert>(
       (event, emit) {
         emit(AlertLoading(message: 'Registrando alerta del contacto...'));
@@ -108,11 +144,20 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
       },
     );
 
+    /*
+    //  Emite el estado "AlertReceivedLocation" para visualizar la locacion
+    //  del usuario que activo una alerta
+    */
     on<ReceivingLocationContactAlert>(
       (event, emit) => emit(AlertReceivedLocation(event.location)),
     );
 
-    on<ShakeAlert>(
+    /*
+    //  Cuando se recibe un evento de tipo AlertDetector, verifica si la alerta está activada 
+    //  o desactivada y ejecuta la acción correspondiente en [_alertRepositoryImp]. Luego, emite 
+    //  un nuevo estado (AlertActivated o AlertDeactivated) según el resultado.
+    */
+    on<AlertDetector>(
       (event, emit) {
         if (event.isActivated) {
           _alertRepositoryImp.pauseAlert();
@@ -124,14 +169,16 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
       },
     );
 
+    /*
+    //  Cargar y muestra el historial de las alertas resividas y emitidas.
+    */
     on<LoadAlertHistory>(
       (event, emit) async {
         emit(AlertLoading());
 
         try {
           final myHistory = await _alertRepositoryImp.loadMyAlertHistory();
-          final contactHistory =
-              await _alertRepositoryImp.loadContactsAlertHistory();
+          final contactHistory = await _alertRepositoryImp.loadContactsAlertHistory();
 
           emit(AlertLoadedHistory(myHistory, contactHistory));
         } catch (e) {
@@ -140,6 +187,11 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
       },
     );
 
+    /*
+    //  Verificar la existencia del audio almacenado localmente, si es negativa se revisa
+    //  en el servidor. Si no existe, me manda un estado con el mensaje con la no existencia
+    //  del audio
+    */
     on<CheckAudioAlert>((event, emit) async {
       emit(AlertLoading());
       try {
@@ -162,6 +214,11 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
       }
     });
 
+    /*
+    //  Descargar audio almacenados en el servidor.
+    //  Muestra el audio, un mensaje de no existencia si es que ya no esta dispobible
+    //  o mensaje de no existencia
+    */
     on<DownloadAudioAlert>(
       (event, emit) async {
         emit(AlertLoading());
