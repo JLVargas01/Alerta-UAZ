@@ -19,6 +19,8 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool isDialogShowing = false;
+
     return MultiBlocListener(
       listeners: [
         BlocListener<AlertBloc, AlertState>(
@@ -46,6 +48,11 @@ class HomePage extends StatelessWidget {
         BlocListener<NotificationBloc, NotificationState>(
           listener: (context, state) async {
             if (state is NotificationReceived) {
+              if (isDialogShowing) {
+                Navigator.of(context).pop();
+              } else {
+                isDialogShowing = true;
+              }
               String? type = state.message.data['type']?.toString().trim();
               bool? action = await showDialog<bool?>(
                 context: context,
@@ -60,6 +67,8 @@ class HomePage extends StatelessWidget {
                   ],
                 ),
               );
+
+              isDialogShowing = false;
 
               // Solo entrara en caso de ser un ALERT_ACTIVATED
               if (action == true && type != null && type == "ALERT_ACTIVATED") {

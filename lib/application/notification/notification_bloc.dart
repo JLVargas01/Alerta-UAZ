@@ -11,13 +11,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 //  _alertRepositoryImp: Variable final para realizar los distintos
 //  metodos de comunicacion hacia la API.
 //
-*/ 
+*/
 class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
-
   final UserApi _userApi = UserApi();
 
   NotificationBloc() : super(NotificationInitial()) {
-
     /*
     //  Habilitar las notificaciones para el usuario
     */
@@ -48,8 +46,8 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     */
     on<ReceiveNotification>((event, emit) async {
       emit(NotificationReceived(event.message));
-      await Future.delayed(const Duration(milliseconds: 500));
-      emit(NotificationInitial());
+      // await Future.delayed(const Duration(milliseconds: 500));
+      // emit(NotificationInitial());
     });
   }
 }

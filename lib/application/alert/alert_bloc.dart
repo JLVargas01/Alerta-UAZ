@@ -13,12 +13,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 //
 */
 class AlertBloc extends Bloc<AlertEvent, AlertState> {
-
-  final _alertRepositoryImp = AlertRepositoryImpl(NotificationApi(), AlertApi());
+  final _alertRepositoryImp =
+      AlertRepositoryImpl(NotificationApi(), AlertApi());
 
   AlertBloc() : super(AlertDeactivated()) {
-
-  /*
+    /*
   //  Activar el envio de alertas.
   */
     on<EnabledAlert>(
@@ -104,7 +103,6 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
           _alertRepositoryImp.connectAlert();
           _alertRepositoryImp.joinRoomAlert(room);
           _alertRepositoryImp.startReceivedLocation(receivedLocationHanlder);
-          emit(AlertLoaded(message: 'Conexión exitosa.'));
         } catch (e) {
           emit(AlertError(message: e.toString(), title: 'Contacto Alerta'));
         }
@@ -178,7 +176,8 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
 
         try {
           final myHistory = await _alertRepositoryImp.loadMyAlertHistory();
-          final contactHistory = await _alertRepositoryImp.loadContactsAlertHistory();
+          final contactHistory =
+              await _alertRepositoryImp.loadContactsAlertHistory();
 
           emit(AlertLoadedHistory(myHistory, contactHistory));
         } catch (e) {

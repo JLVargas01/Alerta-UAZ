@@ -1,9 +1,13 @@
+import 'package:equatable/equatable.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 /*
 //  Clase abstracta para los eventos en las notificaciones
 */
-abstract class NotificationEvent {}
+abstract class NotificationEvent extends Equatable {
+  @override
+  List<Object?> get props => [];
+}
 
 /*
 //  Habilita la entrega de notificaciones
@@ -20,7 +24,10 @@ class DisabledNotification extends NotificationEvent {}
 //  Se requiere un parametro String message que representa el mensaje
 */
 class ReceiveNotification extends NotificationEvent {
-  RemoteMessage message;
+  final RemoteMessage message;
 
   ReceiveNotification(this.message);
+
+  @override
+  List<Object?> get props => [message];
 }
