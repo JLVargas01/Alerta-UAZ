@@ -1,3 +1,8 @@
+/*
+/// Pantalla para mostrar una alerta activada.
+/// Muestra la opcion para desactivar, captura de audio, registra y comparte la ubicacion
+*/
+
 import 'package:alerta_uaz/application/alert/alert_bloc.dart';
 import 'package:alerta_uaz/application/alert/alert_event.dart';
 import 'package:alerta_uaz/application/alert/alert_state.dart';
@@ -26,11 +31,9 @@ class _AlertPageState extends State<AlertPage> {
         ),
         body: BlocConsumer<AlertBloc, AlertState>(
           listener: (context, state) {
-            if ((state is AlertLoading || state is AlertLoaded) &&
-                state.message != null) {
+            if ((state is AlertLoading || state is AlertLoaded) && state.message != null) {
               ScaffoldMessenger.of(context).clearSnackBars();
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text(state.message!)));
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message!)));
             } else if (state is AlertError) {
               showDialog(
                 context: context,
@@ -95,7 +98,7 @@ class _AlertPageState extends State<AlertPage> {
               await Future.delayed(const Duration(milliseconds: 500));
               if (context.mounted) {
                 context.read<AlertBloc>().add(LoadAlertHistory());
-                context.read<AlertBloc>().add(ShakeAlert(false));
+                context.read<AlertBloc>().add(AlertDetector(false));
                 Navigator.pop(context, true);
               }
             },

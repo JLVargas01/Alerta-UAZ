@@ -4,10 +4,22 @@ import 'package:alerta_uaz/data/data_sources/remote/user_api.dart';
 import 'package:alerta_uaz/data/repositories/auth_with_google.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+/*
+//
+//  Clase para manejar la autenticación.
+//  _authGoogle: Variable final para realizar la comunicacion
+//  con los servicios de google
+//
+*/
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final _authGoogle = AuthWithGoogle(UserApi());
 
   AuthBloc() : super(Unauthenticated()) {
+
+    /*
+    //  Verificar si el usuario esta autenticado en los servicios de google
+    //  y emitir el estado 'Authenticated' o 'Unauthenticated'
+    */
     on<CheckUserAuthentication>((event, emit) async {
       emit(AuthLoading());
       final isAuthenticated = await _authGoogle.checkUserAuthentication();
@@ -19,6 +31,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       }
     });
 
+    /*
+    //  Iniciar sesion con los servicios de google, si no se esta registrado,
+    //  se solicita el numero de telefono.
+    //  Si ocurre un error, se cierra la sesion.
+    */
     on<SignIn>((event, emit) async {
       emit(AuthLoading());
       try {
@@ -38,6 +55,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       }
     });
 
+    /*
+    // Cerrar sesion con los servicios de google y emitir estado 'Unauthenticated'
+    //  Si ocurre un error, se emite un mensaje de error
+    */
     on<SignOut>((event, emit) async {
       try {
         emit(AuthLoading());
@@ -48,6 +69,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       }
     });
 
+    /*
+    //  Solicitar número telefónico y emitir estado 'Authenticated'
+    //  Si ocurre un error, se emite un mensaje de error.
+    */
     on<ProvidePhoneNumber>((event, emit) async {
       emit(AuthLoading());
       try {
@@ -58,6 +83,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       }
     });
 
+    /*
+    //  Cancelar autenticacion
+    //  Si ocurre un error, se emite un mensaje de error.
+    */
     on<CancelAuth>(
       (event, emit) {
         _authGoogle.cancelAuth();

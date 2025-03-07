@@ -1,3 +1,7 @@
+/*
+/// Pantalla que muestra el registro para iniciar sesión/registrarse en la app
+*/
+
 import 'package:alerta_uaz/application/alert/alert_bloc.dart';
 import 'package:alerta_uaz/application/alert/alert_event.dart';
 import 'package:alerta_uaz/application/authentication/auth_bloc.dart';

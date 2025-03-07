@@ -1,3 +1,9 @@
+/*
+/// Pantalla principal de la app
+/// Se muestra el perfil, la lista de contactos y el historial de alertas
+/// Tambien se muestran las alertas cuando ocurren
+*/
+
 import 'package:alerta_uaz/application/alert/alert_bloc.dart';
 import 'package:alerta_uaz/application/alert/alert_event.dart';
 import 'package:alerta_uaz/application/alert/alert_state.dart';

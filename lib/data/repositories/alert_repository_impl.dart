@@ -1,9 +1,27 @@
+/*
+/// Implementación del repositorio de alertas.
+/// 
+/// Esta clase gestiona el flujo de datos y comunicación relacionada con las alertas,
+/// incluyendo la conexión a sockets, envío de notificaciones, captura de audio y almacenamiento local.
+/// También maneja la localización en tiempo real y el historial de alertas.
+/// 
+/// Dependencias:
+/// - 'AlertApi': API para gestionar alertas en el servidor.
+/// - 'NotificationApi': API para enviar notificaciones.
+/// - 'SocketService': Servicio de sockets para la comunicación en tiempo real.
+/// - 'Audio': Manejo de captura y reproducción de audio.
+/// - 'Location': Servicio de geolocalización.
+/// - 'MyAlertsDB': Base de datos local para alertas personales.
+/// - 'ContactAlertsDB': Base de datos local para alertas de contactos.
+*/
+
 import 'dart:async';
 import 'dart:io';
 
 import 'package:alerta_uaz/core/device/audio.dart';
 import 'package:alerta_uaz/core/device/button_service.dart';
 import 'package:alerta_uaz/core/device/geolocator_device.dart';
+
 import 'package:alerta_uaz/data/data_sources/local/contact_alerts_db.dart';
 import 'package:alerta_uaz/data/data_sources/local/contact_db.dart';
 import 'package:alerta_uaz/data/data_sources/local/my_alerts_db.dart';
@@ -29,28 +47,40 @@ class AlertRepositoryImpl {
   final _myAlertsDB = MyAlertsDB();
   final _contactAlertsDB = ContactAlertsDB();
 
-  // Constructor
+  /// Constructor de la clase.
+  ///
+  /// [notificationApi] API de notificaciones.
+  /// [alertApi] API de alertas.
   AlertRepositoryImpl(this._notificationApi, this._alertApi);
 
-  /// Crea un cuarto dónde solo usuarios específicos podrán entrar
+  /// Genera un identificador único para una sala de alertas.
+  ///
+  /// Retorna una cadena que combina la fecha actual y el nombre del usuario.
   String get getRoom => '${DateTime.now()}:${_user.name}'.replaceAll(' ', '');
 
+  /// Conecta al servicio de alertas por sockets.
   void connectAlert() => _socket.connect();
 
+  /// Desconecta del servicio de alertas por sockets.
   void disconnectAlert() => _socket.disconnect();
 
+  /// Une al usuario a una sala de alertas.
+  ///
+  /// [room] Nombre de la sala a la que se unirá el usuario.
   void joinRoomAlert(String room) {
     _socket.emit('joinRoom', {'room': room, 'user': _user.name});
   }
 
-  //
-  // Ubicación /////////////////////////////////////////////////////////////////
-  //
-
+  /// Escucha eventos de ubicación de otros usuarios en una sala.
+  ///
+  /// [handler] Función que manejará los datos de ubicación recibidos.
   void startReceivedLocation(Function(dynamic) handler) {
     _socket.on('newCoordinates', handler);
   }
 
+  /// Inicia el envío de la ubicación del usuario cada 5 segundos.
+  ///
+  /// [room] Nombre de la sala donde se enviarán las coordenadas.
   void startSendLocation(String room) {
     try {
       _socket.emit('createRoom', {'room': room, 'user': _user.name});
@@ -70,21 +100,16 @@ class AlertRepositoryImpl {
     }
   }
 
+  /// Detiene el envío de ubicación.
   void stopSendLocation() {
     _stream!.cancel();
   }
 
-  //
-  // Audio /////////////////////////////////////////////////////////////////////
-  //
-
+  /// Inicia la captura de audio para la alerta.
   void startAudioCapture() async {
     try {
       DateTime now = DateTime.now();
-
-      // Formato: yyyyMMddHHmmssSSS (sin espacios ni símbolos)
-      final date = "${now.year}"
-          "${now.month.toString().padLeft(2, '0')}"
+      final date = "${now.year}${now.month.toString().padLeft(2, '0')}"
           "${now.day.toString().padLeft(2, '0')}"
           "${now.hour.toString().padLeft(2, '0')}"
           "${now.minute.toString().padLeft(2, '0')}"
@@ -92,7 +117,6 @@ class AlertRepositoryImpl {
           "${now.millisecond.toString().padLeft(3, '0')}";
 
       final username = _user.name!.toUpperCase().replaceAll(' ', '_');
-
       final filename = 'ALERTA_${username}_$date';
       await _audio.startAudioCapture(filename);
     } catch (e) {
@@ -100,6 +124,7 @@ class AlertRepositoryImpl {
     }
   }
 
+  /// Detiene la captura de audio y retorna el archivo generado..
   Future<String?> stopAudioCapture() async {
     try {
       return await _audio.stopAudioCapture();
@@ -108,6 +133,9 @@ class AlertRepositoryImpl {
     }
   }
 
+  /// Descarga un archivo de audio.
+  ///
+  /// [filename] Nombre del archivo a descargar.
   Future<File?> downloadAudio(String filename) async {
     final path = await _audio.getAudioPath();
     final bytes = await _alertApi.downloadAudio(filename);
@@ -117,12 +145,14 @@ class AlertRepositoryImpl {
     return bytes != null ? await audio.writeAsBytes(bytes) : null;
   }
 
+  /// Verifica si un archivo de audio con el nombre [filename] existe en el almacenamiento.
+  /// Retorna el archivo si existe o 'null' si no se encuentra.
   Future<File?> checkAudio(String filename) => _audio.checkAudio(filename);
 
-  //
-  // Registro //////////////////////////////////////////////////////////////////
-  //
-
+  /// Genera los datos necesarios para registrar una alerta.
+  /// Si 'path' no es nulo, se incluye el nombre del archivo en la alerta.
+  /// Obtiene la ubicación actual y, en caso de error, usa valores por defecto (0.0).
+  /// Retorna un 'Map<String, dynamic>' con la información de la alerta.
   Future<Map<String, dynamic>> saveAlert(String? path) async {
     try {
       final position = await Geolocator.getCurrentPosition();
@@ -145,6 +175,8 @@ class AlertRepositoryImpl {
     }
   }
 
+  /// Registra una alerta en la base de datos local.
+  /// [data] contiene la información de la alerta generada.
   void registerLocalMyAlert(Map<String, dynamic> data) async {
     try {
       final newAlert = MyAlert(
@@ -161,6 +193,8 @@ class AlertRepositoryImpl {
     }
   }
 
+  /// Registra una alerta en el servidor.
+  /// Si 'path' contiene un archivo de audio, también lo sube al servidor.
   void registerServerMyAlert(Map<String, dynamic> data, String? path) async {
     try {
       String? alertListId = _user.idAlertList;
@@ -176,6 +210,7 @@ class AlertRepositoryImpl {
     }
   }
 
+  /// Registra una alerta de contacto en la base de datos local.
   Future<void> registerLocalContactAlert(Map<String, dynamic> data) async {
     try {
       final newContactAlert = ContactAlert(
@@ -194,12 +229,9 @@ class AlertRepositoryImpl {
     }
   }
 
-  //
-  // Notificación //////////////////////////////////////////////////////////////
-  //
-
-  /// Envía notificación de alerta a los contactos del usuario.
-  /// Comparte datos a través del [room].
+  /// Envía una notificación de alerta a los contactos del usuario.
+  /// [room] es la sala en la que se compartirá la localización del usuario.
+  /// Retorna un mensaje indicando el resultado del envío.
   Future<String> sendAlertActivated(String room) async {
     // Verificamos si tiene contactos para recibir la alerta.
     var contacts = await ContactDB().getContacts(_user.id!);
@@ -228,7 +260,7 @@ class AlertRepositoryImpl {
 
       if (data["success"] > 0 && data['failure'] == 0) {
         return 'La alerta ha sido enviada a tus contactos.';
-      } else if (data["souccess"] > 0 && data['failure'] > 0) {
+      } else if (data["success"] > 0 && data['failure'] > 0) {
         return 'La alerta no pudo ser recibida con algunos contactos.';
       } else {
         // Probablemente los contactos agregados no esten en sesión o se caducó el token.
@@ -239,8 +271,7 @@ class AlertRepositoryImpl {
     }
   }
 
-  /// Envía una notificación a los contactos donde indique
-  /// que la alerta fue desactivada.
+  /// Envía una notificación a los contactos cuando la alerta es desactivada.
   void sendAlertDesactivated(Map<String, dynamic> data) async {
     var contacts = await ContactDB().getContacts(_user.id!);
     if (contacts.isEmpty) return; // No hay contactos para enviar notificación.
@@ -278,8 +309,7 @@ class AlertRepositoryImpl {
   // Historial /////////////////////////////////////////////////////////////////
   //
 
-  /// Retorna una lista de alertas emitidas, si no hay ningun registro en local
-  /// verifica si hay registros en el servidor.
+  /// Carga el historial de alertas emitidas desde la base de datos local o el servidor.
   Future<List<MyAlert>> loadMyAlertHistory() async {
     try {
       final history = await _myAlertsDB.getAlerts(_user.id!);
@@ -310,7 +340,7 @@ class AlertRepositoryImpl {
     }
   }
 
-  /// Retorna una lista de alertas recibidas.
+  /// Carga el historial de alertas recibidas.
   Future<List<ContactAlert>> loadContactsAlertHistory() async {
     try {
       final history = await _contactAlertsDB.getAlerts(_user.id!);
@@ -322,21 +352,25 @@ class AlertRepositoryImpl {
   }
 
   //
-  // Shake //////////////////////////////////////////////////////////////////
+  // Bottons //////////////////////////////////////////////////////////////////
   //
 
+  /// Inicia la escucha de alertas, ejecutando [handler] cuando se detecta una activación.
   void startAlert(Function() handler) {
     _alertActivate.startListening(handler);
   }
 
+  /// Detiene la escucha de alertas, deshabilitando cualquier detección de activación.
   void stopAlert() {
     _alertActivate.stopListening();
   }
 
+  /// Pausa temporalmente la escucha de alertas.
   void pauseAlert() {
     _alertActivate.pauseListening();
   }
 
+  /// Reanuda la escucha de alertas después de haber sido pausada.
   void resumeAlert() {
     _alertActivate.resumeListening();
   }

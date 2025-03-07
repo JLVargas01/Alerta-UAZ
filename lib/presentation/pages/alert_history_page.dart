@@ -1,3 +1,6 @@
+/*
+/// Pantalla para mostrar el historial de alertas
+*/
 import 'package:alerta_uaz/application/alert/alert_bloc.dart';
 import 'package:alerta_uaz/application/alert/alert_event.dart';
 import 'package:alerta_uaz/application/alert/alert_state.dart';

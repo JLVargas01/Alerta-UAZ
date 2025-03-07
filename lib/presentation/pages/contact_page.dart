@@ -1,3 +1,7 @@
+/*
+/// Pantalla para mostrar los contactos 'de confianza'
+*/
+
 import 'package:alerta_uaz/application/contact/contact_bloc.dart';
 import 'package:alerta_uaz/application/contact/contact_event.dart';
 import 'package:alerta_uaz/application/contact/contact_state.dart';
