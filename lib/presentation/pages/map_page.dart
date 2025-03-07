@@ -96,7 +96,7 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                       ],
                     )
                   ]);
-            } else {
+            } else if (state is AlertLoading) {
               return const Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -104,6 +104,31 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                     CircularProgressIndicator(),
                     SizedBox(height: 30),
                     Text('Preparando mapa...')
+                  ],
+                ),
+              );
+            } else {
+              return const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'La alerta ha finalizado',
+                      style: TextStyle(
+                        fontSize: 28,
+                        color: Color.fromARGB(255, 92, 91, 91),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 16,
+                    ),
+                    Text(
+                      'El contacto dejo de compartir su ubicación.',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey,
+                      ),
+                    )
                   ],
                 ),
               );
