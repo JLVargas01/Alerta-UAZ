@@ -1,10 +1,14 @@
 import 'package:alerta_uaz/domain/model/my_contact_model.dart';
+import 'package:equatable/equatable.dart';
 
 /*
 //  Clase abstracta para los eventos de los contactos
 //  Es posible enviar un parametro opcional de tipo String que representa un mensaje
 */
-abstract class ContactsState {}
+abstract class ContactsState extends Equatable {
+  @override
+  List<Object?> get props => [];
+}
 
 /*
 // Estado inicial para contactos
@@ -28,6 +32,9 @@ class NavigateToCompletePhonePage extends ContactsState {
   final String nameContact;
 
   NavigateToCompletePhonePage(this.initialPhoneNumber, this.nameContact);
+
+  @override
+  List<Object?> get props => [initialPhoneNumber, nameContact];
 }
 
 /*
@@ -43,6 +50,9 @@ class ContactAddedSuccessfully extends ContactsState {}
 class ContactsLoaded extends ContactsState {
   final List<MyContact> contactos;
   ContactsLoaded(this.contactos);
+
+  @override
+  List<Object?> get props => [contactos];
 }
 
 /*
@@ -51,4 +61,7 @@ class ContactsLoaded extends ContactsState {
 class ContactsError extends ContactsState {
   final String message;
   ContactsError(this.message);
+
+  @override
+  List<Object?> get props => [message];
 }

@@ -248,7 +248,7 @@ class AlertRepositoryImpl {
       'data': {
         'room': room, // Cuarto dónde se compartira la localización.
         'name': _user.name, // Nombre del emisor que envía la alerta
-        'avatar': _user.avatar,
+        // 'avatar': _user.avatar, // ACTUALMENTE NO SE USA
         'type': 'ALERT_ACTIVATED' // Hacemos referencia que es una alerta.
       }
     };

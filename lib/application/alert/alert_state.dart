@@ -1,15 +1,19 @@
 import 'dart:io';
 import 'package:alerta_uaz/domain/model/contact_alert_model.dart';
 import 'package:alerta_uaz/domain/model/my_alert_model.dart';
+import 'package:equatable/equatable.dart';
 
 /*
 //  Clase abstracta para los estados en las alertas
 //  Es posible enviar un parametro opcional de tipo String que representa un mensaje
 */
-abstract class AlertState {
+abstract class AlertState extends Equatable {
   final String? message;
 
-  AlertState({this.message});
+  const AlertState({this.message});
+
+  @override
+  List<Object?> get props => [message];
 }
 
 /*
@@ -27,7 +31,10 @@ class AlertDeactivated extends AlertState {}
 //  Se requiere un parametro de tipor String que representa el mensaje a mostrar
 */
 class AlertLoading extends AlertState {
-  AlertLoading({super.message});
+  const AlertLoading({super.message});
+
+  @override
+  List<Object?> get props => [message];
 }
 
 /*
@@ -35,7 +42,10 @@ class AlertLoading extends AlertState {
 //  Se requiere un parametro de tipor String que representa el mensaje a mostrar
 */
 class AlertLoaded extends AlertState {
-  AlertLoaded({super.message});
+  const AlertLoaded({super.message});
+
+  @override
+  List<Object?> get props => [message];
 }
 
 /*
@@ -50,7 +60,10 @@ class AlertLoadedHistory extends AlertState {
   final List<MyAlert> myAlertHistory;
   final List<ContactAlert> contactAlertHistory;
 
-  AlertLoadedHistory(this.myAlertHistory, this.contactAlertHistory);
+  const AlertLoadedHistory(this.myAlertHistory, this.contactAlertHistory);
+
+  @override
+  List<Object?> get props => [myAlertHistory, contactAlertHistory];
 }
 
 /*
@@ -60,7 +73,10 @@ class AlertLoadedHistory extends AlertState {
 class AlertReceivedLocation extends AlertState {
   final dynamic location;
 
-  AlertReceivedLocation(this.location);
+  const AlertReceivedLocation(this.location);
+
+  @override
+  List<Object?> get props => [location];
 }
 
 /*
@@ -73,7 +89,10 @@ class AlertAudioExists extends AlertState {}
 //  Se requiere un parametro de tipor String que representa el mensaje a mostrar
 */
 class AlertAudioNotExists extends AlertState {
-  AlertAudioNotExists({super.message});
+  const AlertAudioNotExists({super.message});
+
+  @override
+  List<Object?> get props => [message];
 }
 
 /*
@@ -83,7 +102,10 @@ class AlertAudioNotExists extends AlertState {
 class AlertAudioDownloaded extends AlertState {
   final File audio;
 
-  AlertAudioDownloaded(this.audio);
+  const AlertAudioDownloaded(this.audio);
+
+  @override
+  List<Object?> get props => [audio];
 }
 
 /*
@@ -95,5 +117,8 @@ class AlertAudioDownloaded extends AlertState {
 class AlertError extends AlertState {
   final String title;
 
-  AlertError({required super.message, required this.title});
+  const AlertError({required super.message, required this.title});
+
+  @override
+  List<Object?> get props => [message, title];
 }

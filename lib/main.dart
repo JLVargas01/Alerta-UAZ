@@ -5,7 +5,7 @@ import 'package:alerta_uaz/application/notification/notification_bloc.dart';
 import 'package:alerta_uaz/core/device/geolocator_device.dart';
 import 'package:alerta_uaz/data/data_sources/remote/firebase_messaging.dart';
 
-import 'package:alerta_uaz/presentation/routes.dart';
+import 'package:alerta_uaz/core/constants/routes.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

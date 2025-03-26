@@ -1,7 +1,12 @@
+import 'package:equatable/equatable.dart';
+
 /*
 //  Clase abstracta para los eventos de los contactos
 */
-abstract class ContactsEvent {}
+abstract class ContactsEvent extends Equatable {
+  @override
+  List<Object?> get props => [];
+}
 
 /*
 //  Carga la lista de contactos
@@ -19,6 +24,9 @@ class SelectContact extends ContactsEvent {}
 class RemoveContact extends ContactsEvent {
   final String idConfianza;
   RemoveContact(this.idConfianza);
+
+  @override
+  List<Object?> get props => [idConfianza];
 }
 
 /*
@@ -31,4 +39,7 @@ class AddContact extends ContactsEvent {
   final String phoneNumber;
   final String nameContact;
   AddContact(this.phoneNumber, this.nameContact);
+
+  @override
+  List<Object?> get props => [phoneNumber, nameContact];
 }

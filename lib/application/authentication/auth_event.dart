@@ -1,7 +1,12 @@
+import 'package:equatable/equatable.dart';
+
 /*
 //  Clase abstracta para los eventos en la autenticación
 */
-abstract class AuthEvent {}
+abstract class AuthEvent extends Equatable {
+  @override
+  List<Object?> get props => [];
+}
 
 /*
 //  Evento para verifica si el usuario está autenticado.
@@ -25,6 +30,9 @@ class ProvidePhoneNumber extends AuthEvent {
   final String phoneNumber;
 
   ProvidePhoneNumber(this.phoneNumber);
+
+  @override
+  List<Object?> get props => [phoneNumber];
 }
 
 /*
